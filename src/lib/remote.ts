@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import DateMoment from "./utils/datemoment.ts";
 import {
   ApiConnectionError,
@@ -25,8 +26,7 @@ export const getEntry = (input: string[] | undefined) => {
   if (input.flat().length % 2 !== 0) {
     throw new Error(`Invalid input format for '${input}'`);
   }
-
-  // deno-lint-ignore no-explicit-any
+  
   const entry: any[] = [];
   for (const inputValues of input) {
     entry.push({
@@ -38,7 +38,6 @@ export const getEntry = (input: string[] | undefined) => {
   return entry;
 };
 
-// deno-lint-ignore no-explicit-any
 export const checkAPIHealth = async (url: string, options: any) => {
   try {
     const response = await fetch(`${url}/check`, { method: "get" });
@@ -62,7 +61,6 @@ export const checkAPIHealth = async (url: string, options: any) => {
   }
 };
 
-// deno-lint-ignore no-explicit-any
 export const checkCriteria = async (
   context: any,
   key: string | undefined,
@@ -88,7 +86,6 @@ export const checkCriteria = async (
   }
 };
 
-// deno-lint-ignore no-explicit-any
 export const auth = async (context: any) => {
   try {
     const response = await fetch(`${context.url}/criteria/auth`, {

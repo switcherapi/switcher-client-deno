@@ -1,7 +1,7 @@
+// deno-lint-ignore-file no-explicit-any
 import { processOperation } from "./snapshot.ts";
 import * as services from "../lib/remote.ts";
 
-// deno-lint-ignore no-explicit-any
 function resolveCriteria(
   key: string | undefined,
   input: string[] | undefined,
@@ -43,7 +43,6 @@ function resolveCriteria(
  * @param {*} input strategy if exists
  * @return true if Switcher found
  */
-// deno-lint-ignore no-explicit-any
 function checkGroup(
   groups: any[],
   key: string | undefined,
@@ -69,7 +68,6 @@ function checkGroup(
  * @param {*} input Strategy input if exists
  * @return true if Switcher found
  */
-// deno-lint-ignore no-explicit-any
 function checkConfig(group: any, config: any, input: string[] | undefined) {
   if (!config) {
     return false;
@@ -90,7 +88,6 @@ function checkConfig(group: any, config: any, input: string[] | undefined) {
   return true;
 }
 
-// deno-lint-ignore no-explicit-any
 function checkStrategy(config: any, input: string[] | undefined) {
   const { strategies } = config;
   const entry = services.getEntry(input);
@@ -106,7 +103,6 @@ function checkStrategy(config: any, input: string[] | undefined) {
   return true;
 }
 
-// deno-lint-ignore no-explicit-any
 function checkStrategyInput(entry: any[] | undefined, strategyInput: any) {
   if (entry && entry.length) {
     const strategyEntry = entry.filter((e) =>
@@ -132,7 +128,6 @@ function checkStrategyInput(entry: any[] | undefined, strategyInput: any) {
   }
 }
 
-// deno-lint-ignore no-explicit-any
 export default function checkCriteriaOffline(
   key: string | undefined,
   input: string[] | undefined,

@@ -1,3 +1,4 @@
+// deno-lint-ignore-file
 import { existsSync } from "https://deno.land/std@0.110.0/fs/mod.ts";
 
 import DateMoment from "./utils/datemoment.ts";
@@ -30,7 +31,6 @@ export const loadDomain = (snapshotLocation: string, environment: string) => {
   }
 };
 
-// deno-lint-ignore no-explicit-any
 export const validateSnapshot = async (
   context: any,
   snapshotLocation: string,
@@ -60,7 +60,6 @@ export const validateSnapshot = async (
   return false;
 };
 
-// deno-lint-ignore no-explicit-any
 export const checkSwitchers = (snapshot: any, switcherKeys: string[]) => {
   const { group } = snapshot.data.domain;
   const notFound = [];
