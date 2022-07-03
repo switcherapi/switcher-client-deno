@@ -1,0 +1,30 @@
+name: Master CI
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  build-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
+
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Deno v1.22.1
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.22.1
+
+      - name: Verify formatting
+        run: deno fmt mod.ts src/ --check
+
+      - name: Run linter
+        run: deno lint
