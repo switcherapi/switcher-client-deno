@@ -15,6 +15,8 @@ A Deno SDK for Switcher API
 
 ***
 
+![Switcher API: JavaScript Client: Cloud-based Feature Flag API](https://github.com/switcherapi/switcherapi-assets/blob/master/logo/switcherapi_denoclient_transparency_1280.png)
+
 # About  
 Deno SDK for working with Switcher-API.
 https://github.com/switcherapi/switcher-api
