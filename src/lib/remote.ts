@@ -26,7 +26,7 @@ export const getEntry = (input: string[] | undefined) => {
   if (input.flat().length % 2 !== 0) {
     throw new Error(`Invalid input format for '${input}'`);
   }
-  
+
   const entry: any[] = [];
   for (const inputValues of input) {
     entry.push({
