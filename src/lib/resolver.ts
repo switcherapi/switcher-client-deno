@@ -3,18 +3,18 @@ import { processOperation } from "./snapshot.ts";
 import * as services from "../lib/remote.ts";
 
 function resolveCriteria(
-  key: string | undefined,
-  input: string[] | undefined,
-  context: any,
+  data: any,
+  key: string,
+  input?: string[],
 ) {
   let result = true, reason = "";
 
   try {
-    if (!context.domain.activated) {
+    if (!data.domain.activated) {
       throw new CriteriaFailed("Domain disabled");
     }
 
-    const { group } = context.domain;
+    const { group } = data.domain;
     if (!checkGroup(group, key, input)) {
       throw new Error(
         `Something went wrong: {"error":"Unable to load a key ${key}"}`,
@@ -45,8 +45,8 @@ function resolveCriteria(
  */
 function checkGroup(
   groups: any[],
-  key: string | undefined,
-  input: string[] | undefined,
+  key: string,
+  input?: string[],
 ) {
   if (groups) {
     for (const group of groups) {
@@ -68,7 +68,7 @@ function checkGroup(
  * @param {*} input Strategy input if exists
  * @return true if Switcher found
  */
-function checkConfig(group: any, config: any, input: string[] | undefined) {
+function checkConfig(group: any, config: any, input?: string[]) {
   if (!config) {
     return false;
   }
@@ -82,13 +82,13 @@ function checkConfig(group: any, config: any, input: string[] | undefined) {
   }
 
   if (config.strategies) {
-    return checkStrategy(config, input);
+    return checkStrategy(config, input || []);
   }
 
   return true;
 }
 
-function checkStrategy(config: any, input: string[] | undefined) {
+function checkStrategy(config: any, input: string[]) {
   const { strategies } = config;
   const entry = services.getEntry(input);
 
@@ -103,7 +103,7 @@ function checkStrategy(config: any, input: string[] | undefined) {
   return true;
 }
 
-function checkStrategyInput(entry: any[] | undefined, strategyInput: any) {
+function checkStrategyInput(entry?: any[], strategyInput?: any) {
   if (entry && entry.length) {
     const strategyEntry = entry.filter((e) =>
       e.strategy === strategyInput.strategy
@@ -129,9 +129,9 @@ function checkStrategyInput(entry: any[] | undefined, strategyInput: any) {
 }
 
 export default function checkCriteriaOffline(
-  key: string | undefined,
-  input: string[] | undefined,
   snapshot: any,
+  key: string,
+  input?: string[],
 ) {
   if (!snapshot) {
     throw new Error(
@@ -140,7 +140,7 @@ export default function checkCriteriaOffline(
   }
 
   const { data } = snapshot;
-  return resolveCriteria(key, input, data);
+  return resolveCriteria(data, key, input);
 }
 
 class CriteriaFailed extends Error {

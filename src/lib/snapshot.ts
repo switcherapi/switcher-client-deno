@@ -241,7 +241,7 @@ function processREGEX(
   operation: string,
   input: string,
   values: string[],
-): boolean | undefined {
+): boolean {
   switch (operation) {
     case OperationsType.EXIST: {
       for (const value of values) {
@@ -257,6 +257,8 @@ function processREGEX(
       return input.match(`\\b${values[0]}\\b`) != null;
     case OperationsType.NOT_EQUAL:
       return !processREGEX(OperationsType.EQUAL, input, values);
+    default:
+      return false;
   }
 }
 

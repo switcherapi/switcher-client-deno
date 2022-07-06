@@ -2,11 +2,12 @@
 const logger: ExecutionLogger[] = [];
 
 export default class ExecutionLogger {
-  key: string | undefined;
-  input: string[] | undefined;
+  key: string;
+  input?: string[];
   response: any;
 
-  constructor() {
+  constructor(key: string) {
+    this.key = key;
     this.input = [];
   }
 
@@ -18,9 +19,9 @@ export default class ExecutionLogger {
    * @param response
    */
   static add(
-    key: string | undefined,
-    input: string[] | undefined,
     response: any,
+    key: string,
+    input?: string[],
   ): void {
     for (let index = 0; index < logger.length; index++) {
       const log = logger[index];
@@ -42,8 +43,8 @@ export default class ExecutionLogger {
    * @param input Switcher input
    */
   static getExecution(
-    key: string | undefined,
-    input: string[] | undefined,
+    key: string,
+    input?: string[],
   ): ExecutionLogger {
     const result = logger.filter(
       (value) =>

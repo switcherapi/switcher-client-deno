@@ -3,7 +3,7 @@
  */
 export default class Key {
   key: string;
-  value: boolean | undefined;
+  value?: boolean;
 
   constructor(key: string) {
     this.key = key;

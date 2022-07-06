@@ -36,7 +36,7 @@ export default class Bypasser {
    *
    * @param key
    */
-  static searchBypassed(key: string | undefined): Key {
+  static searchBypassed(key: string): Key {
     for (const bypassed of bypassedKeys) {
       if (bypassed.key === key) {
         return bypassed;

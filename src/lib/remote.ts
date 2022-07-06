@@ -18,7 +18,7 @@ const getHeader = (token: string) => {
   };
 };
 
-export const getEntry = (input: string[] | undefined) => {
+export const getEntry = (input?: string[]) => {
   if (!input) {
     return undefined;
   }
@@ -63,8 +63,8 @@ export const checkAPIHealth = async (url: string, options: any) => {
 
 export const checkCriteria = async (
   context: any,
-  key: string | undefined,
-  input: string[] | undefined,
+  key?: string,
+  input?: string[],
   showReason = false,
 ) => {
   try {

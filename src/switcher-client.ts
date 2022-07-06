@@ -20,15 +20,15 @@ const DEFAULT_TEST_MODE = false;
 
 export class Switcher {
   static testEnabled = DEFAULT_TEST_MODE;
-  static snapshot: any | undefined;
+  static snapshot: any;
   static context: any;
   static options: any;
-  static watcher: Deno.FsWatcher | undefined;
+  static watcher: Deno.FsWatcher;
 
   _delay = 0;
   _nextRun = 0;
-  _input: string[] | undefined;
-  _key: string | undefined;
+  _input?: string[];
+  _key = "";
 
   static buildContext(context: any, options: any) {
     this.testEnabled = DEFAULT_TEST_MODE;
@@ -220,7 +220,7 @@ export class Switcher {
     Switcher.testEnabled = false;
   }
 
-  async prepare(key: string | undefined, input: string[] | undefined) {
+  async prepare(key: string, input?: string[]) {
     this._key = key;
 
     if (input) this._input = input;
@@ -303,7 +303,7 @@ export class Switcher {
     );
 
     if (Switcher.options.logger && this._key && this._input) {
-      ExecutionLogger.add(this._key, this._input, responseCriteria);
+      ExecutionLogger.add(responseCriteria, this._key, this._input);
     }
 
     return responseCriteria.result;
@@ -319,7 +319,7 @@ export class Switcher {
         showReason,
       )
         .then((response) =>
-          ExecutionLogger.add(this._key, this._input, response)
+          ExecutionLogger.add(response, this._key, this._input)
         );
     }
 
@@ -339,13 +339,13 @@ export class Switcher {
 
   _executeOfflineCriteria() {
     const response = checkCriteriaOffline(
-      this._key,
-      this._input,
       Switcher.snapshot,
+      this._key || "",
+      this._input || [],
     );
 
     if (Switcher.options.logger) {
-      ExecutionLogger.add(this._key, this._input, response);
+      ExecutionLogger.add(response, this._key, this._input);
     }
 
     return response.result;
