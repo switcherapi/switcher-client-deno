@@ -5,7 +5,7 @@ import * as services from "../lib/remote.ts";
 function resolveCriteria(
   data: any,
   key: string,
-  input?: string[],
+  input?: string[][],
 ) {
   let result = true, reason = "";
 
@@ -46,7 +46,7 @@ function resolveCriteria(
 function checkGroup(
   groups: any[],
   key: string,
-  input?: string[],
+  input?: string[][],
 ) {
   if (groups) {
     for (const group of groups) {
@@ -68,7 +68,7 @@ function checkGroup(
  * @param {*} input Strategy input if exists
  * @return true if Switcher found
  */
-function checkConfig(group: any, config: any, input?: string[]) {
+function checkConfig(group: any, config: any, input?: string[][]) {
   if (!config) {
     return false;
   }
@@ -88,7 +88,7 @@ function checkConfig(group: any, config: any, input?: string[]) {
   return true;
 }
 
-function checkStrategy(config: any, input: string[]) {
+function checkStrategy(config: any, input: string[][]) {
   const { strategies } = config;
   const entry = services.getEntry(input);
 
@@ -131,7 +131,7 @@ function checkStrategyInput(entry?: any[], strategyInput?: any) {
 export default function checkCriteriaOffline(
   snapshot: any,
   key: string,
-  input?: string[],
+  input?: string[][],
 ) {
   if (!snapshot) {
     throw new Error(

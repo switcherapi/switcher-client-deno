@@ -3,7 +3,7 @@ const logger: ExecutionLogger[] = [];
 
 export default class ExecutionLogger {
   key: string;
-  input?: string[];
+  input?: string[][];
   response: any;
 
   constructor(key: string) {
@@ -21,7 +21,7 @@ export default class ExecutionLogger {
   static add(
     response: any,
     key: string,
-    input?: string[],
+    input?: string[][],
   ): void {
     for (let index = 0; index < logger.length; index++) {
       const log = logger[index];
@@ -44,7 +44,7 @@ export default class ExecutionLogger {
    */
   static getExecution(
     key: string,
-    input?: string[],
+    input?: string[][],
   ): ExecutionLogger {
     const result = logger.filter(
       (value) =>

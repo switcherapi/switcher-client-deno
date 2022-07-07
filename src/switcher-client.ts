@@ -27,10 +27,10 @@ export class Switcher {
 
   _delay = 0;
   _nextRun = 0;
-  _input?: string[];
+  _input?: string[][];
   _key = "";
 
-  static buildContext(context: any, options: any) {
+  static buildContext(context: any, options?: any) {
     this.testEnabled = DEFAULT_TEST_MODE;
 
     this.snapshot = undefined;
@@ -220,7 +220,7 @@ export class Switcher {
     Switcher.testEnabled = false;
   }
 
-  async prepare(key: string, input?: string[]) {
+  async prepare(key: string, input?: string[][]) {
     this._key = key;
 
     if (input) this._input = input;
@@ -255,7 +255,7 @@ export class Switcher {
     }
   }
 
-  async isItOn(key: string, input: string[], showReason = false) {
+  async isItOn(key: string, input?: string[][], showReason = false) {
     let result;
     this._validateArgs(key, input);
 
@@ -351,7 +351,7 @@ export class Switcher {
     return response.result;
   }
 
-  _validateArgs(key: string, input: string[]) {
+  _validateArgs(key: string, input?: string[][]) {
     if (key) this._key = key;
     if (input) this._input = input;
   }

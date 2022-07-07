@@ -11,7 +11,7 @@ export const loadDomain = (snapshotLocation: string, environment: string) => {
     let dataBuffer;
     const snapshotFile = `${snapshotLocation}${environment}.json`;
     if (existsSync(snapshotFile)) {
-      dataBuffer = Deno.readFileSync(snapshotFile);
+      dataBuffer = Deno.readTextFileSync(snapshotFile);
     } else {
       dataBuffer = JSON.stringify(
         { data: { domain: { version: 0 } } },
@@ -24,9 +24,10 @@ export const loadDomain = (snapshotLocation: string, environment: string) => {
 
     const dataJSON = dataBuffer.toString();
     return JSON.parse(dataJSON);
-  } catch (_e) {
+  } catch (e) {
     throw new Error(
       `Something went wrong: It was not possible to load the file at ${snapshotLocation}`,
+      { cause: e },
     );
   }
 };

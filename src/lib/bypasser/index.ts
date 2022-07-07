@@ -25,10 +25,14 @@ export default class Bypasser {
    * @param key
    */
   static forget(key: string) {
-    bypassedKeys.splice(
-      bypassedKeys.indexOf(this.searchBypassed(key)),
-      1,
-    );
+    const keyStored = this.searchBypassed(key);
+
+    if (keyStored) {
+      bypassedKeys.splice(
+        bypassedKeys.indexOf(keyStored),
+        1,
+      );
+    }
   }
 
   /**
@@ -36,13 +40,13 @@ export default class Bypasser {
    *
    * @param key
    */
-  static searchBypassed(key: string): Key {
+  static searchBypassed(key: string): Key | undefined {
     for (const bypassed of bypassedKeys) {
       if (bypassed.key === key) {
         return bypassed;
       }
     }
 
-    return new Key("");
+    return undefined;
   }
 }
