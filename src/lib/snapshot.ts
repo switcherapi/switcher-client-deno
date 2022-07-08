@@ -2,6 +2,7 @@
 import { existsSync } from "https://deno.land/std@0.110.0/fs/mod.ts";
 
 import DateMoment from "./utils/datemoment.ts";
+import IPCIDR from "./utils/ipcidr.ts";
 import { parseJSON, payloadReader } from "./utils/payloadReader.ts";
 import { CheckSwitcherError } from "./exceptions/index.ts";
 import { checkSnapshotVersion, resolveSnapshot } from "./remote.ts";
@@ -116,8 +117,8 @@ export const processOperation = (
   values: string[],
 ) => {
   switch (strategy) {
-    // case StrategiesType.NETWORK:
-    //     return processNETWORK(operation, input, values);
+    case StrategiesType.NETWORK:
+      return processNETWORK(operation, input, values);
     case StrategiesType.VALUE:
       return processVALUE(operation, input, values);
     case StrategiesType.NUMERIC:
@@ -133,44 +134,52 @@ export const processOperation = (
   }
 };
 
-// function processNETWORK(operation: string, input: string, values: string[]) {
-//     const cidrRegex = /^([\d]{1,3}\.){3}[\d]{1,3}(\/([\d]|[1-2][\d]|3[0-2]))$/;
-//     switch(operation) {
-//         case OperationsType.EXIST:
-//             return processNETWORK_Exist(input, values, cidrRegex);
-//         case OperationsType.NOT_EXIST:
-//             return processNETWORK_NotExist(input, values, cidrRegex);
-//     }
-//     return false;
-// }
+function processNETWORK(operation: string, input: string, values: string[]) {
+  const cidrRegex = /^([\d]{1,3}\.){3}[\d]{1,3}(\/([\d]|[1-2][\d]|3[0-2]))$/;
+  switch (operation) {
+    case OperationsType.EXIST:
+      return processNETWORK_Exist(input, values, cidrRegex);
+    case OperationsType.NOT_EXIST:
+      return processNETWORK_NotExist(input, values, cidrRegex);
+  }
+  return false;
+}
 
-// function processNETWORK_Exist(input: string, values: string[], cidrRegex: string) {
-//     for (const value of values) {
-//         if (value.match(cidrRegex)) {
-//             const cidr = new IPCIDR(value);
-//             if (cidr.contains(input)) {
-//                 return true;
-//             }
-//         } else {
-//             return values.includes(input);
-//         }
-//     }
-//     return false;
-// }
+function processNETWORK_Exist(
+  input: string,
+  values: string[],
+  cidrRegex: RegExp,
+) {
+  for (const value of values) {
+    if (value.match(cidrRegex)) {
+      const cidr = new IPCIDR(value);
+      if (cidr.contains(input)) {
+        return true;
+      }
+    } else {
+      return values.includes(input);
+    }
+  }
+  return false;
+}
 
-// function processNETWORK_NotExist(input: string, values: string[], cidrRegex: string) {
-//     const result = values.filter(element => {
-//         if (element.match(cidrRegex)) {
-//             const cidr = new IPCIDR(element);
-//             if (cidr.contains(input)) {
-//                 return true;
-//             }
-//         } else {
-//             return values.includes(input);
-//         }
-//     });
-//     return result.length === 0;
-// }
+function processNETWORK_NotExist(
+  input: string,
+  values: string[],
+  cidrRegex: RegExp,
+) {
+  const result = values.filter((element) => {
+    if (element.match(cidrRegex)) {
+      const cidr = new IPCIDR(element);
+      if (cidr.contains(input)) {
+        return true;
+      }
+    } else {
+      return values.includes(input);
+    }
+  });
+  return result.length === 0;
+}
 
 function processVALUE(operation: string, input: string, values: string[]) {
   switch (operation) {
