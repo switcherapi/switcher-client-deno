@@ -120,6 +120,7 @@ export class Switcher {
 
     const snapshotFile =
       `${Switcher.options.snapshotLocation}${Switcher.context.environment}.json`;
+
     Switcher.watcher = Deno.watchFs(snapshotFile);
     for await (const event of Switcher.watcher) {
       if (event.kind === "modify") {
@@ -146,7 +147,9 @@ export class Switcher {
     }
 
     Switcher.snapshot = undefined;
-    Switcher.watcher?.close;
+    if (Switcher.watcher.rid in Deno.resources()) {
+      Deno.close(Switcher.watcher.rid);
+    }
   }
 
   static async checkSwitchers(switcherKeys: string[]) {
