@@ -20,6 +20,30 @@ export function tearDown() {
     mf.install();
 }
 
+export class WaitSafe {
+    static timelimit = 5000;
+    static exit: boolean;
+
+    static async wait() {
+        WaitSafe.exit = false;
+        
+        const timelimit = Date.now() + WaitSafe.timelimit;
+        let timer = Date.now();
+        while (!WaitSafe.exit && timer < timelimit) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            timer = Date.now();
+        }
+    }
+    
+    static finish() {
+        WaitSafe.exit = true;
+    }
+
+    static limit(timelimit: number) {
+        WaitSafe.timelimit = timelimit;
+    }
+}
+
 class HttpError {
     errno: string;
     constructor(errno: string) {
