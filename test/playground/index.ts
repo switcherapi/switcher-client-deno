@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-unused-vars no-explicit-any
-import { Switcher, checkValue, checkNumeric } from "../../mod.ts"
+import { Switcher, checkValue, checkNumeric } from '../../mod.ts'
 
 const SWITCHER_KEY = 'MY_SWITCHER';
 const apiKey = 'JDJiJDA4JEFweTZjSTR2bE9pUjNJOUYvRy9raC4vRS80Q2tzUnk1d3o1aXFmS2o5eWJmVW11cjR0ODNT';

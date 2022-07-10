@@ -153,7 +153,7 @@ function processNETWORK_Exist(
   for (const value of values) {
     if (value.match(cidrRegex)) {
       const cidr = new IPCIDR(value);
-      if (cidr.contains(input)) {
+      if (cidr.isIp4InCidr(input)) {
         return true;
       }
     } else {
@@ -171,7 +171,7 @@ function processNETWORK_NotExist(
   const result = values.filter((element) => {
     if (element.match(cidrRegex)) {
       const cidr = new IPCIDR(element);
-      if (cidr.contains(input)) {
+      if (cidr.isIp4InCidr(input)) {
         return true;
       }
     } else {

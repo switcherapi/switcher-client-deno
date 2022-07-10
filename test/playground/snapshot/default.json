@@ -1,29 +1,29 @@
 {
-    "data": {
-        "domain": {
-            "name": "Playground",
-            "version": 1653971338700,
-            "activated": true,
-            "group": [
+    'data': {
+        'domain': {
+            'name': 'Playground',
+            'version': 1653971338700,
+            'activated': true,
+            'group': [
                 {
-                    "name": "Release 1",
-                    "activated": true,
-                    "config": [
+                    'name': 'Release 1',
+                    'activated': true,
+                    'config': [
                         {
-                            "key": "MY_SWITCHER",
-                            "activated": true,
-                            "strategies": [
+                            'key': 'MY_SWITCHER',
+                            'activated': true,
+                            'strategies': [
                                 {
-                                    "strategy": "VALUE_VALIDATION",
-                                    "activated": true,
-                                    "operation": "EXIST",
-                                    "values": [
-                                        "user_1"
+                                    'strategy': 'VALUE_VALIDATION',
+                                    'activated': true,
+                                    'operation': 'EXIST',
+                                    'values': [
+                                        'user_1'
                                     ]
                                 }
                             ],
-                            "components": [
-                                "switcher-playground"
+                            'components': [
+                                'switcher-playground'
                             ]
                         }
                     ]

@@ -5,20 +5,13 @@ export default class IPCIDR {
     this.cidr = cidr;
   }
 
-  contains(ipAddr: string) {
-    const [networkAddr, subnetMask] = this.cidr.split('/');
-    return (this.addrToNumber(ipAddr) & this.subnetMaskToNumber(subnetMask)) ==
-      this.addrToNumber(networkAddr);
+  private ip4ToInt(ip: string) {
+    return ip.split('.').reduce((int, oct) => (int << 8) + parseInt(oct, 10), 0) >>> 0;
   }
 
-  private addrToNumber(addr: string): number {
-    return addr.split('.').reduce(
-      (acc, cur, i) => acc += Number(cur) << ((3 - i) * 8),
-      0,
-    );
-  }
-
-  private subnetMaskToNumber(mask: string): number {
-    return (0xffffffff << (32 - Number(mask))) & 0xffffffff;
+  isIp4InCidr(ip: string) {
+    const [range, bits = 32] = this.cidr.split('/');
+    const mask = ~(2 ** (32 - Number(bits)) - 1);
+    return (this.ip4ToInt(ip) & mask) === (this.ip4ToInt(range) & mask);
   }
 }
