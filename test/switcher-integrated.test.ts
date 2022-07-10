@@ -74,11 +74,11 @@ describe('Integrated test - Switcher:', function () {
         
         if (index === 0)
           // First run calls API
-          assertEquals(0, switcher._nextRun);
+          assertEquals(0, switcher.nextRun);
         else {
           // Set up throttle for next API call 
-          assertNotEquals(0, switcher._nextRun);
-          throttledRunTimer = switcher._nextRun;
+          assertNotEquals(0, switcher.nextRun);
+          throttledRunTimer = switcher.nextRun;
         }
       }
 
@@ -90,7 +90,7 @@ describe('Integrated test - Switcher:', function () {
       assertSpyCalls(spyAsyncOnlineCriteria, 10);
 
       // Throttle expired, set up new throttle run timer
-      assertNotEquals(throttledRunTimer, switcher._nextRun);
+      assertNotEquals(throttledRunTimer, switcher.nextRun);
     });
   });
 
@@ -121,7 +121,7 @@ describe('Integrated test - Switcher:', function () {
         checkPayload(JSON.stringify({ name: 'User 1' }))
       ]);
 
-      assertEquals(switcher._input, [
+      assertEquals(switcher.input, [
         [ 'VALUE_VALIDATION', 'User 1' ],
         [ 'NUMERIC_VALIDATION', '1' ],
         [ 'NETWORK_VALIDATION', '192.168.0.1' ],  
@@ -239,8 +239,14 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
 
       // test
-      Switcher.buildContext(contextSettings);
-      Switcher.context.apiKey = undefined;
+      Switcher.buildContext({ 
+        url: 'http://localhost:3000',
+        apiKey: undefined, 
+        domain: '[domain]', 
+        component: '[component]', 
+        environment: 'default' 
+      });
+
       const switcher = Switcher.factory();
 
       await switcher.prepare('MY_FLAG', [
@@ -273,8 +279,14 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
 
       // test
-      Switcher.buildContext(contextSettings);
-      Switcher.context.component = undefined;
+      Switcher.buildContext({ 
+        url: 'http://localhost:3000',
+        apiKey: '[apiKey]', 
+        domain: '[domain]', 
+        component: undefined, 
+        environment: 'default' 
+      });
+
       const switcher = Switcher.factory();
 
       await assertRejects(async () =>

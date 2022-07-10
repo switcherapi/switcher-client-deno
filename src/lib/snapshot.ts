@@ -8,6 +8,7 @@ import { CheckSwitcherError } from './exceptions/index.ts';
 import { checkSnapshotVersion, resolveSnapshot } from './remote.ts';
 
 export const loadDomain = (snapshotLocation: string, environment: string) => {
+  let dataJSON;
   try {
     let dataBuffer;
     const snapshotFile = `${snapshotLocation}${environment}.json`;
@@ -23,7 +24,7 @@ export const loadDomain = (snapshotLocation: string, environment: string) => {
       Deno.writeTextFile(snapshotFile, dataBuffer);
     }
 
-    const dataJSON = dataBuffer.toString();
+    dataJSON = dataBuffer.toString();
     return JSON.parse(dataJSON);
   } catch (e) {
     throw new Error(

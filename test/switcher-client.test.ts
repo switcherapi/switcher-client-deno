@@ -191,6 +191,6 @@ describe('E2E test - Switcher offline:', function () {
     });
 
     await Switcher.loadSnapshot();
-    assertExists(Switcher.snapshot)
+    assertExists(Switcher.snapshot);
   });
 });

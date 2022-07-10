@@ -49,16 +49,10 @@ const testThrottledAPICall = async () => {
 // Requires online API
 const testSnapshotUpdate = async () => {
     setupSwitcher(false);
-
-    switcher = Switcher.factory();
-    let result = await switcher.isItOn(SWITCHER_KEY);
-    console.log(result);
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
-    await Switcher.checkSnapshot();
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    result = await switcher.isItOn(SWITCHER_KEY);
-    console.log(result);
+    switcher = Switcher.factory();
+    console.log('checkSnapshot:', await Switcher.checkSnapshot());
 
     Switcher.unloadSnapshot();
 };
@@ -67,16 +61,11 @@ const testAsyncCall = async () => {
     setupSwitcher(true);
     switcher = Switcher.factory();
 
-    let result = await switcher.isItOn(SWITCHER_KEY);
-    console.log(result);
+    console.log("Sync:", await switcher.isItOn(SWITCHER_KEY));
 
     switcher.isItOn(SWITCHER_KEY)
         .then(res => console.log('Promise result:', res))
         .catch(error => console.log(error));
-
-    Switcher.assume(SWITCHER_KEY).false();
-    result = await switcher.isItOn(SWITCHER_KEY);
-    console.log('Value changed:', result);
 
     Switcher.unloadSnapshot();
 };
@@ -88,7 +77,7 @@ const testBypasser = async () => {
     let result = await switcher.isItOn(SWITCHER_KEY);
     console.log(result);
 
-    Switcher.assume(SWITCHER_KEY).false();
+    Switcher.assume(SWITCHER_KEY).true();
     result = await switcher.isItOn(SWITCHER_KEY);
     console.log(result);
 
@@ -114,10 +103,10 @@ const testSnapshotAutoload = async () => {
 // Requires online API
 const testWatchSnapshot = () => {
     setupSwitcher(true);
-    switcher = Switcher.factory();
+    const switcher = Switcher.factory();
 
     Switcher.watchSnapshot(
-        () =>  console.log('In-memory snapshot updated'), 
+        async () => console.log('In-memory snapshot updated', await switcher.isItOn(SWITCHER_KEY)), 
         (err: any) => console.log(err));
 };
 
