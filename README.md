@@ -1,13 +1,14 @@
 ***
 
 <div align="center">
-<b>Switcher Client SDK</b><br>
+<b>Switcher4Deno</b><br>
 A Deno SDK for Switcher API
 </div>
 
 <div align="center">
 
 [![Master CI](https://github.com/switcherapi/switcher-client-deno/actions/workflows/master.yml/badge.svg)](https://github.com/switcherapi/switcher-client-deno/actions/workflows/master.yml)
+[![deno.land/x/switcher4deno](https://shield.deno.dev/x/switcher4deno)](https://deno.land/x/switcher4deno)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Slack: Switcher-HQ](https://img.shields.io/badge/slack-@switcher/hq-blue.svg?logo=slack)](https://switcher-hq.slack.com/)
 
@@ -33,7 +34,7 @@ https://github.com/switcherapi/switcher-api
 The context properties stores all information regarding connectivity.
 
 ```ts
-import { Switcher } from "https://deno.land/x/switcher-client-deno@v1.0.0/mod.ts";
+import { Switcher } from "https://deno.land/x/switcher4deno@v1.0.0/mod.ts";
 
 const apiKey = '[API_KEY]';
 const environment = 'default';
@@ -96,7 +97,7 @@ switcher.isItOn('KEY')
 Loading information into the switcher can be made by using *prepare*, in case you want to include input from a different place of your code. Otherwise, it is also possible to include everything in the same call.
 
 ```ts
-import { checkValue, checkNetwork } from "https://deno.land/x/switcher-client-deno@v1.0.0/mod.ts";
+import { checkValue, checkNetwork } from "https://deno.land/x/switcher4deno@v1.0.0/mod.ts";
 
 switcher.prepare('FEATURE01', [checkValue('USER_1')];
 switcher.isItOn();
