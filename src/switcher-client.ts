@@ -147,7 +147,7 @@ export class Switcher {
     }
 
     Switcher.snapshot = undefined;
-    if (Switcher.watcher.rid in Deno.resources()) {
+    if (Switcher.watcher?.rid in Deno.resources()) {
       Deno.close(Switcher.watcher.rid);
     }
   }
@@ -258,7 +258,7 @@ export class Switcher {
     }
   }
 
-  async isItOn(key: string, input?: string[][], showReason = false) {
+  async isItOn(key?: string, input?: string[][], showReason = false) {
     let result;
     this._validateArgs(key, input);
 
@@ -305,7 +305,7 @@ export class Switcher {
       showReason,
     );
 
-    if (Switcher.options.logger && this._key && this._input) {
+    if (Switcher.options.logger && this._key) {
       ExecutionLogger.add(responseCriteria, this._key, this._input);
     }
 
@@ -354,7 +354,7 @@ export class Switcher {
     return response.result;
   }
 
-  _validateArgs(key: string, input?: string[][]) {
+  _validateArgs(key?: string, input?: string[][]) {
     if (key) this._key = key;
     if (input) this._input = input;
   }

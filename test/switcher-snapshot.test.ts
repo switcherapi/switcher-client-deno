@@ -79,9 +79,9 @@ describe("E2E test - Switcher offline - Snapshot:", function () {
     //test
     Switcher.setTestEnabled();
     await Switcher.loadSnapshot();
-    await assertRejects(async () => {
-        return await Switcher.checkSnapshot();
-    }, Error, "Something went wrong: Connection has been refused - ECONNREFUSED");
+    await assertRejects(async () =>
+        await Switcher.checkSnapshot(), 
+        Error, "Something went wrong: Connection has been refused - ECONNREFUSED");
   });
 
   it("Should NOT update snapshot - resolve Snapshot Error", async function () {
@@ -93,9 +93,9 @@ describe("E2E test - Switcher offline - Snapshot:", function () {
     //test
     Switcher.setTestEnabled();
     await Switcher.loadSnapshot();
-    await assertRejects(async () => {
-      return await Switcher.checkSnapshot();
-    }, Error, "Something went wrong: Connection has been refused - ECONNREFUSED");
+    await assertRejects(async () =>
+      await Switcher.checkSnapshot(),
+      Error, "Something went wrong: Connection has been refused - ECONNREFUSED");
   });
 
   it("Should update snapshot", async function () {
@@ -120,9 +120,9 @@ describe("E2E test - Switcher offline - Snapshot:", function () {
 
   it("Should throw when switcher keys provided were not configured properly", async function () {
     await Switcher.loadSnapshot();
-    await assertRejects(async () => {
-      return await Switcher.checkSwitchers(["FEATURE02"]);
-    }, Error, "Something went wrong: [FEATURE02] not found");
+    await assertRejects(async () =>
+      await Switcher.checkSwitchers(["FEATURE02"]),
+      Error, "Something went wrong: [FEATURE02] not found");
   });
 
   it("Should be invalid - Load snapshot was not called", async function () {
@@ -131,9 +131,9 @@ describe("E2E test - Switcher offline - Snapshot:", function () {
     });
     
     const switcher = Switcher.factory();
-    await assertRejects(async () => {
-      return await switcher.isItOn("FF2FOR2030");
-    }, Error, "Snapshot not loaded. Try to use 'Switcher.loadSnapshot()'");
+    await assertRejects(async () =>
+      await switcher.isItOn("FF2FOR2030"),
+      Error, "Snapshot not loaded. Try to use 'Switcher.loadSnapshot()'");
   });
 
 });
