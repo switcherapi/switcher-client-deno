@@ -24,7 +24,7 @@ jobs:
           deno-version: v1.22.1
 
       - name: Verify formatting
-        run: deno fmt mod.ts src/ --check
+        run: deno fmt mod.ts src/ --options-single-quote --options-line-width=120 --check
 
       - name: Run linter
         run: deno lint

@@ -33,7 +33,13 @@ https://github.com/switcherapi/switcher-api
 The context properties stores all information regarding connectivity.
 
 ```ts
-//TBD
+import { Switcher } from "https://deno.land/x/switcher-client-deno@v1.0.0/mod.ts";
+
+const apiKey = '[API_KEY]';
+const environment = 'default';
+const domain = 'My Domain';
+const component = 'MyApp';
+const url = 'https://switcher-api.herokuapp.com';
 ```
 
 - **apiKey**: Switcher-API key generated to your component.
@@ -46,7 +52,17 @@ The context properties stores all information regarding connectivity.
 You can also activate features such as offline and silent mode:
 
 ```ts
-//TBD
+const offline = true;
+const logger = true;
+const snapshotLocation = './snapshot/';
+const silentMode = true;
+const retryAfter = '5m';
+
+Switcher.buildContext({ url, apiKey, domain, component, environment }, {
+    offline, logger, snapshotLocation, silentMode, retryAfter
+});
+
+const switcher = Switcher.factory();
 ```
 
 - **offline**: If activated, the client will only fetch the configuration inside your snapshot file. The default value is 'false'.
@@ -63,28 +79,37 @@ Here are some examples:
 Invoking the API can be done by instantiating the switcher and calling *isItOn* passing its key as a parameter.
 
 ```ts
-//TBD
+const switcher = Switcher.factory();
+await switcher.isItOn('FEATURE01');
 ```
 
 2. **Promise**
 Most functions were implemented using async operations. Here it is a differnet way to execute the criteria:
 
 ```ts
-//TBD
+switcher.isItOn('KEY')
+    .then(result => console.log('Result:', result))
+    .catch(error => console.log(error));
 ```
 
 3. **Strategy validation - preparing input**
 Loading information into the switcher can be made by using *prepare*, in case you want to include input from a different place of your code. Otherwise, it is also possible to include everything in the same call.
 
 ```ts
-//TBD
+import { checkValue, checkNetwork } from "https://deno.land/x/switcher-client-deno@v1.0.0/mod.ts";
+
+switcher.prepare('FEATURE01', [checkValue('USER_1')];
+switcher.isItOn();
 ```
 
 4. **Strategy validation - all-in-one execution**
 All-in-one method is fast and include everything you need to execute a complex call to the API.
 
 ```ts
-//TBD
+await switcher.isItOn('FEATURE01', [
+    checkValue('User 1'),
+    checkNetwork('192.168.0.1')
+]);
 ```
 
 5. **Throttle**
@@ -92,14 +117,21 @@ Throttling is useful when placing Feature Flags at critical code blocks require 
 API calls will happen asynchronously and the result returned is based on the last API response.
 
 ```ts
-//TBD
+const switcher = Switcher.factory();
+await switcher
+    .throttle(1000)
+    .isItOn('FEATURE01');
 ```
 
 ## Built-in mock feature
 You can also bypass your switcher configuration by invoking 'Switcher.assume'. This is perfect for your test code where you want to test both scenarios when the switcher is true and false.
 
 ```ts
-//TBD
+Switcher.assume('FEATURE01').true();
+switcher.isItOn('FEATURE01'); // true
+
+Switcher.forget('FEATURE01');
+switcher.isItOn('FEATURE01'); // Now, it's going to return the result retrieved from the API or the Snaopshot file
 ```
 
 **Enabling Test Mode**
@@ -108,7 +140,7 @@ It prevents the Switcher Client from locking snapshot files even after the test 
 
 To enable this feature, it is recommended to place the following on your test setup files:
 ```ts
-//TBD
+Switcher.setTestEnabled();
 ```
 
 **Smoke Test**
@@ -118,7 +150,7 @@ Switcher Keys may not be configured correctly and can cause your code to have un
 This feature will validate using the context provided to check if everything is up and running.
 In case something is missing, this operation will throw an exception pointing out which Switcher Keys are not configured.
 ```ts
-//TBD
+Switcher.checkSwitchers(['FEATURE01', 'FEATURE02'])
 ```
 
 ## Loading Snapshot from the API
@@ -126,19 +158,21 @@ This step is optional if you want to load a copy of the configuration that can b
 Activate watchSnapshot optionally passing true in the arguments.
 
 ```ts
-//TBD
+Switcher.loadSnapshot();
 ```
 
 ## Watch for Snapshot file changes
 Activate and monitor snapshot changes using this feature. Optionally, you can implement any action based on the callback response.
 
 ```ts
-//TBD
+Switcher.watchSnapshot(
+    () =>  console.log('In-memory snapshot updated'), 
+    (err: any) => console.log(err));
 ```
 
 ## Snapshot version check
 For convenience, an implementation of a domain version checker is available if you have external processes that manage snapshot files.
 
 ```ts
-//TBD
+Switcher.checkSnapshot();
 ```

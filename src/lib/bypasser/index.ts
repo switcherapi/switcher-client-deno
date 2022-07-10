@@ -1,4 +1,4 @@
-import Key from "./key.ts";
+import Key from './key.ts';
 
 const bypassedKeys: Key[] = [];
 

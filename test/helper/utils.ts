@@ -25,6 +25,25 @@ export function assertTrue(value: any) {
     assertEquals(value, true);
 }
 
+export function generateAuth(token: string | undefined, seconds: number) {
+    return { 
+      token, 
+      exp: (Date.now() + (seconds * 1000)) / 1000
+    };
+}
+  
+export function generateResult(result?: boolean) {
+    return {
+      result
+    };
+}
+
+export function generateStatus(status: boolean) {
+    return {
+      status
+    };
+}
+
 export class WaitSafe {
     static timelimit = 5000;
     static exit: boolean;

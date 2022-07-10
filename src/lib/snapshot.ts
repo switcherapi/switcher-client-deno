@@ -1,11 +1,11 @@
 // deno-lint-ignore-file
-import { existsSync } from "https://deno.land/std@0.110.0/fs/mod.ts";
+import { existsSync } from 'https://deno.land/std@0.110.0/fs/mod.ts';
 
-import DateMoment from "./utils/datemoment.ts";
-import IPCIDR from "./utils/ipcidr.ts";
-import { parseJSON, payloadReader } from "./utils/payloadReader.ts";
-import { CheckSwitcherError } from "./exceptions/index.ts";
-import { checkSnapshotVersion, resolveSnapshot } from "./remote.ts";
+import DateMoment from './utils/datemoment.ts';
+import IPCIDR from './utils/ipcidr.ts';
+import { parseJSON, payloadReader } from './utils/payloadReader.ts';
+import { CheckSwitcherError } from './exceptions/index.ts';
+import { checkSnapshotVersion, resolveSnapshot } from './remote.ts';
 
 export const loadDomain = (snapshotLocation: string, environment: string) => {
   try {
@@ -89,25 +89,25 @@ export const checkSwitchers = (snapshot: any, switcherKeys: string[]) => {
 };
 
 export const StrategiesType = Object.freeze({
-  NETWORK: "NETWORK_VALIDATION",
-  VALUE: "VALUE_VALIDATION",
-  NUMERIC: "NUMERIC_VALIDATION",
-  TIME: "TIME_VALIDATION",
-  DATE: "DATE_VALIDATION",
-  REGEX: "REGEX_VALIDATION",
-  PAYLOAD: "PAYLOAD_VALIDATION",
+  NETWORK: 'NETWORK_VALIDATION',
+  VALUE: 'VALUE_VALIDATION',
+  NUMERIC: 'NUMERIC_VALIDATION',
+  TIME: 'TIME_VALIDATION',
+  DATE: 'DATE_VALIDATION',
+  REGEX: 'REGEX_VALIDATION',
+  PAYLOAD: 'PAYLOAD_VALIDATION',
 });
 
 export const OperationsType = Object.freeze({
-  EQUAL: "EQUAL",
-  NOT_EQUAL: "NOT_EQUAL",
-  EXIST: "EXIST",
-  NOT_EXIST: "NOT_EXIST",
-  GREATER: "GREATER",
-  LOWER: "LOWER",
-  BETWEEN: "BETWEEN",
-  HAS_ONE: "HAS_ONE",
-  HAS_ALL: "HAS_ALL",
+  EQUAL: 'EQUAL',
+  NOT_EQUAL: 'NOT_EQUAL',
+  EXIST: 'EXIST',
+  NOT_EXIST: 'NOT_EXIST',
+  GREATER: 'GREATER',
+  LOWER: 'LOWER',
+  BETWEEN: 'BETWEEN',
+  HAS_ONE: 'HAS_ONE',
+  HAS_ALL: 'HAS_ALL',
 });
 
 export const processOperation = (

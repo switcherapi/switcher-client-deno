@@ -1,16 +1,8 @@
 // deno-lint-ignore-file no-explicit-any
 import { describe, it, afterAll, afterEach, beforeEach } from "https://deno.land/std@0.147.0/testing/bdd.ts";
-import { assertEquals, assertNotEquals, assertRejects, assertFalse } from "https://deno.land/std@0.142.0/testing/asserts.ts";
-import {
-  assertSpyCalls,
-  spy
-} from "https://deno.land/std@0.147.0/testing/mock.ts";
-import { 
-  given, 
-  givenError,
-  tearDown,
-  assertTrue
-} from "./fixture/utils.ts"
+import { assertEquals, assertNotEquals, assertRejects, assertFalse } from "https://deno.land/std@0.147.0/testing/asserts.ts";
+import { assertSpyCalls, spy } from "https://deno.land/std@0.147.0/testing/mock.ts";
+import { given, givenError, tearDown, assertTrue, generateAuth, generateResult } from "./helper/utils.ts"
 
 import { 
   Switcher, 
@@ -23,21 +15,9 @@ import {
   checkPayload
 } from "../mod.ts";
 
-let contextSettings: any;
-const generateAuth = (token: string | undefined, seconds: number) => {
-  return { 
-    token, 
-    exp: (Date.now()+(seconds*1000))/1000
-  };
-};
-
-const generateResult = (result?: boolean) => {
-  return {
-    result
-  };
-};
-
 describe("Integrated test - Switcher:", function () {
+
+  let contextSettings: any;
 
   afterAll(function() {
     Switcher.unloadSnapshot();
@@ -49,9 +29,9 @@ describe("Integrated test - Switcher:", function () {
 
     contextSettings = { 
       url: "http://localhost:3000",
-      apiKey: "apiKey", 
-      domain: "domain", 
-      component: "component", 
+      apiKey: "[apiKey]", 
+      domain: "[domain]", 
+      component: "[component]", 
       environment: "default" 
     };
   });
@@ -73,7 +53,7 @@ describe("Integrated test - Switcher:", function () {
       const switcher = Switcher.factory();
       
       await switcher.prepare("FLAG_1");
-      assertEquals(await switcher.isItOn(), true);
+      assertTrue(await switcher.isItOn());
     });
 
     it("Should be valid - throttle", async function () {
@@ -90,7 +70,7 @@ describe("Integrated test - Switcher:", function () {
       const spyAsyncOnlineCriteria = spy(switcher, "_executeAsyncOnlineCriteria");
       let throttledRunTimer;
       for (let index = 0; index < 10; index++) {
-        assertEquals(true, await switcher.isItOn("FLAG_1"));
+        assertTrue(await switcher.isItOn("FLAG_1"));
         
         if (index === 0)
           // First run calls API
@@ -106,7 +86,7 @@ describe("Integrated test - Switcher:", function () {
 
       // Next call Should call the API again as the throttle has expired
       await new Promise(resolve => setTimeout(resolve, 2000));
-      assertEquals(true, await switcher.isItOn("FLAG_1"));
+      assertTrue(await switcher.isItOn("FLAG_1"));
       assertSpyCalls(spyAsyncOnlineCriteria, 10);
 
       // Throttle expired, set up new throttle run timer
@@ -150,7 +130,7 @@ describe("Integrated test - Switcher:", function () {
         [ "REGEX_VALIDATION", "\\bUSER_[0-9]{1,2}\\b" ],
         [ "PAYLOAD_VALIDATION", '{"name":"User 1"}' ]
       ]);
-      assertEquals(true, await switcher.isItOn());
+      assertTrue(await switcher.isItOn());
     });
 
     it("Should not throw when switcher keys provided were configured properly", async function() {
@@ -202,7 +182,7 @@ describe("Integrated test - Switcher:", function () {
       // Prepare the call generating the token
       given("POST@/criteria", generateResult(true));
       await switcher.prepare("MY_FLAG");
-      assertEquals(await switcher.isItOn(), true);
+      assertTrue(await switcher.isItOn());
 
       // The program delay 2 secs later for the next call
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -212,7 +192,7 @@ describe("Integrated test - Switcher:", function () {
 
       // In this time period the expiration time has reached, it Should call prepare once again to renew the token
       given("POST@/criteria", generateResult(false));
-      assertEquals(await switcher.isItOn(), false);
+      assertFalse(await switcher.isItOn());
       assertSpyCalls(spyPrepare, 2);
 
       // In the meantime another call is made by the time the token is still not expired, so there is no need to call prepare again
@@ -393,7 +373,7 @@ describe("Integrated test - Switcher:", function () {
       });
 
       const switcher = Switcher.factory();
-      assertEquals(true, await switcher.isItOn("FF2FOR2030"));
+      assertTrue(await switcher.isItOn("FF2FOR2030"));
     });
 
   });

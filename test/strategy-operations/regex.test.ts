@@ -1,5 +1,6 @@
-import { assertEquals } from "https://deno.land/std@0.142.0/testing/asserts.ts";
+import { assertFalse } from "https://deno.land/std@0.147.0/testing/asserts.ts";
 import { describe, it } from "https://deno.land/std@0.147.0/testing/bdd.ts";
+import { assertTrue } from "../helper/utils.ts";
 import {
   OperationsType,
   processOperation,
@@ -22,52 +23,52 @@ describe("Strategy [REGEX] tests:", function () {
 
   it("Should agree when expect to exist using EXIST operation", function () {
     let result = processOperation(StrategiesType.REGEX, OperationsType.EXIST, "USER_1", mock_values1);
-    assertEquals(true, result);
+    assertTrue(result);
 
     result = processOperation(StrategiesType.REGEX, OperationsType.EXIST, "user-01", mock_values2);
-    assertEquals(true, result);
+    assertTrue(result);
   });
 
   it("Should NOT agree when expect to exist using EXIST operation", function () {
     let result = processOperation(StrategiesType.REGEX, OperationsType.EXIST, "USER_123", mock_values1);
-    assertEquals(false, result);
+    assertFalse(result);
 
     //mock_values3 does not require exact match
     result = processOperation(StrategiesType.REGEX, OperationsType.EXIST, "USER_123", mock_values3);
-    assertEquals(true, result);
+    assertTrue(result);
   });
 
   it("Should agree when expect to not exist using NOT_EXIST operation", function () {
     let result = processOperation(StrategiesType.REGEX, OperationsType.NOT_EXIST, "USER_123", mock_values1);
-    assertEquals(true, result);
+    assertTrue(result);
 
     result = processOperation(StrategiesType.REGEX, OperationsType.NOT_EXIST, "user-123", mock_values2);
-    assertEquals(true, result);
+    assertTrue(result);
   });
 
   it("Should NOT agree when expect to not exist using NOT_EXIST operation", function () {
     const result = processOperation(StrategiesType.REGEX, OperationsType.NOT_EXIST, "USER_12", mock_values1);
-    assertEquals(false, result);
+    assertFalse(result);
   });
 
   it("Should agree when expect to be equal using EQUAL operation", function () {
     const result = processOperation(StrategiesType.REGEX, OperationsType.EQUAL, "USER_11", mock_values3);
-    assertEquals(true, result);
+    assertTrue(result);
   });
 
   it("Should NOT agree when expect to be equal using EQUAL operation", function () {
     const result = processOperation(StrategiesType.REGEX, OperationsType.EQUAL, "user-11", mock_values3);
-    assertEquals(false, result);
+    assertFalse(result);
   });
 
   it("Should agree when expect to not be equal using NOT_EQUAL operation", function () {
     const result = processOperation(StrategiesType.REGEX, OperationsType.NOT_EQUAL, "USER_123", mock_values3);
-    assertEquals(true, result);
+    assertTrue(result);
   });
 
   it("Should NOT agree when expect to not be equal using NOT_EQUAL operation", function () {
     const result = processOperation(StrategiesType.REGEX, OperationsType.NOT_EQUAL, "USER_1", mock_values3);
-    assertEquals(false, result);
+    assertFalse(result);
   });
 
 });

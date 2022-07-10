@@ -1,5 +1,6 @@
-import { assertEquals } from "https://deno.land/std@0.142.0/testing/asserts.ts";
+import { assertFalse } from "https://deno.land/std@0.147.0/testing/asserts.ts";
 import { describe, it } from "https://deno.land/std@0.147.0/testing/bdd.ts";
+import { assertTrue } from "../helper/utils.ts";
 import {
   OperationsType,
   processOperation,
@@ -18,37 +19,37 @@ describe("Strategy [VALUE] tests:", function () {
 
   it("Should agree when input EXIST", function () {
     const result = processOperation(StrategiesType.VALUE, OperationsType.EXIST, "USER_1", mock_values1);
-    assertEquals(true, result);
+    assertTrue(result);
   });
 
   it("Should NOT agree when input DOES NOT EXIST", function () {
     const result = processOperation(StrategiesType.VALUE, OperationsType.EXIST, "USER_123", mock_values1);
-    assertEquals(false, result);
+    assertFalse(result);
   });
 
   it("Should agree when input DOES NOT EXIST", function () {
     const result = processOperation(StrategiesType.VALUE, OperationsType.NOT_EXIST, "USER_123", mock_values1);
-    assertEquals(true, result);
+    assertTrue(result);
   });
 
   it("Should agree when input is EQUAL", function () {
     const result = processOperation(StrategiesType.VALUE, OperationsType.EQUAL, "USER_1", mock_values1);
-    assertEquals(true, result);
+    assertTrue(result);
   });
 
   it("Should NOT agree when input is NOT EQUAL", function () {
     const result = processOperation(StrategiesType.VALUE, OperationsType.EQUAL, "USER_2", mock_values1);
-    assertEquals(false, result);
+    assertFalse(result);
   });
 
   it("Should agree when input is NOT EQUAL", function () {
     const result = processOperation(StrategiesType.VALUE, OperationsType.NOT_EQUAL, "USER_123", mock_values2);
-    assertEquals(true, result);
+    assertTrue(result);
   });
 
   it("Should NOT agree when input is NOT EQUAL", function () {
     const result = processOperation(StrategiesType.VALUE, OperationsType.NOT_EQUAL, "USER_2", mock_values2);
-    assertEquals(false, result);
+    assertFalse(result);
   });
 
 });

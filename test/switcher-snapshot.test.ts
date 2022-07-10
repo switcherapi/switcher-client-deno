@@ -1,35 +1,27 @@
+// deno-lint-ignore-file no-explicit-any
 import { describe, it, afterAll, beforeEach } from "https://deno.land/std@0.147.0/testing/bdd.ts";
-import { assertEquals, assertRejects, assertExists } from "https://deno.land/std@0.142.0/testing/asserts.ts";
+import { assertRejects, assertExists, assertFalse } from "https://deno.land/std@0.147.0/testing/asserts.ts";
+import { given, givenError, tearDown, assertTrue, generateAuth, generateStatus } from "./helper/utils.ts";
 
 import { Switcher } from "../mod.ts";
-import { given, givenError, tearDown } from "./fixture/utils.ts";
-
-const generateAuth = (token: string, seconds: number) => {
-  return { 
-    token, 
-    exp: (Date.now()+(seconds*1000))/1000
-  };
-};
-
-const generateStatus = (status: boolean) => {
-  return {
-    status
-  };
-};
 
 describe("E2E test - Switcher offline - Snapshot:", function () {
   const token = "[token]";
-  const apiKey = "[api_key]";
-  const domain = "Business";
-  const component = "business-service";
-  const environment = "dev";
-  const url = "http://localhost:3000";
+  let contextSettings: any;
 
   const dataBuffer = Deno.readTextFileSync("./snapshot/dev.json");
   const dataJSON = dataBuffer.toString();
 
   beforeEach(function() {
-    Switcher.buildContext({ url, apiKey, domain, component, environment }, {
+    contextSettings = { 
+      url: "http://localhost:3000",
+      apiKey: "[api_key]",
+      domain: "Business",
+      component: "business-service",
+      environment: "dev"
+    };
+    
+    Switcher.buildContext(contextSettings, {
       offline: true
     });
 
@@ -49,13 +41,13 @@ describe("E2E test - Switcher offline - Snapshot:", function () {
     given("POST@/graphql", JSON.parse(dataJSON));
 
     //test
-    Switcher.buildContext({ url, apiKey, domain, component, environment }, {
+    Switcher.buildContext(contextSettings, {
       snapshotLocation: "generated-snapshots/",
       offline: true
     });
     
     await Switcher.loadSnapshot(true);
-    assertEquals(true, await Switcher.checkSnapshot());
+    assertTrue(await Switcher.checkSnapshot());
 
     //restore state to avoid process leakage
     Switcher.unloadSnapshot();
@@ -68,7 +60,7 @@ describe("E2E test - Switcher offline - Snapshot:", function () {
     
     //test
     await Switcher.loadSnapshot();
-    assertEquals(false, await Switcher.checkSnapshot());
+    assertFalse(await Switcher.checkSnapshot());
   });
 
   it("Should NOT update snapshot - check Snapshot Error", async function () {
@@ -80,8 +72,8 @@ describe("E2E test - Switcher offline - Snapshot:", function () {
     Switcher.setTestEnabled();
     await Switcher.loadSnapshot();
     await assertRejects(async () =>
-        await Switcher.checkSnapshot(), 
-        Error, "Something went wrong: Connection has been refused - ECONNREFUSED");
+      await Switcher.checkSnapshot(), 
+      Error, "Something went wrong: Connection has been refused - ECONNREFUSED");
   });
 
   it("Should NOT update snapshot - resolve Snapshot Error", async function () {
@@ -105,7 +97,7 @@ describe("E2E test - Switcher offline - Snapshot:", function () {
     given("POST@/graphql", JSON.parse(dataJSON));
 
     //test
-    Switcher.buildContext({ url, apiKey, domain, component, environment }, {
+    Switcher.buildContext(contextSettings, {
       snapshotLocation: "generated-snapshots/"
     });
 
@@ -126,7 +118,7 @@ describe("E2E test - Switcher offline - Snapshot:", function () {
   });
 
   it("Should be invalid - Load snapshot was not called", async function () {
-    Switcher.buildContext({ url, apiKey, domain, component, environment }, {
+    Switcher.buildContext(contextSettings, {
       offline: true, logger: true
     });
     

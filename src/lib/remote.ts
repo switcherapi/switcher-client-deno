@@ -1,20 +1,19 @@
 // deno-lint-ignore-file no-explicit-any
-import DateMoment from "./utils/datemoment.ts";
+import DateMoment from './utils/datemoment.ts';
 import {
   ApiConnectionError,
   AuthError,
   CheckSwitcherError,
   CriteriaError,
   SnapshotServiceError,
-} from "./exceptions/index.ts";
+} from './exceptions/index.ts';
 
-const getConnectivityError = (code: string) =>
-  `Connection has been refused - ${code}`;
+const getConnectivityError = (code: string) => `Connection has been refused - ${code}`;
 
 const getHeader = (token: string) => {
   return {
-    "Authorization": `Bearer ${token}`,
-    "Content-Type": "application/json",
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
   };
 };
 
@@ -40,19 +39,19 @@ export const getEntry = (input?: string[][]) => {
 
 export const checkAPIHealth = async (url: string, options: any) => {
   try {
-    const response = await fetch(`${url}/check`, { method: "get" });
+    const response = await fetch(`${url}/check`, { method: 'get' });
     if (response.status != 200) {
-      throw new ApiConnectionError("API is offline");
+      throw new ApiConnectionError('API is offline');
     }
   } catch (_e) {
-    if (options && "silentMode" in options) {
+    if (options && 'silentMode' in options) {
       if (options.silentMode) {
         const expirationTime = new DateMoment(new Date())
           .add(options.retryTime, options.retryDurationIn).getDate();
 
         return {
           data: {
-            token: "SILENT",
+            token: 'SILENT',
             exp: expirationTime.getTime() / 1000,
           },
         };
@@ -72,7 +71,7 @@ export const checkCriteria = async (
     const response = await fetch(
       `${context.url}/criteria?showReason=${showReason}&key=${key}`,
       {
-        method: "post",
+        method: 'post',
         body: JSON.stringify({ entry }),
         headers: getHeader(context.token),
       },
@@ -89,15 +88,15 @@ export const checkCriteria = async (
 export const auth = async (context: any) => {
   try {
     const response = await fetch(`${context.url}/criteria/auth`, {
-      method: "post",
+      method: 'post',
       body: JSON.stringify({
         domain: context.domain,
         component: context.component,
         environment: context.environment,
       }),
       headers: {
-        "switcher-api-key": context.apiKey,
-        "Content-Type": "application/json",
+        'switcher-api-key': context.apiKey,
+        'Content-Type': 'application/json',
       },
     });
 
@@ -114,7 +113,7 @@ export const checkSwitchers = async (
 ) => {
   try {
     const response = await fetch(`${url}/criteria/switchers_check`, {
-      method: "post",
+      method: 'post',
       body: JSON.stringify({ switchers: switcherKeys }),
       headers: getHeader(token),
     });
@@ -141,7 +140,7 @@ export const checkSnapshotVersion = async (
 ) => {
   try {
     const response = await fetch(`${url}/criteria/snapshot_check/${version}`, {
-      method: "get",
+      method: 'get',
       headers: getHeader(token),
     });
 
@@ -177,7 +176,7 @@ export const resolveSnapshot = async (
 
   try {
     const response = await fetch(`${url}/graphql`, {
-      method: "post",
+      method: 'post',
       body: JSON.stringify(data),
       headers: getHeader(token),
     });

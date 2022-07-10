@@ -12,7 +12,7 @@ export default class DateMoment {
    */
   setTime(time?: string): void {
     if (time) {
-      const timeArr = time.split(":");
+      const timeArr = time.split(':');
       this.date.setHours(Number.parseInt(timeArr[0]));
       this.date.setMinutes(Number.parseInt(timeArr[1]));
     }
@@ -62,13 +62,13 @@ export default class DateMoment {
    */
   add(amount: number, unit: string): DateMoment {
     switch (unit.toLowerCase()) {
-      case "s":
+      case 's':
         this.date.setTime(this.date.getTime() + amount * 1000);
         break;
-      case "m":
+      case 'm':
         this.date.setTime(this.date.getTime() + amount * 1000 * 60);
         break;
-      case "h":
+      case 'h':
         this.date.setTime(this.date.getTime() + amount * 1000 * 60 * 60);
         break;
       default:

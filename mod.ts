@@ -1,4 +1,4 @@
-export { Switcher } from "./src/switcher-client.ts";
+export { Switcher } from './src/switcher-client.ts';
 export {
   checkDate,
   checkNetwork,
@@ -7,4 +7,4 @@ export {
   checkRegex,
   checkTime,
   checkValue,
-} from "./src/lib/middlewares/check.ts";
+} from './src/lib/middlewares/check.ts';

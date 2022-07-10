@@ -1,17 +1,17 @@
 // deno-lint-ignore-file no-explicit-any
-import { processOperation } from "./snapshot.ts";
-import * as services from "../lib/remote.ts";
+import { processOperation } from './snapshot.ts';
+import * as services from '../lib/remote.ts';
 
 function resolveCriteria(
   data: any,
   key: string,
   input?: string[][],
 ) {
-  let result = true, reason = "";
+  let result = true, reason = '';
 
   try {
     if (!data.domain.activated) {
-      throw new CriteriaFailed("Domain disabled");
+      throw new CriteriaFailed('Domain disabled');
     }
 
     const { group } = data.domain;
@@ -21,7 +21,7 @@ function resolveCriteria(
       );
     }
 
-    reason = "Success";
+    reason = 'Success';
   } catch (e) {
     if (e instanceof CriteriaFailed) {
       result = false;
@@ -74,11 +74,11 @@ function checkConfig(group: any, config: any, input?: string[][]) {
   }
 
   if (!group.activated) {
-    throw new CriteriaFailed("Group disabled");
+    throw new CriteriaFailed('Group disabled');
   }
 
   if (!config.activated) {
-    throw new CriteriaFailed("Config disabled");
+    throw new CriteriaFailed('Config disabled');
   }
 
   if (config.strategies) {
@@ -105,9 +105,7 @@ function checkStrategy(config: any, input: string[][]) {
 
 function checkStrategyInput(entry?: any[], strategyInput?: any) {
   if (entry && entry.length) {
-    const strategyEntry = entry.filter((e) =>
-      e.strategy === strategyInput.strategy
-    );
+    const strategyEntry = entry.filter((e) => e.strategy === strategyInput.strategy);
     if (
       strategyEntry.length == 0 ||
       !processOperation(
@@ -135,7 +133,7 @@ export default function checkCriteriaOffline(
 ) {
   if (!snapshot) {
     throw new Error(
-      "Snapshot not loaded. Try to use 'Switcher.loadSnapshot()'",
+      'Snapshot not loaded. Try to use \'Switcher.loadSnapshot()\'',
     );
   }
 

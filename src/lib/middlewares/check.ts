@@ -1,4 +1,4 @@
-import { StrategiesType } from "../snapshot.ts";
+import { StrategiesType } from '../snapshot.ts';
 
 export function checkValue(input: string) {
   return [StrategiesType.VALUE, input];

@@ -1,19 +1,15 @@
 // deno-lint-ignore-file no-explicit-any
-import Bypasser from "./lib/bypasser/index.ts";
-import ExecutionLogger from "./lib/utils/executionLogger.ts";
-import DateMoment from "./lib/utils/datemoment.ts";
-import {
-  checkSwitchers,
-  loadDomain,
-  validateSnapshot,
-} from "./lib/snapshot.ts";
-import * as services from "./lib/remote.ts";
-import checkCriteriaOffline from "./lib/resolver.ts";
+import Bypasser from './lib/bypasser/index.ts';
+import ExecutionLogger from './lib/utils/executionLogger.ts';
+import DateMoment from './lib/utils/datemoment.ts';
+import { checkSwitchers, loadDomain, validateSnapshot } from './lib/snapshot.ts';
+import * as services from './lib/remote.ts';
+import checkCriteriaOffline from './lib/resolver.ts';
 
-const DEFAULT_URL = "https://switcher-api.herokuapp.com";
-const DEFAULT_ENVIRONMENT = "default";
-const DEFAULT_SNAPSHOT_LOCATION = "./snapshot/";
-const DEFAULT_RETRY_TIME = "5m";
+const DEFAULT_URL = 'https://switcher-api.herokuapp.com';
+const DEFAULT_ENVIRONMENT = 'default';
+const DEFAULT_SNAPSHOT_LOCATION = './snapshot/';
+const DEFAULT_RETRY_TIME = '5m';
 const DEFAULT_OFFLINE = false;
 const DEFAULT_LOGGER = false;
 const DEFAULT_TEST_MODE = false;
@@ -28,7 +24,7 @@ export class Switcher {
   _delay = 0;
   _nextRun = 0;
   _input?: string[][];
-  _key = "";
+  _key = '';
 
   static buildContext(context: any, options?: any) {
     this.testEnabled = DEFAULT_TEST_MODE;
@@ -46,24 +42,24 @@ export class Switcher {
     this.options.logger = DEFAULT_LOGGER;
 
     if (options) {
-      if ("offline" in options) {
+      if ('offline' in options) {
         this.options.offline = options.offline;
       }
 
-      if ("snapshotLocation" in options) {
+      if ('snapshotLocation' in options) {
         this.options.snapshotLocation = options.snapshotLocation;
       }
 
-      if ("silentMode" in options) {
+      if ('silentMode' in options) {
         this.options.silentMode = options.silentMode;
         this.loadSnapshot();
       }
 
-      if ("logger" in options) {
+      if ('logger' in options) {
         this.options.logger = options.logger;
       }
 
-      if ("retryAfter" in options) {
+      if ('retryAfter' in options) {
         this.options.retryTime = options.retryAfter.slice(0, -1);
         this.options.retryDurationIn = options.retryAfter.slice(-1);
       } else {
@@ -79,7 +75,10 @@ export class Switcher {
 
   static async checkSnapshot() {
     if (Switcher.snapshot) {
-      if (!Switcher.context.exp || Date.now() > (Switcher.context.exp * 1000)) {
+      if (
+        !Switcher.context.exp ||
+        Date.now() > (Switcher.context.exp * 1000)
+      ) {
         await Switcher._auth();
 
         const result = await validateSnapshot(
@@ -103,7 +102,8 @@ export class Switcher {
       Switcher.context.environment,
     );
     if (
-      Switcher.snapshot.data.domain.version == 0 && !Switcher.options.offline
+      Switcher.snapshot.data.domain.version == 0 &&
+      !Switcher.options.offline
     ) {
       await Switcher.checkSnapshot();
     }
@@ -118,12 +118,11 @@ export class Switcher {
       return;
     }
 
-    const snapshotFile =
-      `${Switcher.options.snapshotLocation}${Switcher.context.environment}.json`;
+    const snapshotFile = `${Switcher.options.snapshotLocation}${Switcher.context.environment}.json`;
 
     Switcher.watcher = Deno.watchFs(snapshotFile);
     for await (const event of Switcher.watcher) {
-      if (event.kind === "modify") {
+      if (event.kind === 'modify') {
         try {
           Switcher.snapshot = loadDomain(
             Switcher.options.snapshotLocation,
@@ -173,10 +172,16 @@ export class Switcher {
 
   static async _checkHealth() {
     // checks if silent mode is still activated
-    if (Switcher.context.token === "SILENT") {
-      if (!Switcher.context.exp || Date.now() < (Switcher.context.exp * 1000)) {
+    if (Switcher.context.token === 'SILENT') {
+      if (
+        !Switcher.context.exp ||
+        Date.now() < (Switcher.context.exp * 1000)
+      ) {
         const expirationTime = new DateMoment(new Date())
-          .add(Switcher.options.retryTime, Switcher.options.retryDurationIn)
+          .add(
+            Switcher.options.retryTime,
+            Switcher.options.retryDurationIn,
+          )
           .getDate();
 
         Switcher.context.exp = expirationTime.getTime() / 1000;
@@ -237,24 +242,24 @@ export class Switcher {
     const errors = [];
 
     if (!Switcher.context.apiKey) {
-      errors.push("Missing API Key field");
+      errors.push('Missing API Key field');
     }
 
     if (!Switcher.context.component) {
-      errors.push("Missing component field");
+      errors.push('Missing component field');
     }
 
     if (!this._key) {
-      errors.push("Missing key field");
+      errors.push('Missing key field');
     }
 
     await this._executeApiValidation();
     if (!Switcher.context.token) {
-      errors.push("Missing token field");
+      errors.push('Missing token field');
     }
 
     if (errors.length) {
-      throw new Error(`Something went wrong: ${errors.join(", ")}`);
+      throw new Error(`Something went wrong: ${errors.join(', ')}`);
     }
   }
 
@@ -273,7 +278,7 @@ export class Switcher {
       result = this._executeOfflineCriteria();
     } else {
       await this.validate();
-      if (Switcher.context.token === "SILENT") {
+      if (Switcher.context.token === 'SILENT') {
         result = this._executeOfflineCriteria();
       } else {
         result = await this._executeOnlineCriteria(showReason);
@@ -321,19 +326,19 @@ export class Switcher {
         this._input,
         showReason,
       )
-        .then((response) =>
-          ExecutionLogger.add(response, this._key, this._input)
-        );
+        .then((response) => ExecutionLogger.add(response, this._key, this._input));
     }
 
-    return ExecutionLogger.getExecution(this._key, this._input).response.result;
+    return ExecutionLogger.getExecution(this._key, this._input).response
+      .result;
   }
 
   async _executeApiValidation() {
     if (this._useSync()) {
       if (
         await Switcher._checkHealth() &&
-        (!Switcher.context.exp || Date.now() > (Switcher.context.exp * 1000))
+        (!Switcher.context.exp ||
+          Date.now() > (Switcher.context.exp * 1000))
       ) {
         await this.prepare(this._key, this._input);
       }
@@ -343,7 +348,7 @@ export class Switcher {
   _executeOfflineCriteria() {
     const response = checkCriteriaOffline(
       Switcher.snapshot,
-      this._key || "",
+      this._key || '',
       this._input || [],
     );
 
