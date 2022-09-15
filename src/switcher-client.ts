@@ -6,7 +6,6 @@ import { checkSwitchers, loadDomain, validateSnapshot } from './lib/snapshot.ts'
 import * as services from './lib/remote.ts';
 import checkCriteriaOffline from './lib/resolver.ts';
 
-const DEFAULT_URL = 'https://switcher-api.herokuapp.com';
 const DEFAULT_ENVIRONMENT = 'default';
 const DEFAULT_SNAPSHOT_LOCATION = './snapshot/';
 const DEFAULT_RETRY_TIME = '5m';
@@ -47,8 +46,8 @@ export class Switcher {
     this._snapshot = undefined;
     this._context = {};
     this._context = context;
+    this._context.url = context.url;
     this._context.environment = context.environment || DEFAULT_ENVIRONMENT;
-    this._context.url = context.url || DEFAULT_URL;
 
     // Default values
     this._options = {};

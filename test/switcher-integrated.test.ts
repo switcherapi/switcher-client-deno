@@ -233,6 +233,27 @@ describe('Integrated test - Switcher:', function () {
       ]));
     });
 
+    it('Should be invalid - Missing API url field', async function () {
+      // given
+      given('GET@/check', null);
+      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
+
+      // test
+      Switcher.buildContext({ 
+        url: undefined,
+        apiKey: '[apiKey]', 
+        domain: '[domain]', 
+        component: '[component]', 
+        environment: 'default' 
+      });
+
+      const switcher = Switcher.factory();
+
+      await assertRejects(async () =>
+        await switcher.isItOn(),
+        Error, 'Something went wrong: Invalid URL');
+    });
+
     it('Should be invalid - Missing API Key field', async function () {
       // given
       given('GET@/check', null);
