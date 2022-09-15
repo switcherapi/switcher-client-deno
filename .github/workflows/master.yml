@@ -18,10 +18,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Deno v1.22.1
+      - name: Setup Deno v1.25.2
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.22.1
+          deno-version: v1.25.2
 
       - name: Verify formatting
         run: deno fmt mod.ts src/ --options-single-quote --options-line-width=120 --check

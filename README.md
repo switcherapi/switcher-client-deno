@@ -34,20 +34,20 @@ https://github.com/switcherapi/switcher-api
 The context properties stores all information regarding connectivity.
 
 ```ts
-import { Switcher } from "https://deno.land/x/switcher4deno@v1.0.0/mod.ts";
+import { Switcher } from "https://deno.land/x/switcher4deno@v1.0.1/mod.ts";
 
+const url = 'https://switcherapi.com/api';
 const apiKey = '[API_KEY]';
 const environment = 'default';
 const domain = 'My Domain';
 const component = 'MyApp';
-const url = 'https://switcher-api.herokuapp.com';
 ```
 
+- **url**: Swither-API url.
 - **apiKey**: Switcher-API key generated to your component.
 - **environment**: (optional) Environment name. Production environment is named as 'default'.
 - **domain**: Domain name.
 - **component**: Application name.
-- **url**: (optional) Swither-API endpoint.
 
 ## Options
 You can also activate features such as offline and silent mode:
@@ -97,7 +97,7 @@ switcher.isItOn('KEY')
 Loading information into the switcher can be made by using *prepare*, in case you want to include input from a different place of your code. Otherwise, it is also possible to include everything in the same call.
 
 ```ts
-import { checkValue, checkNetwork } from "https://deno.land/x/switcher4deno@v1.0.0/mod.ts";
+import { checkValue, checkNetwork } from "https://deno.land/x/switcher4deno@v1.0.1/mod.ts";
 
 switcher.prepare('FEATURE01', [checkValue('USER_1')];
 switcher.isItOn();
