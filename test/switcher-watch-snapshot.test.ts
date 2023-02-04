@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
-import { describe, it, afterAll, beforeEach } from 'https://deno.land/std@0.147.0/testing/bdd.ts';
-import { assertEquals, assertFalse } from 'https://deno.land/std@0.147.0/testing/asserts.ts';
+import { describe, it, afterAll, beforeEach } from 'https://deno.land/std@0.176.0/testing/bdd.ts';
+import { assertEquals, assertFalse } from 'https://deno.land/std@0.176.0/testing/asserts.ts';
 import { assertTrue } from './helper/utils.ts';
 
 import { Switcher } from '../mod.ts';
@@ -41,7 +41,7 @@ describe('E2E test - Switcher offline - Watch Snapshot:', function () {
     Deno.removeSync('generated-snapshots/', { recursive: true });
   });
 
-  it('Should read from snapshot - without watching', function () {
+  it('should read from snapshot - without watching', function () {
     const switcher = Switcher.factory();
     switcher.isItOn('FF2FOR2030').then((val1) => {
       assertTrue(val1);
@@ -53,7 +53,7 @@ describe('E2E test - Switcher offline - Watch Snapshot:', function () {
     });
   });
   
-  it('Should read from updated snapshot', async function () {
+  it('should read from updated snapshot', async function () {
     const switcher = Switcher.factory();
     Switcher.watchSnapshot(async () => {
       assertFalse(await switcher.isItOn('FF2FOR2030'));
@@ -69,7 +69,7 @@ describe('E2E test - Switcher offline - Watch Snapshot:', function () {
     Switcher.unloadSnapshot();
   });
 
-  it('Should NOT read from updated snapshot - invalid JSON', async function () {
+  it('should NOT read from updated snapshot - invalid JSON', async function () {
     const switcher = Switcher.factory();
     Switcher.watchSnapshot(undefined, (err: any) => {
       assertEquals(err.message, 'Something went wrong: It was not possible to load the file at generated-snapshots/');

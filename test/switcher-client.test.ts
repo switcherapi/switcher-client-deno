@@ -1,5 +1,5 @@
-import { describe, it, afterAll, beforeEach, beforeAll } from 'https://deno.land/std@0.147.0/testing/bdd.ts';
-import { assertEquals, assertRejects, assertFalse, assertExists } from 'https://deno.land/std@0.147.0/testing/asserts.ts';
+import { describe, it, afterAll, beforeEach, beforeAll } from 'https://deno.land/std@0.176.0/testing/bdd.ts';
+import { assertEquals, assertRejects, assertFalse, assertExists } from 'https://deno.land/std@0.176.0/testing/asserts.ts';
 import { assertTrue } from './helper/utils.ts'
 
 import { StrategiesType } from '../src/lib/snapshot.ts';
@@ -7,7 +7,8 @@ import {
   Switcher, 
   checkValue, 
   checkNetwork, 
-  checkPayload
+  checkPayload,
+  checkRegex
 } from '../mod.ts';
 
 describe('E2E test - Switcher offline:', function () {
@@ -20,7 +21,7 @@ describe('E2E test - Switcher offline:', function () {
 
   beforeAll(async function() {
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
-      offline: true, logger: true
+      offline: true, logger: true, regexMaxBlackList: 1, regexMaxTimeLimit: 500
     });
 
     await Switcher.loadSnapshot();
@@ -36,7 +37,7 @@ describe('E2E test - Switcher offline:', function () {
     switcher = Switcher.factory();
   });
 
-  it('Should be valid - isItOn', async function () {
+  it('should be valid - isItOn', async function () {
     await switcher.prepare('FF2FOR2020', [
       checkValue('Japan'),
       checkNetwork('10.0.0.3')
@@ -45,7 +46,7 @@ describe('E2E test - Switcher offline:', function () {
     assertTrue(await switcher.isItOn('FF2FOR2020'));
   });
 
-  it('Should be valid - No prepare function needed', async function () {
+  it('should be valid - No prepare function needed', async function () {
     const result = await switcher.isItOn('FF2FOR2020', [
       checkValue('Japan'),
       checkNetwork('10.0.0.3')
@@ -54,22 +55,22 @@ describe('E2E test - Switcher offline:', function () {
     assertTrue(result);
   });
 
-  it('Should be valid - No prepare function needed (no input as well)', async function () {
+  it('should be valid - No prepare function needed (no input as well)', async function () {
     const result = await switcher.isItOn('FF2FOR2030');
     assertTrue(result);
   });
 
-  it('Should be valid - Switcher strategy disabled', async function () {
+  it('should be valid - Switcher strategy disabled', async function () {
     const result = await switcher.isItOn('FF2FOR2021', [checkNetwork('192.168.0.1')]);
     assertTrue(result);
   });
 
-  it('Should be valid - No Switcher strategy', async function () {
+  it('should be valid - No Switcher strategy', async function () {
     const result = await switcher.isItOn('FF2FOR2022');
     assertTrue(result);
   });
 
-  it('Should be valid - JSON Payload matches all keys', async function () {
+  it('should be valid - JSON Payload matches all keys', async function () {
     await switcher.prepare('FF2FOR2023', [
       checkPayload(JSON.stringify({
         id: 1,
@@ -84,7 +85,19 @@ describe('E2E test - Switcher offline:', function () {
     assertTrue(result);
   });
 
-  it('Should be invalid - JSON Payload does NOT match all keys', async function () {
+  it('should be invalid - REGEX failed to perform in time', async function () {
+    const getTimer = (timer: number) => (timer - Date.now()) * -1;
+
+    let timer = Date.now();
+    const result = await switcher.isItOn('FF2FOR2024', [checkRegex('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')]);
+    timer = getTimer(timer);
+
+    assertFalse(result);
+    assertTrue(timer > 500);
+    assertTrue(timer < 600);
+  });
+
+  it('should be invalid - JSON Payload does NOT match all keys', async function () {
     await switcher.prepare('FF2FOR2023', [
       checkPayload(JSON.stringify({
         id: 1,
@@ -99,7 +112,7 @@ describe('E2E test - Switcher offline:', function () {
       `Strategy '${StrategiesType.PAYLOAD}' does not agree`);
   });
 
-  it('Should be invalid - Input (IP) does not match', async function () {
+  it('should be invalid - Input (IP) does not match', async function () {
     await switcher.prepare('FF2FOR2020', [
       checkValue('Japan'),
       checkNetwork('192.168.0.2')
@@ -110,25 +123,25 @@ describe('E2E test - Switcher offline:', function () {
       `Strategy '${StrategiesType.NETWORK}' does not agree`);
   });
 
-  it('Should be invalid - Input not provided', async function () {
+  it('should be invalid - Input not provided', async function () {
     assertFalse(await switcher.isItOn('FF2FOR2020'));
     assertEquals(Switcher.getLogger('FF2FOR2020')[0].response.reason, 
       `Strategy '${StrategiesType.NETWORK}' did not receive any input`);
   });
 
-  it('Should be invalid - Switcher config disabled', async function () {
+  it('should be invalid - Switcher config disabled', async function () {
     assertFalse(await switcher.isItOn('FF2FOR2031'));
     assertEquals(Switcher.getLogger('FF2FOR2031')[0].response.reason, 
       'Config disabled');
   });
 
-  it('Should be invalid - Switcher group disabled', async function () {
+  it('should be invalid - Switcher group disabled', async function () {
     assertFalse(await switcher.isItOn('FF2FOR2040'));
     assertEquals(Switcher.getLogger('FF2FOR2040')[0].response.reason, 
       'Group disabled');
   });
 
-  it('Should be valid assuming key to be false and then forgetting it', async function () {
+  it('should be valid assuming key to be false and then forgetting it', async function () {
     await switcher.prepare('FF2FOR2020', [
       checkValue('Japan'),
       checkNetwork('10.0.0.3')
@@ -142,7 +155,7 @@ describe('E2E test - Switcher offline:', function () {
     assertTrue(await switcher.isItOn());
   });
 
-  it('Should be valid assuming unknown key to be true', async function () {
+  it('should be valid assuming unknown key to be true', async function () {
     await switcher.prepare('UNKNOWN', [
       checkValue('Japan'),
       checkNetwork('10.0.0.3')
@@ -157,7 +170,7 @@ describe('E2E test - Switcher offline:', function () {
       Error, 'Something went wrong: {"error":"Unable to load a key UNKNOWN"}');
   });
 
-  it('Should enable test mode which will prevent a snapshot to be watchable', async function () {
+  it('should enable test mode which will prevent a snapshot to be watchable', async function () {
     //given
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
       offline: true, logger: true
@@ -172,7 +185,7 @@ describe('E2E test - Switcher offline:', function () {
     assertTrue(await switcher.isItOn('FF2FOR2020'));
   });
 
-  it('Should be invalid - Offline mode cannot load snapshot from an invalid path', async function () {
+  it('should be invalid - Offline mode cannot load snapshot from an invalid path', async function () {
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
       offline: true,
       snapshotLocation: '//somewhere/'
@@ -184,7 +197,7 @@ describe('E2E test - Switcher offline:', function () {
       Error, 'Something went wrong: It was not possible to load the file at //somewhere/');
   });
 
-  it('Should be valid - Offline mode', async function () {
+  it('should be valid - Offline mode', async function () {
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
       offline: true,
       snapshotLocation: 'generated-snapshots/'

@@ -1,5 +1,5 @@
-import { assertFalse } from 'https://deno.land/std@0.147.0/testing/asserts.ts';
-import { describe, it } from 'https://deno.land/std@0.147.0/testing/bdd.ts';
+import { assertFalse } from 'https://deno.land/std@0.176.0/testing/asserts.ts';
+import { describe, it } from 'https://deno.land/std@0.176.0/testing/bdd.ts';
 import { assertTrue } from '../helper/utils.ts';
 import {
   OperationsType,
@@ -23,48 +23,48 @@ describe('Strategy [NETWORK] tests:', function () {
     '192.168.56.58',
   ];
 
-  it('Should agree when input range EXIST', function () {
-    const result = processOperation(StrategiesType.NETWORK, OperationsType.EXIST, '10.0.0.3', mock_values1);
+  it('should agree when input range EXIST', async function () {
+    const result = await processOperation(StrategiesType.NETWORK, OperationsType.EXIST, '10.0.0.3', mock_values1);
     assertTrue(result);
   });
 
-  it('Should agree when input range EXIST - Irregular CIDR', function () {
-    const result = processOperation(StrategiesType.NETWORK, OperationsType.EXIST, '10.0.0.3', ['10.0.0.3/24']);
+  it('should agree when input range EXIST - Irregular CIDR', async function () {
+    const result = await processOperation(StrategiesType.NETWORK, OperationsType.EXIST, '10.0.0.3', ['10.0.0.3/24']);
     assertTrue(result);
   });
 
-  it('Should NOT agree when input range DOES NOT EXIST', function () {
-    const result = processOperation(StrategiesType.NETWORK, OperationsType.EXIST, '10.0.0.4', mock_values1);
+  it('should NOT agree when input range DOES NOT EXIST', async function () {
+    const result = await processOperation(StrategiesType.NETWORK, OperationsType.EXIST, '10.0.0.4', mock_values1);
     assertFalse(result);
   });
 
-  it('Should agree when input DOES NOT EXIST', function () {
-    const result = processOperation(StrategiesType.NETWORK, OperationsType.NOT_EXIST, '10.0.0.4', mock_values1);
+  it('should agree when input DOES NOT EXIST', async function () {
+    const result = await processOperation(StrategiesType.NETWORK, OperationsType.NOT_EXIST, '10.0.0.4', mock_values1);
     assertTrue(result);
   });
 
-  it('Should NOT agree when input EXIST but assumed that it DOES NOT EXIST', function () {
-    const result = processOperation(StrategiesType.NETWORK, OperationsType.NOT_EXIST, '10.0.0.3', mock_values1);
+  it('should NOT agree when input EXIST but assumed that it DOES NOT EXIST', async function () {
+    const result = await processOperation(StrategiesType.NETWORK, OperationsType.NOT_EXIST, '10.0.0.3', mock_values1);
     assertFalse(result);
   });
 
-  it('Should agree when input IP EXIST', function () {
-    const result = processOperation(StrategiesType.NETWORK, OperationsType.EXIST, '192.168.56.58', mock_values3);
+  it('should agree when input IP EXIST', async function () {
+    const result = await processOperation(StrategiesType.NETWORK, OperationsType.EXIST, '192.168.56.58', mock_values3);
     assertTrue(result);
   });
 
-  it('Should agree when input IP DOES NOT EXIST', function () {
-    const result = processOperation(StrategiesType.NETWORK, OperationsType.NOT_EXIST, '192.168.56.50', mock_values3);
+  it('should agree when input IP DOES NOT EXIST', async function () {
+    const result = await processOperation(StrategiesType.NETWORK, OperationsType.NOT_EXIST, '192.168.56.50', mock_values3);
     assertTrue(result);
   });
 
-  it('Should agree when input range EXIST for multiple ranges', function () {
-    const result = processOperation(StrategiesType.NETWORK, OperationsType.EXIST, '192.168.0.3', mock_values2);
+  it('should agree when input range EXIST for multiple ranges', async function () {
+    const result = await processOperation(StrategiesType.NETWORK, OperationsType.EXIST, '192.168.0.3', mock_values2);
     assertTrue(result);
   });
 
-  it('Should NOT agree when input range DOES NOT EXIST for multiple ranges', function () {
-    const result = processOperation(StrategiesType.NETWORK, OperationsType.NOT_EXIST, '127.0.0.0', mock_values2);
+  it('should NOT agree when input range DOES NOT EXIST for multiple ranges', async function () {
+    const result = await processOperation(StrategiesType.NETWORK, OperationsType.NOT_EXIST, '127.0.0.0', mock_values2);
     assertTrue(result);
   });
 

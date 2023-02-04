@@ -1,5 +1,5 @@
-import { assertFalse, assertArrayIncludes } from 'https://deno.land/std@0.147.0/testing/asserts.ts';
-import { describe, it } from 'https://deno.land/std@0.147.0/testing/bdd.ts';
+import { assertFalse, assertArrayIncludes } from 'https://deno.land/std@0.176.0/testing/asserts.ts';
+import { describe, it } from 'https://deno.land/std@0.176.0/testing/bdd.ts';
 import { assertTrue } from '../helper/utils.ts';
 import {
   OperationsType,
@@ -46,7 +46,7 @@ describe('Strategy [PAYLOAD] tests:', function () {
     }
   );
 
-  it('Should read keys from payload #1', function () {
+  it('should read keys from payload #1', function () {
     const keys = payloadReader(JSON.parse(fixture_values2));
     assertArrayIncludes(keys, [                
         'product',
@@ -61,7 +61,7 @@ describe('Strategy [PAYLOAD] tests:', function () {
     ]);
   });
 
-  it('Should read keys from payload #2', function () {
+  it('should read keys from payload #2', function () {
     const keys = payloadReader(JSON.parse(fixture_values3));
     assertArrayIncludes(keys, [                
         'description',
@@ -72,7 +72,7 @@ describe('Strategy [PAYLOAD] tests:', function () {
     ]);
   });
 
-  it('Should read keys from payload with array values', function () {
+  it('should read keys from payload with array values', function () {
     const keys = payloadReader({
       order: {
           items: ['item_1', 'item_2']
@@ -84,28 +84,28 @@ describe('Strategy [PAYLOAD] tests:', function () {
     ]);
   });
 
-  it('Should return TRUE when payload has field', function () {
-    assertTrue(processOperation(StrategiesType.PAYLOAD, OperationsType.HAS_ONE, fixture_1, ['login']));
+  it('should return TRUE when payload has field', async function () {
+    assertTrue(await processOperation(StrategiesType.PAYLOAD, OperationsType.HAS_ONE, fixture_1, ['login']));
   });
 
-  it('Should return FALSE when payload does not have field', function () {
-    assertFalse(processOperation(StrategiesType.PAYLOAD, OperationsType.HAS_ONE, fixture_1, ['user']));
+  it('should return FALSE when payload does not have field', async function () {
+    assertFalse(await processOperation(StrategiesType.PAYLOAD, OperationsType.HAS_ONE, fixture_1, ['user']));
   });
 
-  it('Should return TRUE when payload has nested field', function () {
-    assertTrue(processOperation(StrategiesType.PAYLOAD, OperationsType.HAS_ONE, fixture_values2, [
+  it('should return TRUE when payload has nested field', async function () {
+    assertTrue(await processOperation(StrategiesType.PAYLOAD, OperationsType.HAS_ONE, fixture_values2, [
         'order.qty', 'order.total'
     ]));
   });
 
-  it('Should return TRUE when payload has nested field with arrays', function () {
-    assertTrue(processOperation(StrategiesType.PAYLOAD, OperationsType.HAS_ONE, fixture_values2, [
+  it('should return TRUE when payload has nested field with arrays', async function () {
+    assertTrue(await processOperation(StrategiesType.PAYLOAD, OperationsType.HAS_ONE, fixture_values2, [
         'order.deliver.tracking.status'
     ]));
   });
 
-  it('Should return TRUE when payload has all', function () {
-    assertTrue(processOperation( StrategiesType.PAYLOAD, OperationsType.HAS_ALL, fixture_values2, [
+  it('should return TRUE when payload has all', async function () {
+    assertTrue(await processOperation( StrategiesType.PAYLOAD, OperationsType.HAS_ALL, fixture_values2, [
         'product',
         'order',
         'order.qty',
@@ -117,16 +117,16 @@ describe('Strategy [PAYLOAD] tests:', function () {
     ]));
   });
 
-  it('Should return FALSE when payload does not have all', function () {
-    assertFalse(processOperation(StrategiesType.PAYLOAD, OperationsType.HAS_ALL, fixture_values2, [
+  it('should return FALSE when payload does not have all', async function () {
+    assertFalse(await processOperation(StrategiesType.PAYLOAD, OperationsType.HAS_ALL, fixture_values2, [
         'product',
         'order',
         'order.NOT_EXIST_KEY',
     ]));
   });
 
-  it('Should return FALSE when payload is not a JSON string', function () {
-    assertFalse(processOperation(StrategiesType.PAYLOAD, OperationsType.HAS_ALL, 'NOT_JSON', []));
+  it('should return FALSE when payload is not a JSON string', async function () {
+    assertFalse(await processOperation(StrategiesType.PAYLOAD, OperationsType.HAS_ALL, 'NOT_JSON', []));
   });
 
 });
