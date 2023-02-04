@@ -11,6 +11,8 @@ import {
   checkRegex
 } from '../mod.ts';
 
+const testSettings = { sanitizeExit: false, sanitizeResources: false };
+
 describe('E2E test - Switcher offline:', function () {
   let switcher: Switcher;
   const apiKey = '[api_key]';
@@ -185,7 +187,7 @@ describe('E2E test - Switcher offline:', function () {
     assertTrue(await switcher.isItOn('FF2FOR2020'));
   });
 
-  it('should be invalid - Offline mode cannot load snapshot from an invalid path', async function () {
+  it('should be invalid - Offline mode cannot load snapshot from an invalid path', testSettings, async function () {
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
       offline: true,
       snapshotLocation: '//somewhere/'
@@ -197,7 +199,7 @@ describe('E2E test - Switcher offline:', function () {
       Error, 'Something went wrong: It was not possible to load the file at //somewhere/');
   });
 
-  it('should be valid - Offline mode', async function () {
+  it('should be valid - Offline mode', testSettings, async function () {
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
       offline: true,
       snapshotLocation: 'generated-snapshots/'
