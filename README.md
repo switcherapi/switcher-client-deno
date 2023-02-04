@@ -33,8 +33,15 @@ https://github.com/switcherapi/switcher-api
 ## Module initialization
 The context properties stores all information regarding connectivity.
 
+> Flags required
+```
+--allow-read
+--allow-write
+--allow-net
+```
+
 ```ts
-import { Switcher } from "https://deno.land/x/switcher4deno@v1.0.1/mod.ts";
+import { Switcher } from "https://deno.land/x/switcher4deno@v1.0.2/mod.ts";
 
 const url = 'https://switcherapi.com/api';
 const apiKey = '[API_KEY]';
@@ -71,6 +78,8 @@ const switcher = Switcher.factory();
 - **snapshotLocation**: Location of snapshot files. The default value is './snapshot/'.
 - **silentMode**: If activated, all connectivity issues will be ignored and the client will automatically fetch the configuration into your snapshot file.
 - **retryAfter** : Time given to the module to re-establish connectivity with the API - e.g. 5s (s: seconds - m: minutes - h: hours).
+- **regexMaxBlackList**: Number of entries cached when REGEX Strategy fails to perform (reDOS safe) - default: 50
+- **regexMaxTimeLimit**: Time limit (ms) used by REGEX workers (reDOS safe) - default - 3000ms
 
 ## Executing
 There are a few different ways to call the API using the JavaScript module.
@@ -97,7 +106,7 @@ switcher.isItOn('KEY')
 Loading information into the switcher can be made by using *prepare*, in case you want to include input from a different place of your code. Otherwise, it is also possible to include everything in the same call.
 
 ```ts
-import { checkValue, checkNetwork } from "https://deno.land/x/switcher4deno@v1.0.1/mod.ts";
+import { checkValue, checkNetwork } from "https://deno.land/x/switcher4deno@v1.0.2/mod.ts";
 
 switcher.prepare('FEATURE01', [checkValue('USER_1')];
 switcher.isItOn();

@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
-import { describe, it, afterAll, afterEach, beforeEach } from 'https://deno.land/std@0.147.0/testing/bdd.ts';
-import { assertEquals, assertNotEquals, assertRejects, assertFalse } from 'https://deno.land/std@0.147.0/testing/asserts.ts';
-import { assertSpyCalls, spy } from 'https://deno.land/std@0.147.0/testing/mock.ts';
+import { describe, it, afterAll, afterEach, beforeEach } from 'https://deno.land/std@0.176.0/testing/bdd.ts';
+import { assertEquals, assertNotEquals, assertRejects, assertFalse } from 'https://deno.land/std@0.176.0/testing/asserts.ts';
+import { assertSpyCalls, spy } from 'https://deno.land/std@0.176.0/testing/mock.ts';
 import { given, givenError, tearDown, assertTrue, generateAuth, generateResult } from './helper/utils.ts'
 
 import { 
@@ -42,7 +42,7 @@ describe('Integrated test - Switcher:', function () {
       tearDown();
     });
 
-    it('Should be valid', async function () {
+    it('should be valid', async function () {
       // given API responding properly
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
@@ -56,7 +56,7 @@ describe('Integrated test - Switcher:', function () {
       assertTrue(await switcher.isItOn());
     });
 
-    it('Should be valid - throttle', async function () {
+    it('should be valid - throttle', async function () {
       // given API responding properly
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
@@ -84,7 +84,7 @@ describe('Integrated test - Switcher:', function () {
 
       assertSpyCalls(spyAsyncOnlineCriteria, 9);
 
-      // Next call Should call the API again as the throttle has expired
+      // Next call should call the API again as the throttle has expired
       await new Promise(resolve => setTimeout(resolve, 2000));
       assertTrue(await switcher.isItOn('FLAG_1'));
       assertSpyCalls(spyAsyncOnlineCriteria, 10);
@@ -101,7 +101,7 @@ describe('Integrated test - Switcher:', function () {
     });
 
 
-    it('Should be valid', async function () {
+    it('should be valid', async function () {
       // given API responding properly
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
@@ -133,7 +133,7 @@ describe('Integrated test - Switcher:', function () {
       assertTrue(await switcher.isItOn());
     });
 
-    it('Should not throw when switcher keys provided were configured properly', async function() {
+    it('should not throw when switcher keys provided were configured properly', async function() {
       //given
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
@@ -144,7 +144,7 @@ describe('Integrated test - Switcher:', function () {
       await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02']);
     });
 
-    it('Should throw when switcher keys provided were not configured properly', async function() {
+    it('should throw when switcher keys provided were not configured properly', async function() {
       //given
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
@@ -157,7 +157,7 @@ describe('Integrated test - Switcher:', function () {
         Error, 'Something went wrong: Something went wrong: [FEATURE02] not found');
     });
 
-    it('Should throw when no switcher keys were provided', async function() {
+    it('should throw when no switcher keys were provided', async function() {
       //given
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
@@ -170,7 +170,7 @@ describe('Integrated test - Switcher:', function () {
         Error, 'Something went wrong: Switcher Key is required');
     });
     
-    it('Should renew the token after expiration', async function () {
+    it('should renew the token after expiration', async function () {
       // given API responding properly
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 1));
@@ -190,7 +190,7 @@ describe('Integrated test - Switcher:', function () {
       // Prepare the stub to provide the new token
       given('POST@/criteria/auth', generateAuth('asdad12d2232d2323f', 1));
 
-      // In this time period the expiration time has reached, it Should call prepare once again to renew the token
+      // In this time period the expiration time has reached, it should call prepare once again to renew the token
       given('POST@/criteria', generateResult(false));
       assertFalse(await switcher.isItOn());
       assertSpyCalls(spyPrepare, 2);
@@ -201,7 +201,7 @@ describe('Integrated test - Switcher:', function () {
       assertSpyCalls(spyPrepare, 2);
     });
 
-    it('Should be valid - when sending key without calling prepare', async function () {
+    it('should be valid - when sending key without calling prepare', async function () {
       // given API responding properly
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
@@ -216,7 +216,7 @@ describe('Integrated test - Switcher:', function () {
       ]));
     });
 
-    it('Should be valid - when preparing key and sending input strategy afterwards', async function () {
+    it('should be valid - when preparing key and sending input strategy afterwards', async function () {
       // given API responding properly
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
@@ -233,7 +233,7 @@ describe('Integrated test - Switcher:', function () {
       ]));
     });
 
-    it('Should be invalid - Missing API url field', async function () {
+    it('should be invalid - Missing API url field', async function () {
       // given
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
@@ -254,7 +254,7 @@ describe('Integrated test - Switcher:', function () {
         Error, 'Something went wrong: Invalid URL');
     });
 
-    it('Should be invalid - Missing API Key field', async function () {
+    it('should be invalid - Missing API Key field', async function () {
       // given
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
@@ -280,7 +280,7 @@ describe('Integrated test - Switcher:', function () {
         Error, 'Something went wrong: Missing API Key field');
     });
 
-    it('Should be invalid - Missing key field', async function () {
+    it('should be invalid - Missing key field', async function () {
       // given
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
@@ -294,7 +294,7 @@ describe('Integrated test - Switcher:', function () {
         Error, 'Something went wrong: Missing key field');
     });
 
-    it('Should be invalid - Missing component field', async function () {
+    it('should be invalid - Missing component field', async function () {
       // given
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
@@ -315,7 +315,7 @@ describe('Integrated test - Switcher:', function () {
         Error, 'Something went wrong: Missing component field');
     });
 
-    it('Should be invalid - Missing token field', async function () {
+    it('should be invalid - Missing token field', async function () {
       // given
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth(undefined, 5));
@@ -329,7 +329,7 @@ describe('Integrated test - Switcher:', function () {
         Error, 'Something went wrong: Missing token field');
     });
 
-    it('Should be invalid - bad strategy input', async function () {
+    it('should be invalid - bad strategy input', async function () {
       // given
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
@@ -344,7 +344,7 @@ describe('Integrated test - Switcher:', function () {
         Error, 'Something went wrong: Invalid input format for \'THIS IS WRONG\'');
     });
 
-    it('Should run in silent mode', async function () {
+    it('should run in silent mode', async function () {
       // setup context to read the snapshot in case the API does not respond
       Switcher.buildContext(contextSettings, {
         silentMode: true,
@@ -354,7 +354,7 @@ describe('Integrated test - Switcher:', function () {
       const switcher = Switcher.factory();
       const spyPrepare = spy(switcher, 'prepare');
 
-      // First attempt to reach the API - Since it's configured to use silent mode, it Should return true (according to the snapshot)
+      // First attempt to reach the API - Since it's configured to use silent mode, it should return true (according to the snapshot)
       givenError('POST@/criteria/auth', 'ECONNREFUSED');
       assertTrue(await switcher.isItOn('FF2FOR2030'));
 
@@ -384,7 +384,7 @@ describe('Integrated test - Switcher:', function () {
       assertSpyCalls(spyPrepare, 1);
     });
 
-    it('Should throw error if not in silent mode', async function () {
+    it('should throw error if not in silent mode', async function () {
       givenError('POST@/criteria/auth', 'ECONNREFUSED');
 
       // test
@@ -396,7 +396,7 @@ describe('Integrated test - Switcher:', function () {
         Error, 'Something went wrong: Connection has been refused - ECONNREFUSED');
     });
 
-    it('Should run in silent mode when API is unavailable', async function () {
+    it('should run in silent mode when API is unavailable', async function () {
       // given: API unavailable
       given('GET@/check', undefined, 503);
 

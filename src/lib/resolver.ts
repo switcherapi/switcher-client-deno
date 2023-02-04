@@ -2,7 +2,7 @@
 import { processOperation } from './snapshot.ts';
 import * as services from '../lib/remote.ts';
 
-function resolveCriteria(
+async function resolveCriteria(
   data: any,
   key: string,
   input?: string[][],
@@ -15,7 +15,7 @@ function resolveCriteria(
     }
 
     const { group } = data.domain;
-    if (!checkGroup(group, key, input)) {
+    if (!(await checkGroup(group, key, input))) {
       throw new Error(
         `Something went wrong: {"error":"Unable to load a key ${key}"}`,
       );
@@ -43,7 +43,7 @@ function resolveCriteria(
  * @param {*} input strategy if exists
  * @return true if Switcher found
  */
-function checkGroup(
+async function checkGroup(
   groups: any[],
   key: string,
   input?: string[][],
@@ -54,7 +54,7 @@ function checkGroup(
       const configFound = config.filter((c: { key: string }) => c.key === key);
 
       // Switcher Configs are always supplied as the snapshot is loaded from components linked to the Switcher.
-      if (checkConfig(group, configFound[0], input)) {
+      if (await checkConfig(group, configFound[0], input)) {
         return true;
       }
     }
@@ -68,7 +68,7 @@ function checkGroup(
  * @param {*} input Strategy input if exists
  * @return true if Switcher found
  */
-function checkConfig(group: any, config: any, input?: string[][]) {
+async function checkConfig(group: any, config: any, input?: string[][]) {
   if (!config) {
     return false;
   }
@@ -82,13 +82,13 @@ function checkConfig(group: any, config: any, input?: string[][]) {
   }
 
   if (config.strategies) {
-    return checkStrategy(config, input || []);
+    return await checkStrategy(config, input || []);
   }
 
   return true;
 }
 
-function checkStrategy(config: any, input: string[][]) {
+async function checkStrategy(config: any, input: string[][]) {
   const { strategies } = config;
   const entry = services.getEntry(input);
 
@@ -97,23 +97,23 @@ function checkStrategy(config: any, input: string[][]) {
       continue;
     }
 
-    checkStrategyInput(entry, strategy);
+    await checkStrategyInput(entry, strategy);
   }
 
   return true;
 }
 
-function checkStrategyInput(entry?: any[], strategyInput?: any) {
+async function checkStrategyInput(entry?: any[], strategyInput?: any) {
   if (entry && entry.length) {
     const strategyEntry = entry.filter((e) => e.strategy === strategyInput.strategy);
     if (
       strategyEntry.length == 0 ||
-      !processOperation(
+      !(await processOperation(
         strategyInput.strategy,
         strategyInput.operation,
         strategyEntry[0].input,
         strategyInput.values,
-      )
+      ))
     ) {
       throw new CriteriaFailed(
         `Strategy '${strategyInput.strategy}' does not agree`,
@@ -126,7 +126,7 @@ function checkStrategyInput(entry?: any[], strategyInput?: any) {
   }
 }
 
-export default function checkCriteriaOffline(
+export default async function checkCriteriaOffline(
   snapshot: any,
   key: string,
   input?: string[][],
@@ -138,7 +138,7 @@ export default function checkCriteriaOffline(
   }
 
   const { data } = snapshot;
-  return resolveCriteria(data, key, input);
+  return await resolveCriteria(data, key, input);
 }
 
 class CriteriaFailed extends Error {

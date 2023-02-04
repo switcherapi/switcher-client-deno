@@ -2,6 +2,7 @@
 import Bypasser from './lib/bypasser/index.ts';
 import ExecutionLogger from './lib/utils/executionLogger.ts';
 import DateMoment from './lib/utils/datemoment.ts';
+import TimedMatch from './lib/utils/timed-match/index.ts';
 import { checkSwitchers, loadDomain, validateSnapshot } from './lib/snapshot.ts';
 import * as services from './lib/remote.ts';
 import checkCriteriaOffline from './lib/resolver.ts';
@@ -80,6 +81,8 @@ export class Switcher {
         this._options.retryTime = DEFAULT_RETRY_TIME.charAt(0);
         this._options.retryDurationIn = DEFAULT_RETRY_TIME.charAt(1);
       }
+
+      this._initTimedMatch(options);
     }
   }
 
@@ -210,6 +213,16 @@ export class Switcher {
         Switcher._context.token,
         switcherKeys,
       );
+    }
+  }
+
+  private static _initTimedMatch(options?: any) {
+    if ('regexMaxBlackList' in options) {
+      TimedMatch.setMaxBlackListed(options.regexMaxBlackList);
+    }
+
+    if ('regexMaxTimeLimit' in options) {
+      TimedMatch.setMaxTimeLimit(options.regexMaxTimeLimit);
     }
   }
 
@@ -365,11 +378,11 @@ export class Switcher {
 
     // verify if query from snapshot
     if (Switcher._options.offline) {
-      result = this._executeOfflineCriteria();
+      result = await this._executeOfflineCriteria();
     } else {
       await this.validate();
       if (Switcher._context.token === 'SILENT') {
-        result = this._executeOfflineCriteria();
+        result = await this._executeOfflineCriteria();
       } else {
         result = await this._executeOnlineCriteria(showReason);
       }
@@ -441,8 +454,8 @@ export class Switcher {
     }
   }
 
-  _executeOfflineCriteria() {
-    const response = checkCriteriaOffline(
+  async _executeOfflineCriteria() {
+    const response = await checkCriteriaOffline(
       Switcher._snapshot,
       this._key || '',
       this._input || [],

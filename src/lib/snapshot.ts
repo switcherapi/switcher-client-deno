@@ -3,6 +3,7 @@ import { existsSync } from 'https://deno.land/std@0.110.0/fs/mod.ts';
 
 import DateMoment from './utils/datemoment.ts';
 import IPCIDR from './utils/ipcidr.ts';
+import TimedMatch from './utils/timed-match/index.ts';
 import { parseJSON, payloadReader } from './utils/payloadReader.ts';
 import { CheckSwitcherError } from './exceptions/index.ts';
 import { checkSnapshotVersion, resolveSnapshot } from './remote.ts';
@@ -111,12 +112,12 @@ export const OperationsType = Object.freeze({
   HAS_ALL: 'HAS_ALL',
 });
 
-export const processOperation = (
+export const processOperation = async (
   strategy: string,
   operation: string,
   input: string,
   values: string[],
-) => {
+): Promise<boolean | undefined> => {
   switch (strategy) {
     case StrategiesType.NETWORK:
       return processNETWORK(operation, input, values);
@@ -248,26 +249,20 @@ function processDATE(operation: string, input: string, values: string[]) {
   }
 }
 
-function processREGEX(
+async function processREGEX(
   operation: string,
   input: string,
   values: string[],
-): boolean {
+): Promise<boolean> {
   switch (operation) {
-    case OperationsType.EXIST: {
-      for (const value of values) {
-        if (input.match(value)) {
-          return true;
-        }
-      }
-      return false;
-    }
+    case OperationsType.EXIST:
+      return await TimedMatch.tryMatch(values, input);
     case OperationsType.NOT_EXIST:
-      return !processREGEX(OperationsType.EXIST, input, values);
+      return !(await processREGEX(OperationsType.EXIST, input, values));
     case OperationsType.EQUAL:
-      return input.match(`\\b${values[0]}\\b`) != null;
+      return await TimedMatch.tryMatch([`\\b${values[0]}\\b`], input);
     case OperationsType.NOT_EQUAL:
-      return !processREGEX(OperationsType.EQUAL, input, values);
+      return !(await TimedMatch.tryMatch([`\\b${values[0]}\\b`], input));
     default:
       return false;
   }
