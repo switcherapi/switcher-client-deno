@@ -1,5 +1,5 @@
 import { describe, it, afterAll, beforeEach, beforeAll } from 'https://deno.land/std@0.176.0/testing/bdd.ts';
-import { assertEquals, assertRejects, assertFalse, assertExists } from 'https://deno.land/std@0.176.0/testing/asserts.ts';
+import { assertEquals, assertRejects, assertFalse } from 'https://deno.land/std@0.176.0/testing/asserts.ts';
 import { assertTrue } from './helper/utils.ts'
 
 import { StrategiesType } from '../src/lib/snapshot.ts';

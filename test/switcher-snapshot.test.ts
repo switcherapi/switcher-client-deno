@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 import { describe, it, afterAll, beforeEach } from 'https://deno.land/std@0.176.0/testing/bdd.ts';
 import { assertRejects, assertExists, assertFalse } from 'https://deno.land/std@0.176.0/testing/asserts.ts';
-import { given, givenError, tearDown, assertTrue, generateAuth, generateStatus } from './helper/utils.ts';
+import { given, givenError, tearDown, generateAuth, generateStatus } from './helper/utils.ts';
 
 import { Switcher } from '../mod.ts';
 
