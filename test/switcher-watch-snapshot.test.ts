@@ -1,6 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 import { describe, it, afterAll, beforeEach } from 'https://deno.land/std@0.176.0/testing/bdd.ts';
 import { assertEquals, assertFalse } from 'https://deno.land/std@0.176.0/testing/asserts.ts';
+import { existsSync } from 'https://deno.land/std@0.110.0/fs/mod.ts';
 import { assertTrue } from './helper/utils.ts';
 
 import { Switcher } from '../mod.ts';
@@ -38,7 +39,8 @@ describe('E2E test - Switcher offline - Watch Snapshot:', function () {
   
   afterAll(function() {
     Switcher.unloadSnapshot();
-    Deno.removeSync('generated-snapshots/', { recursive: true });
+    if (existsSync('generated-snapshots/'))
+      Deno.removeSync('generated-snapshots/', { recursive: true });
   });
 
   it('should read from snapshot - without watching', function () {
