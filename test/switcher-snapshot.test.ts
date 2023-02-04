@@ -36,7 +36,7 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     Deno.removeSync('generated-snapshots/', { recursive: true });
   });
 
-  it('should update snapshot', testSettings, async function () {
+  it('should update snapshot', testSettings, function () {
     //give
     given('POST@/criteria/auth', generateAuth(token, 5));
     given('GET@/criteria/snapshot_check/:version', generateStatus(false));

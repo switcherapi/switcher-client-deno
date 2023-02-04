@@ -199,7 +199,7 @@ describe('E2E test - Switcher offline:', function () {
       Error, 'Something went wrong: It was not possible to load the file at //somewhere/');
   });
 
-  it('should be valid - Offline mode', testSettings, async function () {
+  it('should be valid - Offline mode', testSettings, function () {
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
       offline: true,
       snapshotLocation: 'generated-snapshots/'
