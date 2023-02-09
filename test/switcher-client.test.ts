@@ -188,6 +188,18 @@ describe('E2E test - Switcher offline:', function () {
     assertTrue(await switcher.isItOn('FF2FOR2020'));
   });
 
+  it('should be valid - Offline mode', testSettings, async function () {
+    await delay(2000);
+    
+    Switcher.buildContext({ url, apiKey, domain, component, environment }, {
+      offline: true,
+      snapshotLocation: 'generated-snapshots/'
+    });
+    
+    await Switcher.loadSnapshot();
+    assertExists(Switcher.snapshot);
+  });
+
   it('should be invalid - Offline mode cannot load snapshot from an invalid path', testSettings, async function () {
     await delay(2000);
 
@@ -202,15 +214,4 @@ describe('E2E test - Switcher offline:', function () {
       Error, 'Something went wrong: It was not possible to load the file at //somewhere/');
   });
 
-  it('should be valid - Offline mode', testSettings, async function () {
-    await delay(2000);
-    
-    Switcher.buildContext({ url, apiKey, domain, component, environment }, {
-      offline: true,
-      snapshotLocation: 'generated-snapshots/'
-    });
-    
-    await Switcher.loadSnapshot();
-    assertExists(Switcher.snapshot);
-  });
 });
