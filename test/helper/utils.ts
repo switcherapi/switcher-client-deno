@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import { assertEquals } from "https://deno.land/std@0.176.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.177.0/testing/asserts.ts";
 import * as mf from 'https://deno.land/x/mock_fetch@0.3.0/mod.ts';
 
 export function given(route: string, expect: any, status = 200) {
