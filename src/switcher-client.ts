@@ -154,7 +154,8 @@ export class Switcher {
       return;
     }
 
-    Switcher._watcher = Deno.watchFs(`${Switcher._options.snapshotLocation}${Switcher._context.environment}.json`);
+    const snapshotFile = `${Switcher._options.snapshotLocation}${Switcher._context.environment}.json`;
+    Switcher._watcher = Deno.watchFs(snapshotFile);
     for await (const event of Switcher._watcher) {
       const dataString = JSON.stringify(event);
       if (Switcher._watchDebounce.has(dataString)) {
