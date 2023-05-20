@@ -137,7 +137,7 @@ export const processOperation = async (
 };
 
 function processNETWORK(operation: string, input: string, values: string[]) {
-  const cidrRegex = /^([\d]{1,3}\.){3}[\d]{1,3}(\/([\d]|[1-2][\d]|3[0-2]))$/;
+  const cidrRegex = /^(\d{1,3}\.){3}\d{1,3}(\/(\d|[1-2]\d|3[0-2]))$/;
   switch (operation) {
     case OperationsType.EXIST:
       return processNETWORK_Exist(input, values, cidrRegex);

@@ -1,5 +1,5 @@
-import { beforeEach, describe, it } from "https://deno.land/std@0.177.0/testing/bdd.ts";
-import { assertFalse } from 'https://deno.land/std@0.177.0/testing/asserts.ts';
+import { beforeEach, describe, it } from "https://deno.land/std@0.188.0/testing/bdd.ts";
+import { assertFalse } from 'https://deno.land/std@0.188.0/testing/asserts.ts';
 import { assertTrue } from './helper/utils.ts';
 import TimedMatch from "../src/lib/utils/timed-match/index.ts";
 

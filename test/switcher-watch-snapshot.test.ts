@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
-import { describe, it, afterAll, beforeEach } from 'https://deno.land/std@0.177.0/testing/bdd.ts';
-import { assertEquals, assertFalse } from 'https://deno.land/std@0.177.0/testing/asserts.ts';
+import { describe, it, afterAll, beforeEach } from 'https://deno.land/std@0.188.0/testing/bdd.ts';
+import { assertEquals, assertFalse } from 'https://deno.land/std@0.188.0/testing/asserts.ts';
 import { existsSync } from 'https://deno.land/std@0.110.0/fs/mod.ts';
 import { assertTrue } from './helper/utils.ts';
 
