@@ -1,5 +1,5 @@
-import { assertThrows, assertFalse } from 'https://deno.land/std@0.177.0/testing/asserts.ts';
-import { describe, it } from 'https://deno.land/std@0.177.0/testing/bdd.ts';
+import { assertThrows, assertFalse } from 'https://deno.land/std@0.188.0/testing/asserts.ts';
+import { describe, it } from 'https://deno.land/std@0.188.0/testing/bdd.ts';
 import { assertTrue } from './helper/utils.ts';
 import DateMoment from '../src/lib/utils/datemoment.ts';
 

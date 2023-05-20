@@ -186,24 +186,3 @@ For convenience, an implementation of a domain version checker is available if y
 ```ts
 Switcher.checkSnapshot();
 ```
-
-# Developer Hints
-
-## VS Code - Deno Extension
-You may want to set this vscode settings if you use VSCode with Deno extension.
-
-1. Create folder/file .vscode/settings.json
-2. Add the following content:
-
-```json
-{
-    "deno.enable": true,
-    "deno.enablePaths": [],
-    "[typescript]": {
-        "editor.defaultFormatter": "denoland.vscode-deno"
-    },
-    "[typescriptreact]": {
-        "editor.defaultFormatter": "denoland.vscode-deno"
-    }
-}
-```

@@ -166,19 +166,7 @@ export class Switcher {
       Switcher._watchDebounce.set(
         dataString,
         setTimeout(() => {
-          Switcher._watchDebounce.delete(dataString);
-          if (event.kind === 'modify') {
-            try {
-              Switcher._snapshot = loadDomain(
-                Switcher._options.snapshotLocation,
-                Switcher._context.environment,
-              );
-
-              if (success) success();
-            } catch (e) {
-              if (error) error(e);
-            }
-          }
+          Switcher._onModifySnapshot(dataString, event, success, error);
         }, 20),
       );
     }
@@ -214,6 +202,26 @@ export class Switcher {
         Switcher._context.token,
         switcherKeys,
       );
+    }
+  }
+
+  private static _onModifySnapshot(dataString: string, event: Deno.FsEvent, success: any, error: any) {
+    Switcher._watchDebounce.delete(dataString);
+    if (event.kind === 'modify') {
+      try {
+        Switcher._snapshot = loadDomain(
+          Switcher._options.snapshotLocation,
+          Switcher._context.environment,
+        );
+
+        if (success) {
+          success();
+        }
+      } catch (e) {
+        if (error) {
+          error(e);
+        }
+      }
     }
   }
 
