@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
 import { describe, it, afterAll, beforeEach } from 'https://deno.land/std@0.188.0/testing/bdd.ts';
 import { assertRejects, assertFalse, assertExists } from 'https://deno.land/std@0.188.0/testing/asserts.ts';
 import { delay } from 'https://deno.land/std@0.177.0/async/delay.ts';
@@ -6,12 +5,13 @@ import { existsSync } from 'https://deno.land/std@0.110.0/fs/mod.ts';
 import { given, givenError, tearDown, generateAuth, generateStatus, assertTrue } from './helper/utils.ts';
 
 import { Switcher } from '../mod.ts';
+import { SwitcherContext } from '../src/types/index.d.ts';
 
 const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExit: false };
 
 describe('E2E test - Switcher offline - Snapshot:', function () {
   const token = '[token]';
-  let contextSettings: any;
+  let contextSettings: SwitcherContext;
 
   const dataBuffer = Deno.readTextFileSync('./snapshot/dev.json');
   const dataJSON = dataBuffer.toString();

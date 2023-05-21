@@ -1,9 +1,10 @@
 // deno-lint-ignore-file no-explicit-any
 import { processOperation } from './snapshot.ts';
 import * as services from '../lib/remote.ts';
+import { Config, Group, Snapshot, SnapshotData } from '../types/index.d.ts';
 
 async function resolveCriteria(
-  data: any,
+  data: SnapshotData,
   key: string,
   input?: string[][],
 ) {
@@ -44,7 +45,7 @@ async function resolveCriteria(
  * @return true if Switcher found
  */
 async function checkGroup(
-  groups: any[],
+  groups: Group[],
   key: string,
   input?: string[][],
 ) {
@@ -68,7 +69,7 @@ async function checkGroup(
  * @param {*} input Strategy input if exists
  * @return true if Switcher found
  */
-async function checkConfig(group: any, config: any, input?: string[][]) {
+async function checkConfig(group: Group, config: Config, input?: string[][]) {
   if (!config) {
     return false;
   }
@@ -88,7 +89,7 @@ async function checkConfig(group: any, config: any, input?: string[][]) {
   return true;
 }
 
-async function checkStrategy(config: any, input: string[][]) {
+async function checkStrategy(config: Config, input: string[][]) {
   const { strategies } = config;
   const entry = services.getEntry(input);
 
@@ -127,7 +128,7 @@ async function checkStrategyInput(entry?: any[], strategyInput?: any) {
 }
 
 export default async function checkCriteriaOffline(
-  snapshot: any,
+  snapshot: Snapshot | undefined,
   key: string,
   input?: string[][],
 ) {

@@ -6,6 +6,7 @@ import TimedMatch from './lib/utils/timed-match/index.ts';
 import { checkSwitchers, loadDomain, validateSnapshot } from './lib/snapshot.ts';
 import * as services from './lib/remote.ts';
 import checkCriteriaOffline from './lib/resolver.ts';
+import { RetryOptions, Snapshot, SwitcherContext, SwitcherOptions } from './types/index.d.ts';
 
 const DEFAULT_ENVIRONMENT = 'default';
 const DEFAULT_SNAPSHOT_LOCATION = './snapshot/';
@@ -26,9 +27,10 @@ export class Switcher {
   private static _watcher: Deno.FsWatcher;
   private static _watchDebounce = new Map<string, number>();
 
-  private static _snapshot: any;
-  private static _context: any;
-  private static _options: any;
+  private static _snapshot?: Snapshot;
+  private static _context: SwitcherContext;
+  private static _options: SwitcherOptions;
+  private static _retryOptions: RetryOptions;
 
   private _delay = 0;
   private _nextRun = 0;
@@ -41,11 +43,14 @@ export class Switcher {
    * @param context Necessary arguments
    * @param options
    */
-  static buildContext(context: any, options?: any) {
+  static buildContext(context: SwitcherContext, options?: SwitcherOptions) {
     this._testEnabled = DEFAULT_TEST_MODE;
 
     this._snapshot = undefined;
-    this._context = {};
+    this._context = {
+      domain: context.domain,
+      environment: context.environment,
+    };
     this._context = context;
     this._context.url = context.url;
     this._context.environment = context.environment || DEFAULT_ENVIRONMENT;
@@ -75,11 +80,15 @@ export class Switcher {
       }
 
       if ('retryAfter' in options) {
-        this._options.retryTime = options.retryAfter.slice(0, -1);
-        this._options.retryDurationIn = options.retryAfter.slice(-1);
+        this._retryOptions = {
+          retryTime: parseInt(options.retryAfter?.slice(0, -1) || DEFAULT_RETRY_TIME.charAt(0)),
+          retryDurationIn: options.retryAfter?.slice(-1) || DEFAULT_RETRY_TIME.charAt(1),
+        };
       } else {
-        this._options.retryTime = DEFAULT_RETRY_TIME.charAt(0);
-        this._options.retryDurationIn = DEFAULT_RETRY_TIME.charAt(1);
+        this._retryOptions = {
+          retryTime: parseInt(DEFAULT_RETRY_TIME.charAt(0)),
+          retryDurationIn: DEFAULT_RETRY_TIME.charAt(1),
+        };
       }
 
       this._initTimedMatch(options);
@@ -128,11 +137,11 @@ export class Switcher {
    */
   static async loadSnapshot(watchSnapshot?: boolean) {
     Switcher._snapshot = loadDomain(
-      Switcher._options.snapshotLocation,
+      Switcher._options.snapshotLocation || '',
       Switcher._context.environment,
     );
     if (
-      Switcher._snapshot.data.domain.version == 0 &&
+      Switcher._snapshot?.data.domain.version == 0 &&
       !Switcher._options.offline
     ) {
       await Switcher.checkSnapshot();
@@ -193,12 +202,12 @@ export class Switcher {
    * @throws when one or more Switcher Keys were not found
    */
   static async checkSwitchers(switcherKeys: string[]) {
-    if (Switcher._options.offline) {
+    if (Switcher._options.offline && Switcher._snapshot) {
       checkSwitchers(Switcher._snapshot, switcherKeys);
     } else {
       await Switcher._auth();
       await services.checkSwitchers(
-        Switcher._context.url,
+        Switcher._context.url || '',
         Switcher._context.token,
         switcherKeys,
       );
@@ -210,7 +219,7 @@ export class Switcher {
     if (event.kind === 'modify') {
       try {
         Switcher._snapshot = loadDomain(
-          Switcher._options.snapshotLocation,
+          Switcher._options.snapshotLocation || '',
           Switcher._context.environment,
         );
 
@@ -250,8 +259,8 @@ export class Switcher {
       ) {
         const expirationTime = new DateMoment(new Date())
           .add(
-            Switcher._options.retryTime,
-            Switcher._options.retryDurationIn,
+            Switcher._retryOptions.retryTime,
+            Switcher._retryOptions.retryDurationIn,
           )
           .getDate();
 
@@ -260,11 +269,11 @@ export class Switcher {
       }
     }
 
-    const response = await services.checkAPIHealth(Switcher._context.url, {
-      silentMode: Switcher._options.silentMode,
-      retryTime: Switcher._options.retryTime,
-      retryDurationIn: Switcher._options.retryDurationIn,
-    });
+    const response = await services.checkAPIHealth(
+      Switcher._context.url || '',
+      Switcher._options,
+      Switcher._retryOptions,
+    );
 
     if (response) {
       Switcher._context.token = response.data.token;

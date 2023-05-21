@@ -7,10 +7,11 @@ import {
   CriteriaError,
   SnapshotServiceError,
 } from './exceptions/index.ts';
+import { RetryOptions, SwitcherContext, SwitcherOptions } from '../types/index.d.ts';
 
 const getConnectivityError = (code: string) => `Connection has been refused - ${code}`;
 
-const getHeader = (token: string) => {
+const getHeader = (token: string | undefined) => {
   return {
     'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json',
@@ -37,7 +38,7 @@ export const getEntry = (input?: string[][]) => {
   return entry;
 };
 
-export const checkAPIHealth = async (url: string, options: any) => {
+export const checkAPIHealth = async (url: string, options: SwitcherOptions, retryOptions: RetryOptions) => {
   try {
     const response = await fetch(`${url}/check`, { method: 'get' });
     if (response.status != 200) {
@@ -47,7 +48,7 @@ export const checkAPIHealth = async (url: string, options: any) => {
     if (options && 'silentMode' in options) {
       if (options.silentMode) {
         const expirationTime = new DateMoment(new Date())
-          .add(options.retryTime, options.retryDurationIn).getDate();
+          .add(retryOptions.retryTime, retryOptions.retryDurationIn).getDate();
 
         return {
           data: {
@@ -61,7 +62,7 @@ export const checkAPIHealth = async (url: string, options: any) => {
 };
 
 export const checkCriteria = async (
-  context: any,
+  context: SwitcherContext,
   key?: string,
   input?: string[][],
   showReason = false,
@@ -85,7 +86,7 @@ export const checkCriteria = async (
   }
 };
 
-export const auth = async (context: any) => {
+export const auth = async (context: SwitcherContext) => {
   try {
     const response = await fetch(`${context.url}/criteria/auth`, {
       method: 'post',
@@ -95,7 +96,7 @@ export const auth = async (context: any) => {
         environment: context.environment,
       }),
       headers: {
-        'switcher-api-key': context.apiKey,
+        'switcher-api-key': context.apiKey || '',
         'Content-Type': 'application/json',
       },
     });
@@ -108,7 +109,7 @@ export const auth = async (context: any) => {
 
 export const checkSwitchers = async (
   url: string,
-  token: string,
+  token: string | undefined,
   switcherKeys: string[],
 ) => {
   try {
