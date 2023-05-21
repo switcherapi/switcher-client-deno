@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
 import { describe, it, afterAll, afterEach, beforeEach } from 'https://deno.land/std@0.188.0/testing/bdd.ts';
 import { assertEquals, assertNotEquals, assertRejects, assertFalse } from 'https://deno.land/std@0.188.0/testing/asserts.ts';
 import { assertSpyCalls, spy } from 'https://deno.land/std@0.177.0/testing/mock.ts';
@@ -14,10 +13,11 @@ import {
   checkNumeric, 
   checkPayload
 } from '../mod.ts';
+import { SwitcherContext } from '../src/types/index.d.ts';
 
 describe('Integrated test - Switcher:', function () {
 
-  let contextSettings: any;
+  let contextSettings: SwitcherContext;
 
   afterAll(function() {
     Switcher.unloadSnapshot();

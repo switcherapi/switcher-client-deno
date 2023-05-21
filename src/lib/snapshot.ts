@@ -7,6 +7,7 @@ import TimedMatch from './utils/timed-match/index.ts';
 import { parseJSON, payloadReader } from './utils/payloadReader.ts';
 import { CheckSwitcherError } from './exceptions/index.ts';
 import { checkSnapshotVersion, resolveSnapshot } from './remote.ts';
+import { Snapshot, SwitcherContext } from '../types/index.d.ts';
 
 export const loadDomain = (snapshotLocation: string, environment: string) => {
   let dataJSON;
@@ -36,23 +37,23 @@ export const loadDomain = (snapshotLocation: string, environment: string) => {
 };
 
 export const validateSnapshot = async (
-  context: any,
-  snapshotLocation: string,
+  context: SwitcherContext,
+  snapshotLocation: string | undefined,
   snapshotVersion: number,
 ) => {
   const { status } = await checkSnapshotVersion(
-    context.url,
-    context.token,
+    context.url || '',
+    context.token || '',
     snapshotVersion,
   );
 
   if (!status) {
     const snapshot = await resolveSnapshot(
-      context.url,
-      context.token,
+      context.url || '',
+      context.token || '',
       context.domain,
       context.environment,
-      context.component,
+      context.component || '',
     );
 
     Deno.writeTextFile(
@@ -64,7 +65,7 @@ export const validateSnapshot = async (
   return false;
 };
 
-export const checkSwitchers = (snapshot: any, switcherKeys: string[]) => {
+export const checkSwitchers = (snapshot: Snapshot, switcherKeys: string[]) => {
   const { group } = snapshot.data.domain;
   const notFound = [];
   let found = false;
