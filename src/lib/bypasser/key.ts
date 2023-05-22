@@ -3,11 +3,11 @@
  */
 export default class Key {
   key: string;
-  value?: boolean;
+  value: boolean;
 
   constructor(key: string) {
     this.key = key;
-    this.value = undefined;
+    this.value = false;
   }
 
   /**
@@ -34,7 +34,7 @@ export default class Key {
   /**
    * Return current value
    */
-  getValue(): boolean | undefined {
+  getValue(): boolean {
     return this.value;
   }
 }

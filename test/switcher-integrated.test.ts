@@ -56,6 +56,20 @@ describe('Integrated test - Switcher:', function () {
       assertTrue(await switcher.isItOn());
     });
 
+    it('should NOT be valid - API returned 429 (too many requests)', async function () {
+      // given API responding properly
+      given('GET@/check', null);
+      given('POST@/criteria/auth', null, 429);
+
+      // test
+      Switcher.buildContext(contextSettings);
+      const switcher = Switcher.factory();
+      
+      await assertRejects(async () =>
+        await switcher.isItOn('FLAG_1'),
+        Error, 'Something went wrong: [auth] failed with status 429');
+    });
+
     it('should be valid - throttle', async function () {
       // given API responding properly
       given('GET@/check', null);
@@ -92,6 +106,84 @@ describe('Integrated test - Switcher:', function () {
       // Throttle expired, set up new throttle run timer
       assertNotEquals(throttledRunTimer, switcher.nextRun);
     });
+  });
+
+  describe('check fail response (e2e):', function () {
+
+    let contextSettings: SwitcherContext;
+
+    afterAll(function() {
+      Switcher.unloadSnapshot();
+    });
+
+    beforeEach(function() {
+      tearDown();
+      Switcher.setTestEnabled();
+  
+      contextSettings = { 
+        url: 'http://localhost:3000',
+        apiKey: '[apiKey]', 
+        domain: '[domain]', 
+        component: '[component]', 
+        environment: 'default' 
+      };
+    });
+
+    it('should NOT be valid - API returned 429 (too many requests) at checkHealth/auth', async function () {
+      // given API responding properly
+      given('GET@/check', null, 429);
+      given('POST@/criteria/auth', { error: 'Too many requests' }, 429);
+
+      // test
+      Switcher.buildContext(contextSettings);
+      const switcher = Switcher.factory();
+      
+      await assertRejects(async () =>
+        await switcher.isItOn('FLAG_1'),
+        Error, 'Something went wrong: [auth] failed with status 429');
+    });
+
+    it('should NOT be valid - API returned 429 (too many requests) at checkCriteria', async function () {
+      // given API responding properly
+      given('GET@/check', null);
+      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
+      given('POST@/criteria', { error: 'Too many requests' }, 429);
+
+      // test
+      Switcher.buildContext(contextSettings);
+      const switcher = Switcher.factory();
+      
+      await assertRejects(async () =>
+        await switcher.isItOn('FLAG_1'),
+        Error, 'Something went wrong: [checkCriteria] failed with status 429');
+    });
+
+    it('should use silent mode when fail to check switchers', async function() {
+      //given
+      given('GET@/check', null, 429);
+
+      //test
+      Switcher.buildContext(contextSettings, { silentMode: true });
+      await assertRejects(async () =>
+        await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02']),
+        Error, 'Something went wrong: [FEATURE01,FEATURE02] not found');
+
+      await Switcher.checkSwitchers(['FF2FOR2021', 'FF2FOR2021']);
+    });
+
+    it('should use silent mode when fail to check criteria', async function () {
+      // given API responding properly
+      given('GET@/check', null);
+      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
+      given('POST@/criteria', { error: 'Too many requests' }, 429);
+
+      // test
+      Switcher.buildContext(contextSettings, { silentMode: true });
+      const switcher = Switcher.factory();
+      
+      assertTrue(await switcher.isItOn('FF2FOR2022'));
+    });
+
   });
 
   describe('check criteria:', function () {

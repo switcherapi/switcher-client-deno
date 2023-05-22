@@ -150,3 +150,63 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
   });
 
 });
+
+describe('E2E test - Fail response - Snapshot:', function () {
+  const token = '[token]';
+  let contextSettings: SwitcherContext;
+
+  beforeEach(function() {
+    Switcher.unloadSnapshot();
+    
+    contextSettings = { 
+      url: 'http://localhost:3000',
+      apiKey: '[api_key]',
+      domain: 'Business',
+      component: 'business-service',
+      environment: 'dev'
+    };
+    
+    Switcher.buildContext(contextSettings, {
+      offline: true
+    });
+
+    Switcher.setTestEnabled();
+    tearDown();
+  });
+
+  afterAll(function() {
+    Switcher.unloadSnapshot();
+    if (existsSync('generated-snapshots/'))
+      Deno.removeSync('generated-snapshots/', { recursive: true });
+  });
+
+  it('should NOT update snapshot - Too many requests at checkSnapshotVersion', async function () {
+    //give
+    given('POST@/criteria/auth', generateAuth(token, 5));
+    given('GET@/criteria/snapshot_check/:version', null, 429);
+    
+    //test
+    Switcher.setTestEnabled();
+    await Switcher.loadSnapshot();
+    await assertRejects(async () =>
+        await Switcher.checkSnapshot(),
+        Error, 'Something went wrong: [checkSnapshotVersion] failed with status 429');
+  });
+
+  it('should NOT update snapshot - Too many requests at resolveSnapshot', async function () {
+    //given
+    given('POST@/criteria/auth', generateAuth(token, 5));
+    given('GET@/criteria/snapshot_check/:version', generateStatus(false)); // Snapshot outdated
+    given('POST@/graphql', null, 429);
+
+    //test
+    Switcher.buildContext(contextSettings, {
+      snapshotLocation: 'generated-snapshots/'
+    });
+
+    await assertRejects(async () =>
+      await Switcher.loadSnapshot(),
+      Error, 'Something went wrong: [resolveSnapshot] failed with status 429');
+  });
+
+});
