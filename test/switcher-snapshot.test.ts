@@ -180,7 +180,7 @@ describe('E2E test - Fail response - Snapshot:', function () {
       Deno.removeSync('generated-snapshots/', { recursive: true });
   });
 
-  it('should NOT update snapshot - Too many requests at checkSnapshotVersion', async function () {
+  it('should NOT update snapshot - Too many requests at checkSnapshotVersion', testSettings, async function () {
     //give
     given('POST@/criteria/auth', generateAuth(token, 5));
     given('GET@/criteria/snapshot_check/:version', null, 429);
@@ -193,7 +193,7 @@ describe('E2E test - Fail response - Snapshot:', function () {
         Error, 'Something went wrong: [checkSnapshotVersion] failed with status 429');
   });
 
-  it('should NOT update snapshot - Too many requests at resolveSnapshot', async function () {
+  it('should NOT update snapshot - Too many requests at resolveSnapshot', testSettings, async function () {
     //given
     given('POST@/criteria/auth', generateAuth(token, 5));
     given('GET@/criteria/snapshot_check/:version', generateStatus(false)); // Snapshot outdated
