@@ -18,6 +18,22 @@ const getHeader = (token: string | undefined) => {
   };
 };
 
+const trySilent = (options: SwitcherOptions, retryOptions: RetryOptions) => {
+  if (options && 'silentMode' in options) {
+    if (options.silentMode) {
+      const expirationTime = new DateMoment(new Date())
+        .add(retryOptions.retryTime, retryOptions.retryDurationIn).getDate();
+
+      return {
+        data: {
+          token: 'SILENT',
+          exp: expirationTime.getTime() / 1000,
+        },
+      };
+    }
+  }
+};
+
 export const getEntry = (input?: string[][]) => {
   if (!input) {
     return undefined;
@@ -45,19 +61,7 @@ export const checkAPIHealth = async (url: string, options: SwitcherOptions, retr
       throw new ApiConnectionError('API is offline');
     }
   } catch (_e) {
-    if (options && 'silentMode' in options) {
-      if (options.silentMode) {
-        const expirationTime = new DateMoment(new Date())
-          .add(retryOptions.retryTime, retryOptions.retryDurationIn).getDate();
-
-        return {
-          data: {
-            token: 'SILENT',
-            exp: expirationTime.getTime() / 1000,
-          },
-        };
-      }
-    }
+    return trySilent(options, retryOptions);
   }
 };
 
@@ -78,7 +82,11 @@ export const checkCriteria = async (
       },
     );
 
-    return response.json();
+    if (response.status == 200) {
+      return response.json();
+    }
+
+    throw new Error(`[checkCriteria] failed with status ${response.status}`);
   } catch (e) {
     throw new CriteriaError(
       e.errno ? getConnectivityError(e.errno) : e.message,
@@ -101,7 +109,11 @@ export const auth = async (context: SwitcherContext) => {
       },
     });
 
-    return response.json();
+    if (response.status == 200) {
+      return response.json();
+    }
+
+    throw new Error(`[auth] failed with status ${response.status}`);
   } catch (e) {
     throw new AuthError(e.errno ? getConnectivityError(e.errno) : e.message);
   }
@@ -145,7 +157,11 @@ export const checkSnapshotVersion = async (
       headers: getHeader(token),
     });
 
-    return response.json();
+    if (response.status == 200) {
+      return response.json();
+    }
+
+    throw new Error(`[checkSnapshotVersion] failed with status ${response.status}`);
   } catch (e) {
     throw new SnapshotServiceError(
       e.errno ? getConnectivityError(e.errno) : e.message,
@@ -182,7 +198,11 @@ export const resolveSnapshot = async (
       headers: getHeader(token),
     });
 
-    return JSON.stringify(await response.json(), null, 4);
+    if (response.status == 200) {
+      return JSON.stringify(await response.json(), null, 4);
+    }
+
+    throw new Error(`[resolveSnapshot] failed with status ${response.status}`);
   } catch (e) {
     throw new SnapshotServiceError(
       e.errno ? getConnectivityError(e.errno) : e.message,

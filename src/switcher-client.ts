@@ -205,12 +205,20 @@ export class Switcher {
     if (Switcher._options.offline && Switcher._snapshot) {
       checkSwitchers(Switcher._snapshot, switcherKeys);
     } else {
-      await Switcher._auth();
-      await services.checkSwitchers(
-        Switcher._context.url || '',
-        Switcher._context.token,
-        switcherKeys,
-      );
+      try {
+        await Switcher._auth();
+        await services.checkSwitchers(
+          Switcher._context.url || '',
+          Switcher._context.token,
+          switcherKeys,
+        );
+      } catch (e) {
+        if (Switcher._options.silentMode) {
+          checkSwitchers(Switcher._snapshot!, switcherKeys);
+        } else {
+          throw e;
+        }
+      }
     }
   }
 
@@ -384,7 +392,7 @@ export class Switcher {
    * @param input
    * @param showReason Display details when using ExecutionLogger
    */
-  async isItOn(key?: string, input?: string[][], showReason = false) {
+  async isItOn(key?: string, input?: string[][], showReason = false): Promise<boolean> {
     let result;
     this._validateArgs(key, input);
 
@@ -398,11 +406,19 @@ export class Switcher {
     if (Switcher._options.offline) {
       result = await this._executeOfflineCriteria();
     } else {
-      await this.validate();
-      if (Switcher._context.token === 'SILENT') {
-        result = await this._executeOfflineCriteria();
-      } else {
-        result = await this._executeOnlineCriteria(showReason);
+      try {
+        await this.validate();
+        if (Switcher._context.token === 'SILENT') {
+          result = await this._executeOfflineCriteria();
+        } else {
+          result = await this._executeOnlineCriteria(showReason);
+        }
+      } catch (e) {
+        if (Switcher._options.silentMode) {
+          return this._executeOfflineCriteria();
+        }
+
+        throw e;
       }
     }
 
