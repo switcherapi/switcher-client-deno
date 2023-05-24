@@ -3,6 +3,7 @@ import Bypasser from './lib/bypasser/index.ts';
 import ExecutionLogger from './lib/utils/executionLogger.ts';
 import DateMoment from './lib/utils/datemoment.ts';
 import TimedMatch from './lib/utils/timed-match/index.ts';
+import SnapshotAutoUpdater from './lib/utils/snapshotAutoUpdater.ts';
 import { checkSwitchers, loadDomain, validateSnapshot } from './lib/snapshot.ts';
 import * as services from './lib/remote.ts';
 import checkCriteriaOffline from './lib/resolver.ts';
@@ -56,27 +57,22 @@ export class Switcher {
     this._context.environment = context.environment || DEFAULT_ENVIRONMENT;
 
     // Default values
-    this._options = {};
-    this._options.offline = DEFAULT_OFFLINE;
-    this._options.snapshotLocation = DEFAULT_SNAPSHOT_LOCATION;
-    this._options.logger = DEFAULT_LOGGER;
+    this._options = {
+      snapshotAutoUpdateInterval: 0,
+      snapshotLocation: options?.snapshotLocation || DEFAULT_SNAPSHOT_LOCATION,
+      offline: options?.offline != undefined ? options.offline : DEFAULT_OFFLINE,
+      logger: options?.logger != undefined ? options.logger : DEFAULT_LOGGER,
+    };
 
     if (options) {
-      if ('offline' in options) {
-        this._options.offline = options.offline;
-      }
-
-      if ('snapshotLocation' in options) {
-        this._options.snapshotLocation = options.snapshotLocation;
-      }
-
       if ('silentMode' in options) {
         this._options.silentMode = options.silentMode;
         this.loadSnapshot();
       }
 
-      if ('logger' in options) {
-        this._options.logger = options.logger;
+      if ('snapshotAutoUpdateInterval' in options) {
+        this._options.snapshotAutoUpdateInterval = options.snapshotAutoUpdateInterval;
+        this.scheduleSnapshotAutoUpdate();
       }
 
       if ('retryAfter' in options) {
@@ -113,17 +109,17 @@ export class Switcher {
         Date.now() > (Switcher._context.exp * 1000)
       ) {
         await Switcher._auth();
+      }
 
-        const result = await validateSnapshot(
-          Switcher._context,
-          Switcher._options.snapshotLocation,
-          Switcher._snapshot.data.domain.version,
-        );
+      const result = await validateSnapshot(
+        Switcher._context,
+        Switcher._options.snapshotLocation,
+        Switcher._snapshot.data.domain.version,
+      );
 
-        if (result) {
-          Switcher.loadSnapshot();
-          return true;
-        }
+      if (result) {
+        Switcher.loadSnapshot();
+        return true;
       }
     }
 
@@ -135,14 +131,14 @@ export class Switcher {
    *
    * @param watchSnapshot enable watchSnapshot when true
    */
-  static async loadSnapshot(watchSnapshot?: boolean) {
+  static async loadSnapshot(watchSnapshot?: boolean, fecthOnline?: boolean) {
     Switcher._snapshot = loadDomain(
       Switcher._options.snapshotLocation || '',
       Switcher._context.environment,
     );
     if (
       Switcher._snapshot?.data.domain.version == 0 &&
-      !Switcher._options.offline
+      (fecthOnline || !Switcher._options.offline)
     ) {
       await Switcher.checkSnapshot();
     }
@@ -193,6 +189,30 @@ export class Switcher {
     if (Switcher._watcher?.rid in Deno.resources()) {
       Deno.close(Switcher._watcher.rid);
     }
+  }
+
+  /**
+   * Schedule Snapshot auto update.
+   * It can also be configured using SwitcherOptions 'snapshotAutoUpdateInterval' when
+   * building context
+   *
+   * @param interval in ms
+   */
+  static scheduleSnapshotAutoUpdate(interval?: number) {
+    if (interval) {
+      Switcher._options.snapshotAutoUpdateInterval = interval;
+    }
+
+    if (Switcher._options.snapshotAutoUpdateInterval && Switcher._options.snapshotAutoUpdateInterval > 0) {
+      SnapshotAutoUpdater.schedule(Switcher._options.snapshotAutoUpdateInterval, this.checkSnapshot);
+    }
+  }
+
+  /**
+   * Terminates Snapshot Auto Update
+   */
+  static terminateSnapshotAutoUpdate() {
+    SnapshotAutoUpdater.terminate();
   }
 
   /**

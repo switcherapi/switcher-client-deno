@@ -26,6 +26,7 @@ export interface SwitcherOptions {
   offline?: boolean;
   logger?: boolean;
   snapshotLocation?: string;
+  snapshotAutoUpdateInterval?: number;
   silentMode?: boolean;
   retryAfter?: string;
   regexMaxBlackList?: number;
