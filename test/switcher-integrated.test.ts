@@ -253,13 +253,13 @@ describe('Integrated test - Switcher:', function () {
       //given
       given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-      given('POST@/criteria/switchers_check', { errors: [ { msg: 'Switcher Key is required' } ] }, 422);
+      given('POST@/criteria/switchers_check', null, 422);
 
       //test
       Switcher.buildContext(contextSettings);
       await assertRejects(async () =>
         await Switcher.checkSwitchers([]),
-        Error, 'Something went wrong: Switcher Key is required');
+        Error, 'Something went wrong: [checkSwitchers] failed with status 422');
     });
     
     it('should renew the token after expiration', async function () {

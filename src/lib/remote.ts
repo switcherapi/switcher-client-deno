@@ -131,11 +131,11 @@ export const checkSwitchers = async (
       headers: getHeader(token),
     });
 
-    const json = await response.json();
     if (response.status != 200) {
-      throw new CriteriaError(json.errors[0].msg);
+      throw new Error(`[checkSwitchers] failed with status ${response.status}`);
     }
 
+    const json = await response.json();
     if (json.not_found.length) {
       throw new CheckSwitcherError(json.not_found);
     }
