@@ -1,7 +1,4 @@
-import { describe, it, afterAll, beforeEach } from 'https://deno.land/std@0.188.0/testing/bdd.ts';
-import { assertRejects, assertFalse, assertExists } from 'https://deno.land/std@0.188.0/testing/asserts.ts';
-import { delay } from 'https://deno.land/std@0.177.0/async/delay.ts';
-import { existsSync } from 'https://deno.land/std@0.110.0/fs/mod.ts';
+import { describe, it, afterAll, beforeEach, assertRejects, assertFalse, assertExists, delay, existsSync } from './deps.ts';
 import { given, givenError, tearDown, generateAuth, generateStatus, assertTrue, WaitSafe } from './helper/utils.ts';
 
 import { Switcher } from '../mod.ts';
