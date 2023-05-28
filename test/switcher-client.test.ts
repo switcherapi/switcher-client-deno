@@ -1,5 +1,4 @@
-import { describe, it, afterAll, beforeEach, beforeAll } from 'https://deno.land/std@0.188.0/testing/bdd.ts';
-import { assertEquals, assertRejects, assertFalse, assertExists } from 'https://deno.land/std@0.188.0/testing/asserts.ts';
+import { describe, it, afterAll, beforeEach, beforeAll, assertEquals, assertRejects, assertFalse, assertExists } from './deps.ts';
 import { delay } from 'https://deno.land/std@0.177.0/async/delay.ts';
 import { assertTrue } from './helper/utils.ts'
 

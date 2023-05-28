@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "fmt": "deno fmt mod.ts src/ --options-single-quote --options-line-width=120 --check",
+    "test": "deno test --unstable --allow-read --allow-net --allow-write --coverage=coverage",
+    "lcov": "deno coverage coverage --lcov --output=coverage/report.lcov",
+    "cover": "deno task clean && deno task test && deno task lcov && genhtml -o coverage/html coverage/report.lcov",
+    "clean": "rm -rf ./npm ./coverage"
+  }
+}

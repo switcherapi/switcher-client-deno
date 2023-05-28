@@ -1,5 +1,4 @@
-import { assertFalse } from 'https://deno.land/std@0.188.0/testing/asserts.ts';
-import { describe, it } from 'https://deno.land/std@0.188.0/testing/bdd.ts';
+import { describe, it, assertFalse } from '../deps.ts';
 import { assertTrue } from '../helper/utils.ts';
 import {
   OperationsType,
