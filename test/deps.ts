@@ -16,5 +16,5 @@ export {
     afterEach 
 } from 'https://deno.land/std@0.188.0/testing/bdd.ts';
 export { delay } from 'https://deno.land/std@0.177.0/async/delay.ts';
-export { existsSync } from 'https://deno.land/std@0.110.0/fs/mod.ts';
+export { existsSync } from 'https://deno.land/std@0.190.0/fs/mod.ts';
 export * as mf from 'https://deno.land/x/mock_fetch@0.3.0/mod.ts';
