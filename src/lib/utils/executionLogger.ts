@@ -1,10 +1,11 @@
-// deno-lint-ignore-file no-explicit-any
+import { Criteria } from '../../types/index.d.ts';
+
 const logger: ExecutionLogger[] = [];
 
 export default class ExecutionLogger {
   key: string;
   input?: string[][];
-  response: any;
+  response: Criteria = { result: false };
 
   constructor(key: string) {
     this.key = key;
@@ -19,7 +20,7 @@ export default class ExecutionLogger {
    * @param response
    */
   static add(
-    response: any,
+    response: Criteria,
     key: string,
     input?: string[][],
   ): void {

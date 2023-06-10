@@ -1,7 +1,6 @@
-// deno-lint-ignore-file no-explicit-any
 import { processOperation } from './snapshot.ts';
 import * as services from '../lib/remote.ts';
-import { Config, Group, Snapshot, SnapshotData } from '../types/index.d.ts';
+import { Config, Entry, Group, Snapshot, SnapshotData, Strategy } from '../types/index.d.ts';
 
 async function resolveCriteria(
   data: SnapshotData,
@@ -98,14 +97,14 @@ async function checkStrategy(config: Config, input: string[][]) {
       continue;
     }
 
-    await checkStrategyInput(entry, strategy);
+    await checkStrategyInput(strategy, entry);
   }
 
   return true;
 }
 
-async function checkStrategyInput(entry?: any[], strategyInput?: any) {
-  if (entry && entry.length) {
+async function checkStrategyInput(strategyInput: Strategy, entry?: Entry[]) {
+  if (entry?.length) {
     const strategyEntry = entry.filter((e) => e.strategy === strategyInput.strategy);
     if (
       strategyEntry.length == 0 ||

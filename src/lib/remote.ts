@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
 import DateMoment from './utils/datemoment.ts';
 import {
   ApiConnectionError,
@@ -7,7 +6,7 @@ import {
   CriteriaError,
   SnapshotServiceError,
 } from './exceptions/index.ts';
-import { RetryOptions, SwitcherContext, SwitcherOptions } from '../types/index.d.ts';
+import { Criteria, Entry, RetryOptions, SwitcherContext, SwitcherOptions } from '../types/index.d.ts';
 
 const getConnectivityError = (code: string) => `Connection has been refused - ${code}`;
 
@@ -43,7 +42,7 @@ export const getEntry = (input?: string[][]) => {
     throw new Error(`Invalid input format for '${input}'`);
   }
 
-  const entry: any[] = [];
+  const entry: Entry[] = [];
   for (const inputValues of input) {
     entry.push({
       strategy: inputValues[0],
@@ -70,7 +69,7 @@ export const checkCriteria = async (
   key?: string,
   input?: string[][],
   showReason = false,
-) => {
+): Promise<Criteria> => {
   try {
     const entry = getEntry(input);
     const response = await fetch(

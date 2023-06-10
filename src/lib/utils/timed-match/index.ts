@@ -1,3 +1,5 @@
+import { DEFAULT_REGEX_MAX_BLACKLISTED, DEFAULT_REGEX_MAX_TIME_LIMIT } from '../../constants.ts';
+
 /**
  * This class will run a match operation using a child process.
  * Workers should be killed given a specified (3000 ms default) time limit.
@@ -6,8 +8,8 @@
 export default class TimedMatch {
   private static worker: Worker = this.createChildProcess();
   private static blacklisted: _Blacklist[] = [];
-  private static maxBlackListed = 50;
-  private static maxTimeLimit = 3000;
+  private static maxBlackListed = DEFAULT_REGEX_MAX_BLACKLISTED;
+  private static maxTimeLimit = DEFAULT_REGEX_MAX_TIME_LIMIT;
 
   /**
    * Run match using child process
