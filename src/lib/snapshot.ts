@@ -1,5 +1,5 @@
 // deno-lint-ignore-file
-import { existsSync } from 'https://deno.land/std@0.110.0/fs/mod.ts';
+import { existsSync } from '../deps.ts';
 
 import DateMoment from './utils/datemoment.ts';
 import IPCIDR from './utils/ipcidr.ts';
