@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-unused-vars no-explicit-any
 import { Switcher, checkValue, checkNumeric } from '../../mod.ts'
 
 const SWITCHER_KEY = 'MY_SWITCHER';
@@ -21,7 +20,7 @@ function setupSwitcher(offline: boolean) {
 }
 
 // Requires online API
-const testSimpleAPICall = async (offline: boolean) => {
+const _testSimpleAPICall = async (offline: boolean) => {
     setupSwitcher(offline);
     
     await Switcher.checkSwitchers([SWITCHER_KEY]);
@@ -34,7 +33,7 @@ const testSimpleAPICall = async (offline: boolean) => {
 };
 
 // Requires online API
-const testThrottledAPICall = async () => {
+const _testThrottledAPICall = async () => {
     setupSwitcher(false);
     
     await Switcher.checkSwitchers([SWITCHER_KEY]);
@@ -49,7 +48,7 @@ const testThrottledAPICall = async () => {
 };
 
 // Requires online API
-const testSnapshotUpdate = async () => {
+const _testSnapshotUpdate = async () => {
     setupSwitcher(false);
     await new Promise(resolve => setTimeout(resolve, 2000));
     
@@ -59,7 +58,7 @@ const testSnapshotUpdate = async () => {
     Switcher.unloadSnapshot();
 };
 
-const testAsyncCall = async () => {
+const _testAsyncCall = async () => {
     setupSwitcher(true);
     switcher = Switcher.factory();
 
@@ -72,7 +71,7 @@ const testAsyncCall = async () => {
     Switcher.unloadSnapshot();
 };
 
-const testBypasser = async () => {
+const _testBypasser = async () => {
     setupSwitcher(true);
     switcher = Switcher.factory();
 
@@ -91,7 +90,7 @@ const testBypasser = async () => {
 };
 
 // Requires online API
-const testSnapshotAutoload = async () => {
+const _testSnapshotAutoload = async () => {
     Switcher.buildContext({ url, apiKey, domain, component, environment: 'generated' });
     await Switcher.loadSnapshot();
 
@@ -103,17 +102,17 @@ const testSnapshotAutoload = async () => {
 };
 
 // Requires online API
-const testWatchSnapshot = () => {
+const _testWatchSnapshot = () => {
     setupSwitcher(true);
     const switcher = Switcher.factory();
 
     Switcher.watchSnapshot(
         async () => console.log('In-memory snapshot updated', await switcher.isItOn(SWITCHER_KEY)), 
-        (err: any) => console.log(err));
+        (err: Error) => console.log(err));
 };
 
 // Requires online API
-const testSnapshotAutoUpdate = () => {
+const _testSnapshotAutoUpdate = () => {
     Switcher.buildContext({ url, apiKey, domain, component, environment }, 
         { offline: true, logger: true, snapshotAutoUpdateInterval: 3000 });
 
@@ -127,4 +126,4 @@ const testSnapshotAutoUpdate = () => {
     }, 2000);
 };
 
-testSnapshotAutoUpdate();
+_testSimpleAPICall(true);

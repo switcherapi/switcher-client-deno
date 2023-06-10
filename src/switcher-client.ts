@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
 import Bypasser from './lib/bypasser/index.ts';
 import ExecutionLogger from './lib/utils/executionLogger.ts';
 import DateMoment from './lib/utils/datemoment.ts';
@@ -8,13 +7,16 @@ import { checkSwitchers, loadDomain, validateSnapshot } from './lib/snapshot.ts'
 import * as services from './lib/remote.ts';
 import checkCriteriaOffline from './lib/resolver.ts';
 import { RetryOptions, Snapshot, SwitcherContext, SwitcherOptions } from './types/index.d.ts';
-
-const DEFAULT_ENVIRONMENT = 'default';
-const DEFAULT_SNAPSHOT_LOCATION = './snapshot/';
-const DEFAULT_RETRY_TIME = '5m';
-const DEFAULT_OFFLINE = false;
-const DEFAULT_LOGGER = false;
-const DEFAULT_TEST_MODE = false;
+import {
+  DEFAULT_ENVIRONMENT,
+  DEFAULT_LOGGER,
+  DEFAULT_OFFLINE,
+  DEFAULT_REGEX_MAX_BLACKLISTED,
+  DEFAULT_REGEX_MAX_TIME_LIMIT,
+  DEFAULT_RETRY_TIME,
+  DEFAULT_SNAPSHOT_LOCATION,
+  DEFAULT_TEST_MODE,
+} from './lib/constants.ts';
 
 /**
  * Quick start with the following 3 steps.
@@ -154,7 +156,7 @@ export class Switcher {
    * @param success when snapshot has successfully updated
    * @param error when any error has thrown when attempting to load snapshot
    */
-  static async watchSnapshot(success?: any, error?: any): Promise<void> {
+  static async watchSnapshot(success?: () => void, error?: (err: Error) => void): Promise<void> {
     if (Switcher._testEnabled) {
       return;
     }
@@ -242,7 +244,12 @@ export class Switcher {
     }
   }
 
-  private static _onModifySnapshot(dataString: string, event: Deno.FsEvent, success: any, error: any) {
+  private static _onModifySnapshot(
+    dataString: string,
+    event: Deno.FsEvent,
+    success?: () => void,
+    error?: (err: Error) => void,
+  ) {
     Switcher._watchDebounce.delete(dataString);
     if (event.kind === 'modify') {
       try {
@@ -254,21 +261,21 @@ export class Switcher {
         if (success) {
           success();
         }
-      } catch (e) {
+      } catch (err) {
         if (error) {
-          error(e);
+          error(err);
         }
       }
     }
   }
 
-  private static _initTimedMatch(options?: any) {
+  private static _initTimedMatch(options: SwitcherOptions) {
     if ('regexMaxBlackList' in options) {
-      TimedMatch.setMaxBlackListed(options.regexMaxBlackList);
+      TimedMatch.setMaxBlackListed(options.regexMaxBlackList || DEFAULT_REGEX_MAX_BLACKLISTED);
     }
 
     if ('regexMaxTimeLimit' in options) {
-      TimedMatch.setMaxTimeLimit(options.regexMaxTimeLimit);
+      TimedMatch.setMaxTimeLimit(options.regexMaxTimeLimit || DEFAULT_REGEX_MAX_TIME_LIMIT);
     }
   }
 
@@ -492,8 +499,7 @@ export class Switcher {
         .then((response) => ExecutionLogger.add(response, this._key, this._input));
     }
 
-    return ExecutionLogger.getExecution(this._key, this._input).response
-      .result;
+    return ExecutionLogger.getExecution(this._key, this._input).response.result;
   }
 
   async _executeApiValidation() {

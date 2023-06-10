@@ -71,3 +71,13 @@ export interface Strategy {
   operation: string;
   values: string[];
 }
+
+export interface Entry {
+  strategy: string;
+  input: string;
+}
+
+export interface Criteria {
+  result: boolean;
+  reason?: string;
+}
