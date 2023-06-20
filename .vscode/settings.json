@@ -7,5 +7,9 @@
     },
     "[typescriptreact]": {
         "editor.defaultFormatter": "denoland.vscode-deno"
+    },
+    "sonarlint.connectedMode.project": {
+        "connectionId": "switcherapi",
+        "projectKey": "switcherapi_switcher-client-deno"
     }
 }
