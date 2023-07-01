@@ -41,6 +41,18 @@ The context properties stores all information regarding connectivity.
 --allow-net
 ```
 
+> Optional
+In case you are using a self-signed certificate, you can use the following flags:
+```
+--unsafely-ignore-certificate-errors=[API address]
+```
+
+Or you can use a certificate file:
+```
+--cert [path to certificate]
+```
+
+> Initialization
 ```ts
 import { Switcher } from "https://deno.land/x/switcher4deno@v1.0.2/mod.ts";
 

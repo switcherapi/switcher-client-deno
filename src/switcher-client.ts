@@ -156,7 +156,7 @@ export class Switcher {
    * @param success when snapshot has successfully updated
    * @param error when any error has thrown when attempting to load snapshot
    */
-  static async watchSnapshot(success?: () => void, error?: (err: Error) => void): Promise<void> {
+  static async watchSnapshot(success?: () => void | Promise<void>, error?: (err: Error) => void): Promise<void> {
     if (Switcher._testEnabled) {
       return;
     }
@@ -247,7 +247,7 @@ export class Switcher {
   private static _onModifySnapshot(
     dataString: string,
     event: Deno.FsEvent,
-    success?: () => void,
+    success?: () => void | Promise<void>,
     error?: (err: Error) => void,
   ) {
     Switcher._watchDebounce.delete(dataString);
