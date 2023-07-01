@@ -1,7 +1,7 @@
 export default class SnapshotAutoUpdater {
   static _worker: number | undefined;
 
-  static schedule(interval: number, checkSnapshot: () => void) {
+  static schedule(interval: number, checkSnapshot: () => Promise<boolean>) {
     if (this._worker) {
       this.terminate();
     }
