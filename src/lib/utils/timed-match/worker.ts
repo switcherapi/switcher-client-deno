@@ -10,12 +10,12 @@ function tryMatch(values: string[], input: string): boolean {
   return result;
 }
 
-self.onmessage = (e: MessageEvent<_Param>) => {
-  const params: _Param = e.data;
+self.onmessage = (e: MessageEvent<Param>) => {
+  const params: Param = e.data;
   self.postMessage(tryMatch(params.values, params.input));
 };
 
-class _Param {
-  values: string[] = [];
-  input = '';
+interface Param {
+  values: string[];
+  input: string;
 }

@@ -60,7 +60,7 @@ export default class DateMoment {
    * @param {*} amount
    * @param {*} unit
    */
-  add(amount: number, unit: string): DateMoment {
+  add(amount: number, unit: string): this {
     switch (unit.toLowerCase()) {
       case 's':
         this.date.setTime(this.date.getTime() + amount * 1000);
