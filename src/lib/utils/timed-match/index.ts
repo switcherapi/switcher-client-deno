@@ -7,7 +7,7 @@ import { DEFAULT_REGEX_MAX_BLACKLISTED, DEFAULT_REGEX_MAX_TIME_LIMIT } from '../
  */
 export default class TimedMatch {
   private static worker: Worker = this.createChildProcess();
-  private static blacklisted: _Blacklist[] = [];
+  private static blacklisted: Blacklist[] = [];
   private static maxBlackListed = DEFAULT_REGEX_MAX_BLACKLISTED;
   private static maxTimeLimit = DEFAULT_REGEX_MAX_TIME_LIMIT;
 
@@ -79,7 +79,8 @@ export default class TimedMatch {
    * - Restarting new worker
    * - Caching entry to the blacklist
    *
-   * @param {*} param0 list of regex and input
+   * @param {*} values list of regex and input
+   * @param {*} input to be matched
    */
   private static resetWorker(values: string[], input: string) {
     this.worker.terminate();
@@ -103,7 +104,7 @@ export default class TimedMatch {
   }
 }
 
-class _Blacklist {
-  res: string[] = [];
-  input = '';
+interface Blacklist {
+  res: string[];
+  input: string;
 }

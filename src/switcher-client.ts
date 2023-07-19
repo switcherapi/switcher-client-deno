@@ -235,8 +235,8 @@ export class Switcher {
           switcherKeys,
         );
       } catch (e) {
-        if (Switcher._options.silentMode) {
-          checkSwitchers(Switcher._snapshot!, switcherKeys);
+        if (Switcher._options.silentMode && Switcher._snapshot) {
+          checkSwitchers(Switcher._snapshot, switcherKeys);
         } else {
           throw e;
         }
