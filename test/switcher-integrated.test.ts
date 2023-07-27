@@ -191,7 +191,6 @@ describe('Integrated test - Switcher:', function () {
       tearDown();
     });
 
-
     it('should be valid', async function () {
       // given API responding properly
       given('GET@/check', null);
@@ -259,6 +258,12 @@ describe('Integrated test - Switcher:', function () {
       await assertRejects(async () =>
         await Switcher.checkSwitchers([]),
         Error, 'Something went wrong: [checkSwitchers] failed with status 422');
+    });
+
+    it('should throw when certPath is invalid', async function() {
+      await assertRejects(async () =>
+        Switcher.buildContext(contextSettings, { certPath: 'invalid' }),
+          Error, 'No such file or directory (os error 2): readfile \'invalid\'');
     });
     
     it('should renew the token after expiration', async function () {

@@ -39,17 +39,7 @@ The context properties stores all information regarding connectivity.
 --allow-read
 --allow-write
 --allow-net
-```
-
-> Optional
-In case you are using a self-signed certificate, you can use the following flags:
-```
---unsafely-ignore-certificate-errors=[API address]
-```
-
-Or you can use a certificate file:
-```
---cert [path to certificate]
+--unstable (if using certPath)
 ```
 
 > Initialization
@@ -79,9 +69,10 @@ const snapshotLocation = './snapshot/';
 const snapshotAutoUpdateInterval = 3000;
 const silentMode = true;
 const retryAfter = '5m';
+const certPath = './certs/ca.pem';
 
 Switcher.buildContext({ url, apiKey, domain, component, environment }, {
-    offline, logger, snapshotLocation, snapshotAutoUpdateInterval, silentMode, retryAfter
+    offline, logger, snapshotLocation, snapshotAutoUpdateInterval, silentMode, retryAfter, certPath
 });
 
 const switcher = Switcher.factory();
@@ -95,6 +86,7 @@ const switcher = Switcher.factory();
 - **retryAfter** : Time given to the module to re-establish connectivity with the API - e.g. 5s (s: seconds - m: minutes - h: hours).
 - **regexMaxBlackList**: Number of entries cached when REGEX Strategy fails to perform (reDOS safe) - default: 50
 - **regexMaxTimeLimit**: Time limit (ms) used by REGEX workers (reDOS safe) - default - 3000ms
+- **certPath**: Path to the certificate file used to establish a secure connection with the API.
 
 ## Executing
 There are a few different ways to call the API using the JavaScript module.

@@ -31,6 +31,7 @@ export interface SwitcherOptions {
   retryAfter?: string;
   regexMaxBlackList?: number;
   regexMaxTimeLimit?: number;
+  certPath?: string;
 }
 
 export interface RetryOptions {

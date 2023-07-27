@@ -67,30 +67,38 @@ export class Switcher {
     };
 
     if (options) {
-      if ('silentMode' in options) {
-        this._options.silentMode = options.silentMode;
-        this.loadSnapshot();
-      }
-
-      if ('snapshotAutoUpdateInterval' in options) {
-        this._options.snapshotAutoUpdateInterval = options.snapshotAutoUpdateInterval;
-        this.scheduleSnapshotAutoUpdate();
-      }
-
-      if ('retryAfter' in options) {
-        this._retryOptions = {
-          retryTime: parseInt(options.retryAfter?.slice(0, -1) || DEFAULT_RETRY_TIME.charAt(0)),
-          retryDurationIn: options.retryAfter?.slice(-1) || DEFAULT_RETRY_TIME.charAt(1),
-        };
-      } else {
-        this._retryOptions = {
-          retryTime: parseInt(DEFAULT_RETRY_TIME.charAt(0)),
-          retryDurationIn: DEFAULT_RETRY_TIME.charAt(1),
-        };
-      }
-
-      this._initTimedMatch(options);
+      Switcher.buildOptions(options);
     }
+  }
+
+  private static buildOptions(options: SwitcherOptions) {
+    if ('certPath' in options && options.certPath) {
+      services.setCerts(options.certPath);
+    }
+
+    if ('silentMode' in options) {
+      this._options.silentMode = options.silentMode;
+      this.loadSnapshot();
+    }
+
+    if ('snapshotAutoUpdateInterval' in options) {
+      this._options.snapshotAutoUpdateInterval = options.snapshotAutoUpdateInterval;
+      this.scheduleSnapshotAutoUpdate();
+    }
+
+    if ('retryAfter' in options) {
+      this._retryOptions = {
+        retryTime: parseInt(options.retryAfter?.slice(0, -1) || DEFAULT_RETRY_TIME.charAt(0)),
+        retryDurationIn: options.retryAfter?.slice(-1) || DEFAULT_RETRY_TIME.charAt(1),
+      };
+    } else {
+      this._retryOptions = {
+        retryTime: parseInt(DEFAULT_RETRY_TIME.charAt(0)),
+        retryDurationIn: DEFAULT_RETRY_TIME.charAt(1),
+      };
+    }
+
+    this._initTimedMatch(options);
   }
 
   /**
