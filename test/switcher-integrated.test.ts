@@ -1,5 +1,6 @@
-import { describe, it, afterAll, afterEach, beforeEach, assertEquals, assertNotEquals, assertRejects, assertThrows, assertFalse } from './deps.ts';
-import { assertSpyCalls, spy } from 'https://deno.land/std@0.177.0/testing/mock.ts';
+import { describe, it, afterAll, afterEach, beforeEach, 
+  assertEquals, assertNotEquals, assertRejects, assertThrows, assertFalse, 
+  assertSpyCalls, spy } from './deps.ts';
 import { given, givenError, tearDown, assertTrue, generateAuth, generateResult } from './helper/utils.ts'
 
 import { 

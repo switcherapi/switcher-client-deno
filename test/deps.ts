@@ -6,7 +6,7 @@ export {
     assertExists, 
     assertNotEquals, 
     assertArrayIncludes 
-} from 'https://deno.land/std@0.196.0/testing/asserts.ts';
+} from 'https://deno.land/std@0.196.0/assert/mod.ts';
 export { 
     describe, 
     it, 
@@ -18,3 +18,4 @@ export {
 export { delay } from 'https://deno.land/std@0.196.0/async/delay.ts';
 export { existsSync } from 'https://deno.land/std@0.196.0/fs/mod.ts';
 export * as mf from 'https://deno.land/x/mock_fetch@0.3.0/mod.ts';
+export { assertSpyCalls, spy } from 'https://deno.land/std@0.196.0/testing/mock.ts';

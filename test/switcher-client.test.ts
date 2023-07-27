@@ -1,5 +1,5 @@
-import { describe, it, afterAll, beforeEach, beforeAll, assertEquals, assertRejects, assertFalse, assertExists } from './deps.ts';
-import { delay } from 'https://deno.land/std@0.177.0/async/delay.ts';
+import { describe, it, afterAll, beforeEach, beforeAll, delay,
+  assertEquals, assertRejects, assertFalse, assertExists } from './deps.ts';
 import { assertTrue } from './helper/utils.ts'
 
 import { StrategiesType } from '../src/lib/snapshot.ts';
