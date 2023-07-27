@@ -8,6 +8,8 @@ import {
 } from './exceptions/index.ts';
 import { Criteria, Entry, RetryOptions, SwitcherContext, SwitcherOptions } from '../types/index.d.ts';
 
+let httpClient = Deno.createHttpClient({ http2: true });
+
 const getConnectivityError = (code: string) => `Connection has been refused - ${code}`;
 
 const getHeader = (token: string | undefined) => {
@@ -33,6 +35,13 @@ const trySilent = (options: SwitcherOptions, retryOptions: RetryOptions) => {
   }
 };
 
+export const setCerts = (certPath: string) => {
+  httpClient = Deno.createHttpClient({
+    caCerts: [Deno.readTextFileSync(certPath)],
+    http2: true,
+  });
+};
+
 export const getEntry = (input?: string[][]) => {
   if (!input) {
     return undefined;
@@ -55,7 +64,7 @@ export const getEntry = (input?: string[][]) => {
 
 export const checkAPIHealth = async (url: string, options: SwitcherOptions, retryOptions: RetryOptions) => {
   try {
-    const response = await fetch(`${url}/check`, { method: 'get' });
+    const response = await fetch(`${url}/check`, { client: httpClient, method: 'get' });
     if (response.status != 200) {
       throw new ApiConnectionError('API is offline');
     }
@@ -75,6 +84,7 @@ export const checkCriteria = async (
     const response = await fetch(
       `${context.url}/criteria?showReason=${showReason}&key=${key}`,
       {
+        client: httpClient,
         method: 'post',
         body: JSON.stringify({ entry }),
         headers: getHeader(context.token),
@@ -96,6 +106,7 @@ export const checkCriteria = async (
 export const auth = async (context: SwitcherContext) => {
   try {
     const response = await fetch(`${context.url}/criteria/auth`, {
+      client: httpClient,
       method: 'post',
       body: JSON.stringify({
         domain: context.domain,
@@ -125,6 +136,7 @@ export const checkSwitchers = async (
 ) => {
   try {
     const response = await fetch(`${url}/criteria/switchers_check`, {
+      client: httpClient,
       method: 'post',
       body: JSON.stringify({ switchers: switcherKeys }),
       headers: getHeader(token),
@@ -152,6 +164,7 @@ export const checkSnapshotVersion = async (
 ) => {
   try {
     const response = await fetch(`${url}/criteria/snapshot_check/${version}`, {
+      client: httpClient,
       method: 'get',
       headers: getHeader(token),
     });
@@ -192,6 +205,7 @@ export const resolveSnapshot = async (
 
   try {
     const response = await fetch(`${url}/graphql`, {
+      client: httpClient,
       method: 'post',
       body: JSON.stringify(data),
       headers: getHeader(token),
