@@ -1,4 +1,4 @@
-import { describe, it, afterAll, afterEach, beforeEach, assertEquals, assertNotEquals, assertRejects, assertFalse } from './deps.ts';
+import { describe, it, afterAll, afterEach, beforeEach, assertEquals, assertNotEquals, assertRejects, assertThrows, assertFalse } from './deps.ts';
 import { assertSpyCalls, spy } from 'https://deno.land/std@0.177.0/testing/mock.ts';
 import { given, givenError, tearDown, assertTrue, generateAuth, generateResult } from './helper/utils.ts'
 
@@ -260,8 +260,8 @@ describe('Integrated test - Switcher:', function () {
         Error, 'Something went wrong: [checkSwitchers] failed with status 422');
     });
 
-    it('should throw when certPath is invalid', async function() {
-      await assertRejects(async () =>
+    it('should throw when certPath is invalid', function() {
+      assertThrows(() =>
         Switcher.buildContext(contextSettings, { certPath: 'invalid' }),
           Error, 'No such file or directory (os error 2): readfile \'invalid\'');
     });
