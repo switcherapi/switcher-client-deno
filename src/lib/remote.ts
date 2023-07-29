@@ -151,6 +151,10 @@ export const checkSwitchers = async (
       throw new CheckSwitcherError(json.not_found);
     }
   } catch (e) {
+    if (e instanceof CheckSwitcherError) {
+      throw e;
+    }
+
     throw new CriteriaError(
       e.errno ? getConnectivityError(e.errno) : e.message,
     );

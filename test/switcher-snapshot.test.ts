@@ -196,7 +196,7 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
 
     //given
     given('POST@/criteria/auth', generateAuth(token, 5));
-    given('GET@/criteria/snapshot_check/:version', generateStatus(false)); // Snapshot outdated
+    given('GET@/criteria/snapshot_check/:version', generateStatus(false));
     givenError('POST@/graphql', 'ECONNREFUSED');
     
     //test
@@ -205,6 +205,26 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     await assertRejects(async () =>
       await Switcher.checkSnapshot(),
       Error, 'Something went wrong: Connection has been refused - ECONNREFUSED');
+  });
+
+  it('should NOT check snapshot with success - Snapshot not loaded', testSettings, async function () {
+    //given
+    given('POST@/criteria/auth', generateAuth(token, 5));
+    given('GET@/criteria/snapshot_check/:version', generateStatus(true));
+    
+    //pre-load snapshot
+    Switcher.setTestDisabled();
+    await Switcher.loadSnapshot();
+    assertFalse(await Switcher.checkSnapshot());
+
+    //unload snapshot
+    Switcher.unloadSnapshot();
+    
+    //test
+    let error: Error | undefined;
+    await Switcher.checkSnapshot((err: Error) => error = err);
+    assertExists(error);
+    assertEquals(error.message, 'Something went wrong: Snapshot is not loaded. Use Switcher.loadSnapshot()');
   });
 
   it('should update snapshot', testSettings, async function () {

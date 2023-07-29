@@ -32,3 +32,10 @@ export class SnapshotServiceError extends Error {
     this.name = this.constructor.name;
   }
 }
+
+export class SnapshotNotFoundError extends Error {
+  constructor(message: string) {
+    super(`Something went wrong: ${message}`);
+    this.name = this.constructor.name;
+  }
+}
