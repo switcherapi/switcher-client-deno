@@ -1,4 +1,4 @@
-import { describe, it, afterAll, beforeEach, assertRejects, assertFalse, assertExists, delay, existsSync } from './deps.ts';
+import { describe, it, afterAll, beforeEach, assertRejects, assertFalse, assertExists, assertEquals, delay, existsSync } from './deps.ts';
 import { given, givenError, tearDown, generateAuth, generateStatus, assertTrue, WaitSafe } from './helper/utils.ts';
 
 import { Switcher } from '../mod.ts';
@@ -52,6 +52,12 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     await assertRejects(async () =>
         await Switcher.checkSnapshot(),
         Error, 'Something went wrong: [checkSnapshotVersion] failed with status 429');
+
+    //or
+    await Switcher.checkSnapshot((err: Error) => {
+      assertExists(err);
+      assertEquals(err.message, 'Something went wrong: [checkSnapshotVersion] failed with status 429');
+    });
   });
 
   it('should NOT update snapshot - Too many requests at resolveSnapshot', testSettings, async function () {
@@ -103,11 +109,11 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     Switcher.buildContext(contextSettings, {
       snapshotLocation: 'generated-snapshots/',
       offline: true,
-      snapshotAutoUpdateInterval: 500
+      snapshotAutoUpdateInterval: 1000
     });
 
-    //optional (already set in the buildContext)
-    Switcher.scheduleSnapshotAutoUpdate(1000);
+    let snapshotUpdated = false;
+    Switcher.scheduleSnapshotAutoUpdate(1000, (updated) => snapshotUpdated = updated);
     
     await Switcher.loadSnapshot(false, true);
     
@@ -119,8 +125,42 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
 
     WaitSafe.limit(2000);
     await WaitSafe.wait();
+
+    assertTrue(snapshotUpdated);
     assertTrue(await switcher.isItOn('FF2FOR2030'));
 
+    Switcher.terminateSnapshotAutoUpdate();
+  });
+
+  it('should NOT auto update snapshot ', testSettings, async function () {
+    await delay(3000);
+
+    //given
+    given('POST@/criteria/auth', generateAuth(token, 5));
+    given('GET@/criteria/snapshot_check/:version', generateStatus(false));
+    given('POST@/graphql', JSON.parse(dataJSON));
+
+    //test
+    Switcher.buildContext(contextSettings, {
+      snapshotLocation: 'generated-snapshots/',
+      offline: true
+    });
+
+    let error: Error | undefined;
+    Switcher.scheduleSnapshotAutoUpdate(1000, undefined, (err: Error) => error = err);
+    
+    await Switcher.loadSnapshot(false, true);
+
+    //next call will fail
+    givenError('POST@/graphql', 'ECONNREFUSED');
+
+    WaitSafe.limit(2000);
+    await WaitSafe.wait();
+
+    assertExists(error);
+    assertEquals(error.message, 'Something went wrong: Connection has been refused - ECONNREFUSED');
+
+    //tearDown
     Switcher.terminateSnapshotAutoUpdate();
   });
 

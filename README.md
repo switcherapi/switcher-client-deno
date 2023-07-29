@@ -177,6 +177,14 @@ Auto load Snapshot from API passing true as second argument.
 
 ```ts
 Switcher.loadSnapshot();
+
+// or
+const watchSnapshot = true; // will update then snapshot if the file changes - same as calling Switcher.watchSnapshot()
+const fecthOnline = true; // will automatically fetch the snapshot from the API
+const onsucces = (version: number) => console.log('Snapshot loaded', version);
+const onerror = (err: Error) => console.log(err.message);
+
+Switcher.loadSnapshot(watchSnapshot, fecthOnline, onsucces, onerror);
 ```
 
 ## Watch for Snapshot file changes
@@ -193,4 +201,12 @@ For convenience, an implementation of a domain version checker is available if y
 
 ```ts
 Switcher.checkSnapshot();
+```
+
+## Snapshot Update Scheduler
+You can also schedule a snapshot update using the method below.<br>
+It allows you to run the Client SDK in offline mode (zero latency) and still have the snapshot updated automatically.
+
+```ts
+Switcher.scheduleSnapshotAutoUpdate(1000 * 60 * 60 * 24); // 24 hours
 ```
