@@ -112,8 +112,12 @@ export class Switcher {
    * Verifies if the current snapshot file is updated.
    * Return true if an update has been made.
    */
-  static async checkSnapshot() {
-    if (Switcher._snapshot) {
+  static async checkSnapshot(reject?: (err: Error) => void) {
+    try {
+      if (!Switcher._snapshot) {
+        return false;
+      }
+
       if (
         !Switcher._context.exp ||
         Date.now() > (Switcher._context.exp * 1000)
@@ -131,6 +135,12 @@ export class Switcher {
         Switcher.loadSnapshot();
         return true;
       }
+    } catch (err) {
+      if (reject) {
+        reject(err);
+      } else {
+        throw err;
+      }
     }
 
     return false;
@@ -141,20 +151,37 @@ export class Switcher {
    *
    * @param watchSnapshot enable watchSnapshot when true
    */
-  static async loadSnapshot(watchSnapshot?: boolean, fecthOnline?: boolean) {
-    Switcher._snapshot = loadDomain(
-      Switcher._options.snapshotLocation || '',
-      Switcher._context.environment,
-    );
-    if (
-      Switcher._snapshot?.data.domain.version == 0 &&
-      (fecthOnline || !Switcher._options.offline)
-    ) {
-      await Switcher.checkSnapshot();
-    }
+  static async loadSnapshot(
+    watchSnapshot = false,
+    fecthOnline = false,
+    success?: (version: number) => void | Promise<void>,
+    reject?: (err: Error) => void,
+  ) {
+    try {
+      Switcher._snapshot = loadDomain(
+        Switcher._options.snapshotLocation || '',
+        Switcher._context.environment,
+      );
+      if (
+        Switcher._snapshot?.data.domain.version == 0 &&
+        (fecthOnline || !Switcher._options.offline)
+      ) {
+        await Switcher.checkSnapshot();
+      }
 
-    if (watchSnapshot) {
-      Switcher.watchSnapshot();
+      if (watchSnapshot) {
+        Switcher.watchSnapshot();
+      }
+
+      if (success) {
+        success(Switcher._snapshot?.data.domain.version || 0);
+      }
+    } catch (err) {
+      if (reject) {
+        reject(err);
+      } else {
+        throw err;
+      }
     }
   }
 
@@ -208,13 +235,14 @@ export class Switcher {
    *
    * @param interval in ms
    */
-  static scheduleSnapshotAutoUpdate(interval?: number) {
-    if (interval) {
-      Switcher._options.snapshotAutoUpdateInterval = interval;
-    }
-
-    if (Switcher._options.snapshotAutoUpdateInterval && Switcher._options.snapshotAutoUpdateInterval > 0) {
-      SnapshotAutoUpdater.schedule(Switcher._options.snapshotAutoUpdateInterval, this.checkSnapshot);
+  static scheduleSnapshotAutoUpdate(
+    interval: number = 60 * 1000,
+    success?: (updated: boolean) => void,
+    reject?: (err: Error) => void,
+  ) {
+    Switcher._options.snapshotAutoUpdateInterval = interval;
+    if (Switcher._options.snapshotAutoUpdateInterval > 0) {
+      SnapshotAutoUpdater.schedule(Switcher._options.snapshotAutoUpdateInterval, this.checkSnapshot, success, reject);
     }
   }
 

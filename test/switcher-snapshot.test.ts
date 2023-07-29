@@ -1,4 +1,4 @@
-import { describe, it, afterAll, beforeEach, assertRejects, assertFalse, assertExists, delay, existsSync } from './deps.ts';
+import { describe, it, afterAll, beforeEach, assertRejects, assertFalse, assertExists, assertEquals, delay, existsSync } from './deps.ts';
 import { given, givenError, tearDown, generateAuth, generateStatus, assertTrue, WaitSafe } from './helper/utils.ts';
 
 import { Switcher } from '../mod.ts';
@@ -52,6 +52,12 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     await assertRejects(async () =>
         await Switcher.checkSnapshot(),
         Error, 'Something went wrong: [checkSnapshotVersion] failed with status 429');
+
+    //or
+    await Switcher.checkSnapshot((err: Error) => {
+      assertExists(err);
+      assertEquals(err.message, 'Something went wrong: [checkSnapshotVersion] failed with status 429');
+    });
   });
 
   it('should NOT update snapshot - Too many requests at resolveSnapshot', testSettings, async function () {

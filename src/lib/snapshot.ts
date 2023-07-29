@@ -23,7 +23,7 @@ export const loadDomain = (snapshotLocation: string, environment: string) => {
         4,
       );
       Deno.mkdirSync(snapshotLocation, { recursive: true });
-      Deno.writeTextFile(snapshotFile, dataBuffer);
+      Deno.writeTextFileSync(snapshotFile, dataBuffer);
     }
 
     dataJSON = dataBuffer.toString();
