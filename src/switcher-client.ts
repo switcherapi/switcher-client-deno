@@ -236,12 +236,15 @@ export class Switcher {
    * @param interval in ms
    */
   static scheduleSnapshotAutoUpdate(
-    interval: number = 60 * 1000,
+    interval?: number,
     success?: (updated: boolean) => void,
     reject?: (err: Error) => void,
   ) {
-    Switcher._options.snapshotAutoUpdateInterval = interval;
-    if (Switcher._options.snapshotAutoUpdateInterval > 0) {
+    if (interval) {
+      Switcher._options.snapshotAutoUpdateInterval = interval;
+    }
+
+    if (Switcher._options.snapshotAutoUpdateInterval && Switcher._options.snapshotAutoUpdateInterval > 0) {
       SnapshotAutoUpdater.schedule(Switcher._options.snapshotAutoUpdateInterval, this.checkSnapshot, success, reject);
     }
   }

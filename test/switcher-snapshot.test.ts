@@ -109,10 +109,9 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     Switcher.buildContext(contextSettings, {
       snapshotLocation: 'generated-snapshots/',
       offline: true,
-      snapshotAutoUpdateInterval: 500
+      snapshotAutoUpdateInterval: 1000
     });
 
-    //optional (already set in the buildContext)
     let snapshotUpdated = false;
     Switcher.scheduleSnapshotAutoUpdate(1000, (updated) => snapshotUpdated = updated);
     
@@ -161,6 +160,7 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     assertExists(error);
     assertEquals(error.message, 'Something went wrong: Connection has been refused - ECONNREFUSED');
 
+    //tearDown
     Switcher.terminateSnapshotAutoUpdate();
   });
 
