@@ -1,5 +1,5 @@
 import { describe, it, afterAll, afterEach, beforeEach, 
-  assertEquals, assertNotEquals, assertRejects, assertThrows, assertFalse, 
+  assertExists, assertEquals, assertNotEquals, assertRejects, assertThrows, assertFalse, 
   assertSpyCalls, spy } from './deps.ts';
 import { given, givenError, tearDown, assertTrue, generateAuth, generateResult } from './helper/utils.ts'
 
@@ -232,7 +232,9 @@ describe('Integrated test - Switcher:', function () {
 
       //test
       Switcher.buildContext(contextSettings);
-      await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02']);
+      let error: Error | undefined;
+      await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02'], (err) => error = err);
+      assertEquals(error, undefined);
     });
 
     it('should throw when switcher keys provided were not configured properly', async function() {
@@ -245,7 +247,14 @@ describe('Integrated test - Switcher:', function () {
       Switcher.buildContext(contextSettings);
       await assertRejects(async () =>
         await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02']),
-        Error, 'Something went wrong: Something went wrong: [FEATURE02] not found');
+        Error, 'Something went wrong: [FEATURE02] not found');
+
+      //or
+      let error: Error | undefined;
+      await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02'], (err) => error = err);
+      assertExists(error);
+      assertEquals(error.message, 'Something went wrong: [FEATURE02] not found');
+
     });
 
     it('should throw when no switcher keys were provided', async function() {

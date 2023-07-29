@@ -7,6 +7,7 @@ import { checkSwitchers, loadDomain, validateSnapshot } from './lib/snapshot.ts'
 import * as services from './lib/remote.ts';
 import checkCriteriaOffline from './lib/resolver.ts';
 import { RetryOptions, Snapshot, SwitcherContext, SwitcherOptions } from './types/index.d.ts';
+import { SnapshotNotFoundError } from './lib/exceptions/index.ts';
 import {
   DEFAULT_ENVIRONMENT,
   DEFAULT_LOGGER,
@@ -115,7 +116,7 @@ export class Switcher {
   static async checkSnapshot(reject?: (err: Error) => void) {
     try {
       if (!Switcher._snapshot) {
-        return false;
+        throw new SnapshotNotFoundError('Snapshot is not loaded. Use Switcher.loadSnapshot()');
       }
 
       if (
@@ -262,23 +263,31 @@ export class Switcher {
    * @param switcherKeys Switcher Keys
    * @throws when one or more Switcher Keys were not found
    */
-  static async checkSwitchers(switcherKeys: string[]) {
-    if (Switcher._options.offline && Switcher._snapshot) {
-      checkSwitchers(Switcher._snapshot, switcherKeys);
-    } else {
-      try {
-        await Switcher._auth();
-        await services.checkSwitchers(
-          Switcher._context.url || '',
-          Switcher._context.token,
-          switcherKeys,
-        );
-      } catch (e) {
-        if (Switcher._options.silentMode && Switcher._snapshot) {
-          checkSwitchers(Switcher._snapshot, switcherKeys);
-        } else {
-          throw e;
+  static async checkSwitchers(switcherKeys: string[], reject?: (err: Error) => void) {
+    try {
+      if (Switcher._options.offline && Switcher._snapshot) {
+        checkSwitchers(Switcher._snapshot, switcherKeys);
+      } else {
+        try {
+          await Switcher._auth();
+          await services.checkSwitchers(
+            Switcher._context.url || '',
+            Switcher._context.token,
+            switcherKeys,
+          );
+        } catch (e) {
+          if (Switcher._options.silentMode && Switcher._snapshot) {
+            checkSwitchers(Switcher._snapshot, switcherKeys);
+          } else {
+            throw e;
+          }
         }
+      }
+    } catch (err) {
+      if (reject) {
+        reject(err);
+      } else {
+        throw err;
       }
     }
   }

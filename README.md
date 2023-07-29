@@ -167,7 +167,12 @@ Switcher Keys may not be configured correctly and can cause your code to have un
 This feature will validate using the context provided to check if everything is up and running.
 In case something is missing, this operation will throw an exception pointing out which Switcher Keys are not configured.
 ```ts
-Switcher.checkSwitchers(['FEATURE01', 'FEATURE02'])
+await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02'])
+
+// or
+await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02'], (err) => {
+    console.log(err);
+});
 ```
 
 ## Loading Snapshot from the API
