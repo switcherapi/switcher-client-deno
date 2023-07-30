@@ -133,7 +133,7 @@ export class Switcher {
       );
 
       if (result) {
-        Switcher.loadSnapshot();
+        await Switcher.loadSnapshot();
         return true;
       }
     } catch (err) {
