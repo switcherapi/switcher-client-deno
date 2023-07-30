@@ -325,6 +325,11 @@ export class Switcher {
     if ('regexMaxTimeLimit' in options) {
       TimedMatch.setMaxTimeLimit(options.regexMaxTimeLimit || DEFAULT_REGEX_MAX_TIME_LIMIT);
     }
+
+    const hasRegexSafeOption = 'regexSafe' in options;
+    if (!hasRegexSafeOption || (hasRegexSafeOption && options.regexSafe)) {
+      TimedMatch.initializeWorker();
+    }
   }
 
   private static async _auth() {

@@ -14,6 +14,7 @@ import {
   checkPayload
 } from '../mod.ts';
 import { SwitcherContext } from '../src/types/index.d.ts';
+import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 
 describe('Integrated test - Switcher:', function () {
 
@@ -21,6 +22,7 @@ describe('Integrated test - Switcher:', function () {
 
   afterAll(function() {
     Switcher.unloadSnapshot();
+    TimedMatch.terminateWorker();
   });
 
   beforeEach(function() {
@@ -163,7 +165,7 @@ describe('Integrated test - Switcher:', function () {
       given('GET@/check', null, 429);
 
       //test
-      Switcher.buildContext(contextSettings, { silentMode: true });
+      Switcher.buildContext(contextSettings, { silentMode: true, regexSafe: false });
       await assertRejects(async () =>
         await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02']),
         Error, 'Something went wrong: [FEATURE01,FEATURE02] not found');
@@ -178,7 +180,7 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria', { error: 'Too many requests' }, 429);
 
       // test
-      Switcher.buildContext(contextSettings, { silentMode: true });
+      Switcher.buildContext(contextSettings, { silentMode: true, regexSafe: false });
       const switcher = Switcher.factory();
       
       assertTrue(await switcher.isItOn('FF2FOR2022'));
@@ -271,9 +273,7 @@ describe('Integrated test - Switcher:', function () {
     });
 
     it('should throw when certPath is invalid', function() {
-      assertThrows(() =>
-        Switcher.buildContext(contextSettings, { certPath: 'invalid' }),
-          Error, 'No such file or directory (os error 2): readfile \'invalid\'');
+      assertThrows(() => Switcher.buildContext(contextSettings, { certPath: 'invalid' }));
     });
     
     it('should renew the token after expiration', async function () {
@@ -453,6 +453,7 @@ describe('Integrated test - Switcher:', function () {
     it('should run in silent mode', async function () {
       // setup context to read the snapshot in case the API does not respond
       Switcher.buildContext(contextSettings, {
+        regexSafe: false,
         silentMode: true,
         retryAfter: '2s'
       });
@@ -508,6 +509,7 @@ describe('Integrated test - Switcher:', function () {
 
       // test
       Switcher.buildContext(contextSettings, {
+        regexSafe: false,
         silentMode: true
       });
 

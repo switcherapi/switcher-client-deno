@@ -28,7 +28,8 @@ describe('E2E test - Switcher offline - Watch Snapshot:', function () {
     updateSwitcher(true);
     Switcher.buildContext({ domain, component, environment }, {
       snapshotLocation: 'generated-snapshots/',
-      offline: true
+      offline: true,
+      regexSafe: false
     });
 
     await Switcher.loadSnapshot();
