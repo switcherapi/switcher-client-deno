@@ -100,7 +100,7 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     Switcher.unloadSnapshot();
   });
 
-  it('should auto update snapshot every 1000ms', testSettings, async function () {
+  it('should auto update snapshot every 500ms', testSettings, async function () {
     await delay(3000);
 
     //given
@@ -113,11 +113,11 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
       snapshotLocation: 'generated-snapshots/',
       offline: true,
       regexSafe: false,
-      snapshotAutoUpdateInterval: 1000
+      snapshotAutoUpdateInterval: 500
     });
 
     let snapshotUpdated = false;
-    Switcher.scheduleSnapshotAutoUpdate(1000, (updated) => snapshotUpdated = updated);
+    Switcher.scheduleSnapshotAutoUpdate(500, (updated) => snapshotUpdated = updated);
     
     await Switcher.loadSnapshot(false, true);
     
