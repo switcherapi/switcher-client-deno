@@ -39,7 +39,7 @@ The context properties stores all information regarding connectivity.
 --allow-read
 --allow-write
 --allow-net
---unstable (if using certPath)
+--unstable (only if using certPath)
 ```
 
 > Initialization
@@ -117,7 +117,7 @@ switcher.isItOn('KEY')
 Loading information into the switcher can be made by using *prepare*, in case you want to include input from a different place of your code. Otherwise, it is also possible to include everything in the same call.
 
 ```ts
-import { checkValue, checkNetwork } from "https://deno.land/x/switcher4deno@v1.0.2/mod.ts";
+import { checkValue, checkNetwork } from "https://deno.land/x/switcher4deno@[latest]/mod.ts";
 
 switcher.prepare('FEATURE01', [checkValue('USER_1')];
 switcher.isItOn();

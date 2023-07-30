@@ -8,7 +8,7 @@ import {
 } from './exceptions/index.ts';
 import { Criteria, Entry, RetryOptions, SwitcherContext, SwitcherOptions } from '../types/index.d.ts';
 
-let httpClient = Deno.createHttpClient({ http2: true });
+let httpClient: Deno.HttpClient;
 
 const getConnectivityError = (code: string) => `Connection has been refused - ${code}`;
 
@@ -194,17 +194,17 @@ export const resolveSnapshot = async (
 ) => {
   const data = {
     query: `
-            query domain {
-                domain(name: "${domain}", environment: "${environment}", _component: "${component}") {
-                    name version activated
-                    group { name activated
-                        config { key activated
-                            strategies { strategy activated operation values }
-                            components
-                        }
-                    }
-                }
-            }`,
+      query domain {
+        domain(name: "${domain}", environment: "${environment}", _component: "${component}") {
+          name version activated
+          group { name activated
+            config { key activated
+              strategies { strategy activated operation values }
+              components
+            }
+          }
+        }
+      }`,
   };
 
   try {
