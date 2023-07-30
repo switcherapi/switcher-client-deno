@@ -18,10 +18,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Deno v1.35.1
+      - name: Setup Deno v1.35.3
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.35.1
+          deno-version: v1.35.3
 
       - name: Setup LCOV        
         run: sudo apt install -y lcov
