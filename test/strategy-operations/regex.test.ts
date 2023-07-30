@@ -1,24 +1,28 @@
-import { describe, it, assertFalse } from '../deps.ts';
+import { beforeAll, afterAll, describe, it, assertFalse } from '../deps.ts';
 import { assertTrue } from '../helper/utils.ts';
+import TimedMatch from '../../src/lib/utils/timed-match/index.ts';
 import {
   OperationsType,
   processOperation,
   StrategiesType,
 } from '../../src/lib/snapshot.ts';
 
-describe('Strategy [REGEX] tests:', function () {
-  const mock_values1 = [
-    '\\bUSER_[0-9]{1,2}\\b',
-  ];
+const mock_values1 = [
+  '\\bUSER_[0-9]{1,2}\\b',
+];
 
-  const mock_values2 = [
-    '\\bUSER_[0-9]{1,2}\\b',
-    '\\buser-[0-9]{1,2}\\b',
-  ];
+const mock_values2 = [
+  '\\bUSER_[0-9]{1,2}\\b',
+  '\\buser-[0-9]{1,2}\\b',
+];
 
-  const mock_values3 = [
-    'USER_[0-9]{1,2}',
-  ];
+const mock_values3 = [
+  'USER_[0-9]{1,2}',
+];
+
+describe('Strategy [REGEX Safe] tests:', function () {
+  beforeAll(() => TimedMatch.initializeWorker());
+  afterAll(() => TimedMatch.terminateWorker());
 
   it('should agree when expect to exist using EXIST operation', async function () {
     let result = await processOperation(StrategiesType.REGEX, OperationsType.EXIST, 'USER_1', mock_values1);
@@ -74,5 +78,14 @@ describe('Strategy [REGEX] tests:', function () {
     const result = await processOperation(
         StrategiesType.REGEX, OperationsType.EQUAL, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['^(([a-z])+.)+[A-Z]([a-z])+$']);
         assertFalse(result);
+  });
+});
+
+describe('Strategy [REGEX] tests:', function () {
+  beforeAll(() => TimedMatch.terminateWorker());
+
+  it('should agree when expect to exist using EXIST operation', async function () {
+    const result = await processOperation(StrategiesType.REGEX, OperationsType.EXIST, 'USER_1', mock_values1);
+    assertTrue(result);
   });
 });

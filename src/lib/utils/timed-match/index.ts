@@ -1,4 +1,5 @@
 import { DEFAULT_REGEX_MAX_BLACKLISTED, DEFAULT_REGEX_MAX_TIME_LIMIT } from '../../constants.ts';
+import tryMatch from './match.ts';
 
 /**
  * This class will run a match operation using a child process.
@@ -6,10 +7,50 @@ import { DEFAULT_REGEX_MAX_BLACKLISTED, DEFAULT_REGEX_MAX_TIME_LIMIT } from '../
  * Blacklist caching is available to prevent sequence of matching failures and resource usage.
  */
 export default class TimedMatch {
-  private static worker: Worker = this.createChildProcess();
+  private static worker: Worker;
+  private static workerActive = false;
   private static blacklisted: Blacklist[] = [];
   private static maxBlackListed = DEFAULT_REGEX_MAX_BLACKLISTED;
   private static maxTimeLimit = DEFAULT_REGEX_MAX_TIME_LIMIT;
+
+  /**
+   * Initialize Worker process for working with Regex process operators
+   */
+  static initializeWorker() {
+    this.worker = this.createChildProcess();
+    this.workerActive = true;
+  }
+
+  /**
+   * Gracefully terminate worker
+   */
+  static terminateWorker() {
+    this.worker?.terminate();
+    this.workerActive = false;
+  }
+
+  static async tryMatch(values: string[], input: string): Promise<boolean> {
+    if (this.worker && this.workerActive) {
+      return this.safeMatch(values, input);
+    }
+
+    return await Promise.resolve(tryMatch(values, input));
+  }
+
+  /**
+   * Clear entries from failed matching operations
+   */
+  static clearBlackList() {
+    this.blacklisted = [];
+  }
+
+  static setMaxBlackListed(value: number): void {
+    this.maxBlackListed = value;
+  }
+
+  static setMaxTimeLimit(value: number): void {
+    this.maxTimeLimit = value;
+  }
 
   /**
    * Run match using child process
@@ -18,7 +59,7 @@ export default class TimedMatch {
    * @param {*} input to be matched
    * @returns match result
    */
-  static async tryMatch(values: string[], input: string): Promise<boolean> {
+  private static async safeMatch(values: string[], input: string): Promise<boolean> {
     let result = false;
     let timer: number, resolveListener: (value: unknown) => void;
 
@@ -46,21 +87,6 @@ export default class TimedMatch {
     });
 
     return result;
-  }
-
-  /**
-   * Clear entries from failed matching operations
-   */
-  static clearBlackList() {
-    this.blacklisted = [];
-  }
-
-  static setMaxBlackListed(value: number): void {
-    this.maxBlackListed = value;
-  }
-
-  static setMaxTimeLimit(value: number): void {
-    this.maxTimeLimit = value;
   }
 
   private static isBlackListed(values: string[], input: string): boolean {

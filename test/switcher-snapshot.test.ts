@@ -28,7 +28,8 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     };
     
     Switcher.buildContext(contextSettings, {
-      offline: true
+      offline: true,
+      regexSafe: false
     });
 
     Switcher.setTestEnabled();
@@ -68,7 +69,8 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
 
     //test
     Switcher.buildContext(contextSettings, {
-      snapshotLocation: 'generated-snapshots/'
+      snapshotLocation: 'generated-snapshots/',
+      regexSafe: false
     });
 
     await assertRejects(async () =>
@@ -87,7 +89,8 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     //test
     Switcher.buildContext(contextSettings, {
       snapshotLocation: 'generated-snapshots/',
-      offline: true
+      offline: true,
+      regexSafe: false
     });
     
     await Switcher.loadSnapshot(true);
@@ -109,6 +112,7 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     Switcher.buildContext(contextSettings, {
       snapshotLocation: 'generated-snapshots/',
       offline: true,
+      regexSafe: false,
       snapshotAutoUpdateInterval: 1000
     });
 
@@ -143,7 +147,8 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     //test
     Switcher.buildContext(contextSettings, {
       snapshotLocation: 'generated-snapshots/',
-      offline: true
+      offline: true,
+      regexSafe: false
     });
 
     let error: Error | undefined;
@@ -237,7 +242,8 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
 
     //test
     Switcher.buildContext(contextSettings, {
-      snapshotLocation: 'generated-snapshots/'
+      snapshotLocation: 'generated-snapshots/',
+      regexSafe: false
     });
 
     await Switcher.loadSnapshot();
@@ -262,7 +268,7 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
 
   it('should be invalid - Load snapshot was not called', testSettings, async function () {
     Switcher.buildContext(contextSettings, {
-      offline: true, logger: true
+      offline: true, logger: true, regexSafe: false
     });
     
     const switcher = Switcher.factory();

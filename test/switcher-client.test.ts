@@ -2,6 +2,7 @@ import { describe, it, afterAll, beforeEach, beforeAll, delay,
   assertEquals, assertRejects, assertFalse, assertExists } from './deps.ts';
 import { assertTrue } from './helper/utils.ts'
 
+import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 import { StrategiesType } from '../src/lib/snapshot.ts';
 import { 
   Switcher, 
@@ -32,6 +33,7 @@ describe('E2E test - Switcher offline:', function () {
 
   afterAll(function() {
     Switcher.unloadSnapshot();
+    TimedMatch.terminateWorker();
   });
 
   beforeEach(function() {
@@ -175,7 +177,7 @@ describe('E2E test - Switcher offline:', function () {
   it('should enable test mode which will prevent a snapshot to be watchable', testSettings, async function () {
     //given
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
-      offline: true, logger: true
+      offline: true, logger: true, regexSafe: false
     });
 
     switcher = Switcher.factory();
@@ -192,6 +194,7 @@ describe('E2E test - Switcher offline:', function () {
     
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
       offline: true,
+      regexSafe: false,
       snapshotLocation: 'generated-snapshots/'
     });
     
@@ -207,6 +210,7 @@ describe('E2E test - Switcher offline:', function () {
 
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
       offline: true,
+      regexSafe: false,
       snapshotLocation: '//somewhere/'
     });
 

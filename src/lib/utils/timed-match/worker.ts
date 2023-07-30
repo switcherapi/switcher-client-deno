@@ -1,14 +1,4 @@
-function tryMatch(values: string[], input: string): boolean {
-  let result = false;
-  for (const value of values) {
-    if (RegExp(value).exec(input)) {
-      result = true;
-      break;
-    }
-  }
-
-  return result;
-}
+import tryMatch from './match.ts';
 
 self.onmessage = (e: MessageEvent<Param>) => {
   const params: Param = e.data;

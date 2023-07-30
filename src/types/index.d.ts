@@ -2,11 +2,11 @@ export {};
 
 declare global {
   interface Window {
-    onmessage: (e: MessageEvent<_Param>) => void;
+    onmessage: (e: MessageEvent<Param>) => void;
     postMessage: (message: boolean) => void;
   }
 
-  interface _Param {
+  interface Param {
     values: string[];
     input: string;
   }
@@ -29,6 +29,7 @@ export interface SwitcherOptions {
   snapshotAutoUpdateInterval?: number;
   silentMode?: boolean;
   retryAfter?: string;
+  regexSafe?: boolean;
   regexMaxBlackList?: number;
   regexMaxTimeLimit?: number;
   certPath?: string;

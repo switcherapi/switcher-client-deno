@@ -1,4 +1,4 @@
-import { beforeEach, describe, it, assertFalse } from "./deps.ts";
+import { afterAll, beforeAll, beforeEach, describe, it, assertFalse } from "./deps.ts";
 import { assertTrue } from './helper/utils.ts';
 import TimedMatch from "../src/lib/utils/timed-match/index.ts";
 
@@ -14,10 +14,18 @@ const TIMEOUT = 1000;
 const getTimer = (timer: number) => (timer - Date.now()) * -1;
 
 describe("Timed-Match tests:", function () {
+    beforeAll(() => {
+        TimedMatch.initializeWorker();
+    });
+
     beforeEach(() => {
         TimedMatch.clearBlackList();
         TimedMatch.setMaxBlackListed(50);
         TimedMatch.setMaxTimeLimit(1000);
+    });
+    
+    afterAll(() => {
+        TimedMatch.terminateWorker();
     });
 
     it("should return true", async function () {
