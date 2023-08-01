@@ -9,7 +9,7 @@ import { CheckSwitcherError } from './exceptions/index.ts';
 import { checkSnapshotVersion, resolveSnapshot } from './remote.ts';
 import { Snapshot, SwitcherContext } from '../types/index.d.ts';
 
-export const loadDomain = (snapshotLocation: string, environment: string) => {
+export const loadDomain = (snapshotLocation: string, environment: string, storeFile = false) => {
   let dataJSON;
   try {
     let dataBuffer;
@@ -22,8 +22,11 @@ export const loadDomain = (snapshotLocation: string, environment: string) => {
         null,
         4,
       );
-      Deno.mkdirSync(snapshotLocation, { recursive: true });
-      Deno.writeTextFileSync(snapshotFile, dataBuffer);
+
+      if (storeFile) {
+        Deno.mkdirSync(snapshotLocation, { recursive: true });
+        Deno.writeTextFileSync(snapshotFile, dataBuffer);
+      }
     }
 
     dataJSON = dataBuffer.toString();
@@ -38,7 +41,6 @@ export const loadDomain = (snapshotLocation: string, environment: string) => {
 
 export const validateSnapshot = async (
   context: SwitcherContext,
-  snapshotLocation: string | undefined,
   snapshotVersion: number,
 ) => {
   const { status } = await checkSnapshotVersion(
@@ -55,23 +57,18 @@ export const validateSnapshot = async (
       context.environment,
       context.component || '',
     );
-
-    Deno.writeTextFile(
-      `${snapshotLocation}${context.environment}.json`,
-      snapshot,
-    );
-    return true;
+    return snapshot;
   }
-  return false;
+  return undefined;
 };
 
-export const checkSwitchers = (snapshot: Snapshot, switcherKeys: string[]) => {
+export const checkSwitchersLocal = (snapshot: Snapshot, switcherKeys: string[]) => {
   const { group } = snapshot.data.domain;
   const notFound = [];
   let found = false;
 
   for (const switcher of switcherKeys) {
-    for (const g of group) {
+    for (const g of group || []) {
       found = false;
       const { config } = g;
 

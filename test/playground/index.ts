@@ -23,7 +23,9 @@ function setupSwitcher(offline: boolean) {
 const _testSimpleAPICall = async (offline: boolean) => {
     setupSwitcher(offline);
     
-    await Switcher.checkSwitchers([SWITCHER_KEY]);
+    await Switcher.checkSwitchers([SWITCHER_KEY])
+        .then(() => console.log('Switcher checked'))
+        .catch(error => console.log(error));
 
     switcher = Switcher.factory();
     await switcher.isItOn(SWITCHER_KEY, [checkValue('user_1')]);
@@ -90,20 +92,12 @@ const _testBypasser = async () => {
 };
 
 // Requires online API
-const _testSnapshotAutoload = async () => {
-    Switcher.buildContext({ url, apiKey, domain, component, environment: 'generated' });
-    await Switcher.loadSnapshot();
+const _testWatchSnapshot = async () => {
+    Switcher.buildContext({ url, apiKey, domain, component, environment }, { offline: true, logger: true, snapshotStoreFile: true });
+    await Switcher.loadSnapshot(false, true)
+        .then(() => console.log('Snapshot loaded'))
+        .catch(() => console.log('Failed to load Snapshot'));
 
-    switcher = Switcher.factory();
-    const result = await switcher.isItOn(SWITCHER_KEY);
-    console.log(result);
-
-    Switcher.unloadSnapshot();
-};
-
-// Requires online API
-const _testWatchSnapshot = () => {
-    setupSwitcher(true);
     const switcher = Switcher.factory();
 
     Switcher.watchSnapshot(
@@ -112,16 +106,17 @@ const _testWatchSnapshot = () => {
 };
 
 // Requires online API
-const _testSnapshotAutoUpdate = () => {
+const _testSnapshotAutoUpdate = async () => {
     Switcher.buildContext({ url, apiKey, domain, component, environment }, 
         { offline: true, logger: true, snapshotAutoUpdateInterval: 3000 });
 
-    Switcher.loadSnapshot();
+    await Switcher.loadSnapshot(false, true);
     const switcher = Switcher.factory();
 
     setInterval(async () => {
         const time = Date.now();
         await switcher.isItOn(SWITCHER_KEY, [checkValue('user_1')]);
+        console.clear();
         console.log(Switcher.getLogger(SWITCHER_KEY), `executed in ${Date.now() - time}ms`);
     }, 2000);
 };
