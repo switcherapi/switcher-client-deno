@@ -88,6 +88,25 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
 
     //test
     Switcher.buildContext(contextSettings, {
+      offline: true,
+      regexSafe: false
+    });
+    
+    await Switcher.loadSnapshot();
+    assertTrue(await Switcher.checkSnapshot());
+  });
+
+  it('should update snapshot - store file', testSettings, async function () {
+    await delay(2000);
+
+    //given
+    given('POST@/criteria/auth', generateAuth(token, 5));
+    given('GET@/criteria/snapshot_check/:version', generateStatus(false));
+    given('POST@/graphql', JSON.parse(dataJSON));
+
+    //test
+    Switcher.buildContext(contextSettings, {
+      snapshotStoreFile: true,
       snapshotLocation: 'generated-snapshots/',
       offline: true,
       regexSafe: false
@@ -95,6 +114,7 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     
     await Switcher.loadSnapshot(true);
     assertTrue(await Switcher.checkSnapshot());
+    assertTrue(existsSync(`generated-snapshots/${contextSettings.environment}.json`));
 
     //restore state to avoid process leakage
     Switcher.unloadSnapshot();

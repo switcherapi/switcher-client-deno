@@ -25,6 +25,7 @@ export interface SwitcherContext {
 export interface SwitcherOptions {
   offline?: boolean;
   logger?: boolean;
+  snapshotStoreFile?: boolean;
   snapshotLocation?: string;
   snapshotAutoUpdateInterval?: number;
   silentMode?: boolean;

@@ -65,6 +65,7 @@ You can also activate features such as offline and silent mode:
 ```ts
 const offline = true;
 const logger = true;
+const snapshotStoreFile = true;
 const snapshotLocation = './snapshot/';
 const snapshotAutoUpdateInterval = 3000;
 const silentMode = true;
@@ -72,7 +73,7 @@ const retryAfter = '5m';
 const certPath = './certs/ca.pem';
 
 Switcher.buildContext({ url, apiKey, domain, component, environment }, {
-    offline, logger, snapshotLocation, snapshotAutoUpdateInterval, silentMode, retryAfter, certPath
+    offline, logger, snapshotStoreFile, snapshotLocation, snapshotAutoUpdateInterval, silentMode, retryAfter, certPath
 });
 
 const switcher = Switcher.factory();
@@ -80,6 +81,7 @@ const switcher = Switcher.factory();
 
 - **offline**: If activated, the client will only fetch the configuration inside your snapshot file. The default value is 'false'.
 - **logger**: If activated, it is possible to retrieve the last results from a given Switcher key using Switcher.getLogger('KEY')
+- **snapshotStoreFile**: If activated, the client will store the configuration inside a snapshot file. The default value is 'false' (in-memory only).
 - **snapshotLocation**: Location of snapshot files. The default value is './snapshot/'.
 - **snapshotAutoUpdateInterval**: Enable Snapshot Auto Update given an interval in ms (default: 0 disabled).
 - **silentMode**: If activated, all connectivity issues will be ignored and the client will automatically fetch the configuration into your snapshot file.
@@ -165,18 +167,13 @@ Switcher.setTestEnabled();
 ```
 
 **Smoke Test**
-Validate Switcher Keys on your testing pipelines before deploying a change.
-Switcher Keys may not be configured correctly and can cause your code to have undesired results.
+It can validate Switcher Keys on your testing pipelines before deploying a change.
+Switcher Keys may not be configured correctly and can cause your code to have unwanted results.
 
-This feature will validate using the context provided to check if everything is up and running.
+This feature will validate using the context provided to check if everything is properly configured.
 In case something is missing, this operation will throw an exception pointing out which Switcher Keys are not configured.
 ```ts
 await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02'])
-
-// or
-await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02'], (err) => {
-    console.log(err);
-});
 ```
 
 ## Loading Snapshot from the API

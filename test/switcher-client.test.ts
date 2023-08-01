@@ -209,6 +209,7 @@ describe('E2E test - Switcher offline:', function () {
     await delay(2000);
 
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
+      snapshotStoreFile: true,
       offline: true,
       regexSafe: false,
       snapshotLocation: '//somewhere/'
