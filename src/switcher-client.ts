@@ -115,41 +115,33 @@ export class Switcher {
    * Verifies if the current snapshot file is updated.
    * Return true if an update has been made.
    */
-  static async checkSnapshot(reject?: (err: Error) => void) {
-    try {
-      if (!Switcher._snapshot) {
-        throw new SnapshotNotFoundError('Snapshot is not loaded. Use Switcher.loadSnapshot()');
+  static async checkSnapshot() {
+    if (!Switcher._snapshot) {
+      throw new SnapshotNotFoundError('Snapshot is not loaded. Use Switcher.loadSnapshot()');
+    }
+
+    if (
+      !Switcher._context.exp ||
+      Date.now() > (Switcher._context.exp * 1000)
+    ) {
+      await Switcher._auth();
+    }
+
+    const snapshot = await validateSnapshot(
+      Switcher._context,
+      Switcher._snapshot.data.domain.version,
+    );
+
+    if (snapshot) {
+      if (Switcher._options.snapshotStoreFile) {
+        Deno.writeTextFileSync(
+          `${Switcher._options.snapshotLocation}${Switcher._context.environment}.json`,
+          snapshot,
+        );
       }
 
-      if (
-        !Switcher._context.exp ||
-        Date.now() > (Switcher._context.exp * 1000)
-      ) {
-        await Switcher._auth();
-      }
-
-      const snapshot = await validateSnapshot(
-        Switcher._context,
-        Switcher._snapshot.data.domain.version,
-      );
-
-      if (snapshot) {
-        if (Switcher._options.snapshotStoreFile) {
-          Deno.writeTextFileSync(
-            `${Switcher._options.snapshotLocation}${Switcher._context.environment}.json`,
-            snapshot,
-          );
-        }
-
-        Switcher._snapshot = JSON.parse(snapshot);
-        return true;
-      }
-    } catch (err) {
-      if (reject) {
-        reject(err);
-      } else {
-        throw err;
-      }
+      Switcher._snapshot = JSON.parse(snapshot);
+      return true;
     }
 
     return false;
@@ -163,37 +155,25 @@ export class Switcher {
   static async loadSnapshot(
     watchSnapshot = false,
     fecthOnline = false,
-    success?: (version: number) => void | Promise<void>,
-    reject?: (err: Error) => void,
   ) {
-    try {
-      Switcher._snapshot = loadDomain(
-        Switcher._options.snapshotLocation || '',
-        Switcher._context.environment,
-        Switcher._options.snapshotStoreFile,
-      );
+    Switcher._snapshot = loadDomain(
+      Switcher._options.snapshotLocation || '',
+      Switcher._context.environment,
+      Switcher._options.snapshotStoreFile,
+    );
 
-      if (
-        Switcher._snapshot?.data.domain.version == 0 &&
-        (fecthOnline || !Switcher._options.offline)
-      ) {
-        await Switcher.checkSnapshot();
-      }
-
-      if (watchSnapshot) {
-        Switcher.watchSnapshot();
-      }
-
-      if (success) {
-        success(Switcher._snapshot?.data.domain.version || 0);
-      }
-    } catch (err) {
-      if (reject) {
-        reject(err);
-      } else {
-        throw err;
-      }
+    if (
+      Switcher._snapshot?.data.domain.version == 0 &&
+      (fecthOnline || !Switcher._options.offline)
+    ) {
+      await Switcher.checkSnapshot();
     }
+
+    if (watchSnapshot) {
+      Switcher.watchSnapshot();
+    }
+
+    return Switcher._snapshot?.data.domain.version || 0;
   }
 
   /**

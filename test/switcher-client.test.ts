@@ -198,10 +198,8 @@ describe('E2E test - Switcher offline:', function () {
       snapshotLocation: 'generated-snapshots/'
     });
     
-    await Switcher.loadSnapshot(false, false, (version) => {
-      assertEquals(version, 0);
-    });
-    
+    const version = await Switcher.loadSnapshot(false, false);
+    assertEquals(version, 0);
     assertExists(Switcher.snapshot);
   });
 
@@ -223,9 +221,9 @@ describe('E2E test - Switcher offline:', function () {
       Error, 'Something went wrong: It was not possible to load the file at //somewhere/');
 
     //or
-    await Switcher.loadSnapshot(false, false, undefined, (error) => {
-      assertEquals(error.message, 'Something went wrong: It was not possible to load the file at //somewhere/');
-    });
+    let error: Error | undefined;
+    await Switcher.loadSnapshot(false, false).catch((e) => error = e);
+    assertEquals(error?.message, 'Something went wrong: It was not possible to load the file at //somewhere/');
   });
 
 });

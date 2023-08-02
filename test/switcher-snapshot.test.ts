@@ -53,12 +53,6 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     await assertRejects(async () =>
         await Switcher.checkSnapshot(),
         Error, 'Something went wrong: [checkSnapshotVersion] failed with status 429');
-
-    //or
-    await Switcher.checkSnapshot((err: Error) => {
-      assertExists(err);
-      assertEquals(err.message, 'Something went wrong: [checkSnapshotVersion] failed with status 429');
-    });
   });
 
   it('should NOT update snapshot - Too many requests at resolveSnapshot', testSettings, async function () {
@@ -247,7 +241,7 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     
     //test
     let error: Error | undefined;
-    await Switcher.checkSnapshot((err: Error) => error = err);
+    await Switcher.checkSnapshot().catch((err: Error) => error = err);
     assertExists(error);
     assertEquals(error.message, 'Something went wrong: Snapshot is not loaded. Use Switcher.loadSnapshot()');
   });

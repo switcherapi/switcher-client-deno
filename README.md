@@ -182,15 +182,7 @@ Activate watchSnapshot optionally passing true in the arguments.<br>
 Auto load Snapshot from API passing true as second argument.
 
 ```ts
-Switcher.loadSnapshot();
-
-// or
-const watchSnapshot = true; // will update then snapshot if the file changes - same as calling Switcher.watchSnapshot()
-const fecthOnline = true; // will automatically fetch the snapshot from the API
-const onsucces = (version: number) => console.log('Snapshot loaded', version);
-const onerror = (err: Error) => console.log(err.message);
-
-Switcher.loadSnapshot(watchSnapshot, fecthOnline, onsucces, onerror);
+const version = await Switcher.loadSnapshot();
 ```
 
 ## Watch for Snapshot file changes
