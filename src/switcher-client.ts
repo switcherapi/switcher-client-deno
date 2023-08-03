@@ -1,5 +1,5 @@
 import Bypasser from './lib/bypasser/index.ts';
-import ExecutionLogger from './lib/utils/executionlogger.ts';
+import ExecutionLogger from './lib/utils/executionLogger.ts';
 import DateMoment from './lib/utils/datemoment.ts';
 import TimedMatch from './lib/utils/timed-match/index.ts';
 import SnapshotAutoUpdater from './lib/utils/snapshotAutoUpdater.ts';
