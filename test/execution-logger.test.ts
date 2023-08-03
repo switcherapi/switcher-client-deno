@@ -1,6 +1,6 @@
 import { beforeEach, describe, it, assertEquals } from './deps.ts';
 
-import ExecutionLogger from '../src/lib/utils/executionLogger.ts';
+import ExecutionLogger from '../src/lib/utils/execution-logger.ts';
 import { checkValue } from '../src/lib/middlewares/check.ts';
 
 describe('ExecutionLogger tests:', function () {
