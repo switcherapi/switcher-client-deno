@@ -3,14 +3,9 @@ import { Criteria } from '../../types/index.d.ts';
 const logger: ExecutionLogger[] = [];
 
 export default class ExecutionLogger {
-  key: string;
+  key?: string;
   input?: string[][];
   response: Criteria = { result: false };
-
-  constructor(key: string) {
-    this.key = key;
-    this.input = [];
-  }
 
   /**
    * Add new execution result
@@ -26,9 +21,7 @@ export default class ExecutionLogger {
   ): void {
     for (let index = 0; index < logger.length; index++) {
       const log = logger[index];
-      if (
-        log.key === key && JSON.stringify(log.input) === JSON.stringify(input)
-      ) {
+      if (this.hasExecution(log, key, input)) {
         logger.splice(index, 1);
         break;
       }
@@ -47,12 +40,7 @@ export default class ExecutionLogger {
     key: string,
     input?: string[][],
   ): ExecutionLogger {
-    const result = logger.filter(
-      (value) =>
-        value.key === key &&
-        JSON.stringify(value.input) === JSON.stringify(input),
-    );
-
+    const result = logger.filter((value) => this.hasExecution(value, key, input));
     return result[0];
   }
 
@@ -70,5 +58,9 @@ export default class ExecutionLogger {
    */
   static clearLogger(): void {
     logger.splice(0, logger.length);
+  }
+
+  private static hasExecution(log: ExecutionLogger, key: string, input: string[][] | undefined) {
+    return log.key === key && JSON.stringify(log.input) === JSON.stringify(input);
   }
 }
