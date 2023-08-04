@@ -1,1 +1,1 @@
-export { existsSync } from 'https://deno.land/std@0.196.0/fs/mod.ts';
+export { existsSync } from 'https://deno.land/std@0.197.0/fs/mod.ts';
