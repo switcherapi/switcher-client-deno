@@ -155,7 +155,7 @@ export class Switcher {
   ) {
     Switcher._snapshot = loadDomain(
       Switcher._options.snapshotLocation || '',
-      Switcher._context.environment
+      Switcher._context.environment,
     );
 
     if (
