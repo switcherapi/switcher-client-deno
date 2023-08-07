@@ -21,10 +21,11 @@ describe('E2E test - Switcher offline:', function () {
   const component = 'business-service';
   const environment = 'default';
   const url = 'http://localhost:3000';
+  const snapshotLocation = './snapshot/';
 
   beforeAll(async function() {
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
-      offline: true, logger: true, regexMaxBlackList: 1, regexMaxTimeLimit: 500
+      snapshotLocation, offline: true, logger: true, regexMaxBlackList: 1, regexMaxTimeLimit: 500
     });
 
     await Switcher.loadSnapshot();
@@ -207,7 +208,6 @@ describe('E2E test - Switcher offline:', function () {
     await delay(2000);
 
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
-      snapshotStoreFile: true,
       offline: true,
       regexSafe: false,
       snapshotLocation: '//somewhere/'

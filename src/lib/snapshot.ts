@@ -9,7 +9,7 @@ import { CheckSwitcherError } from './exceptions/index.ts';
 import { checkSnapshotVersion, resolveSnapshot } from './remote.ts';
 import { Snapshot, SwitcherContext } from '../types/index.d.ts';
 
-export const loadDomain = (snapshotLocation: string, environment: string, storeFile = false) => {
+export const loadDomain = (snapshotLocation: string, environment: string) => {
   let dataJSON;
   try {
     let dataBuffer;
@@ -23,7 +23,7 @@ export const loadDomain = (snapshotLocation: string, environment: string, storeF
         4,
       );
 
-      if (storeFile) {
+      if (snapshotLocation.length) {
         Deno.mkdirSync(snapshotLocation, { recursive: true });
         Deno.writeTextFileSync(snapshotFile, dataBuffer);
       }

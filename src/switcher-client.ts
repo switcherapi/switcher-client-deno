@@ -15,8 +15,6 @@ import {
   DEFAULT_REGEX_MAX_BLACKLISTED,
   DEFAULT_REGEX_MAX_TIME_LIMIT,
   DEFAULT_RETRY_TIME,
-  DEFAULT_SNAPSHOT_LOCATION,
-  DEFAULT_SNAPSHOT_STORE_FILE,
   DEFAULT_TEST_MODE,
 } from './lib/constants.ts';
 
@@ -63,8 +61,7 @@ export class Switcher {
     // Default values
     this._options = {
       snapshotAutoUpdateInterval: 0,
-      snapshotStoreFile: options?.snapshotStoreFile || DEFAULT_SNAPSHOT_STORE_FILE,
-      snapshotLocation: options?.snapshotLocation || DEFAULT_SNAPSHOT_LOCATION,
+      snapshotLocation: options?.snapshotLocation,
       offline: options?.offline != undefined ? options.offline : DEFAULT_OFFLINE,
       logger: options?.logger != undefined ? options.logger : DEFAULT_LOGGER,
     };
@@ -133,7 +130,7 @@ export class Switcher {
     );
 
     if (snapshot) {
-      if (Switcher._options.snapshotStoreFile) {
+      if (Switcher._options.snapshotLocation?.length) {
         Deno.writeTextFileSync(
           `${Switcher._options.snapshotLocation}${Switcher._context.environment}.json`,
           snapshot,
@@ -159,7 +156,6 @@ export class Switcher {
     Switcher._snapshot = loadDomain(
       Switcher._options.snapshotLocation || '',
       Switcher._context.environment,
-      Switcher._options.snapshotStoreFile,
     );
 
     if (
@@ -183,7 +179,7 @@ export class Switcher {
    * @param error when any error has thrown when attempting to load snapshot
    */
   static async watchSnapshot(success?: () => void | Promise<void>, error?: (err: Error) => void): Promise<void> {
-    if (Switcher._testEnabled || !Switcher._options.snapshotStoreFile) {
+    if (Switcher._testEnabled || !Switcher._options.snapshotLocation?.length) {
       return;
     }
 
