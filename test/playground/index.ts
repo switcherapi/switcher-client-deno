@@ -6,6 +6,7 @@ const domain = 'Playground';
 const component = 'switcher-playground';
 const environment = 'default';
 const url = 'https://switcherapi.com/api';
+const snapshotLocation = './snapshot/';
 
 let switcher;
 
@@ -13,7 +14,7 @@ let switcher;
  * Playground environment for showcasing the API
  */
 function setupSwitcher(offline: boolean) {
-    Switcher.buildContext({ url, apiKey, domain, component, environment }, { offline, logger: true });
+    Switcher.buildContext({ url, apiKey, domain, component, environment }, { snapshotLocation, offline, logger: true });
     Switcher.loadSnapshot()
         .then(() => console.log('Snapshot loaded'))
         .catch(() => console.log('Failed to load Snapshot'));
@@ -93,7 +94,7 @@ const _testBypasser = async () => {
 
 // Requires online API
 const _testWatchSnapshot = async () => {
-    Switcher.buildContext({ url, apiKey, domain, component, environment }, { offline: true, logger: true, snapshotStoreFile: true });
+    Switcher.buildContext({ url, apiKey, domain, component, environment }, { snapshotLocation, offline: true, logger: true });
     await Switcher.loadSnapshot(false, true)
         .then(() => console.log('Snapshot loaded'))
         .catch(() => console.log('Failed to load Snapshot'));

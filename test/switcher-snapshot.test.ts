@@ -28,6 +28,7 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     };
     
     Switcher.buildContext(contextSettings, {
+      snapshotLocation: './snapshot/',
       offline: true,
       regexSafe: false
     });
@@ -100,7 +101,6 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
 
     //test
     Switcher.buildContext(contextSettings, {
-      snapshotStoreFile: true,
       snapshotLocation: 'generated-snapshots/',
       offline: true,
       regexSafe: false
@@ -266,9 +266,12 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
 
   it('should not throw when switcher keys provided were configured properly', testSettings, async function () {
     await delay(2000);
-
+    
     await Switcher.loadSnapshot();
-    await Switcher.checkSwitchers(['FF2FOR2030']);
+
+    let error: Error | undefined;
+    await Switcher.checkSwitchers(['FF2FOR2030']).catch((err: Error) => error = err);
+    assertEquals(error, undefined);
   });
 
   it('should throw when switcher keys provided were not configured properly', testSettings, async function () {
