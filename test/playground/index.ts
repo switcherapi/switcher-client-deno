@@ -8,31 +8,33 @@ const environment = 'default';
 const url = 'https://switcherapi.com/api';
 const snapshotLocation = './snapshot/';
 
-let switcher;
+let switcher: Switcher;
 
 /**
  * Playground environment for showcasing the API
  */
-function setupSwitcher(offline: boolean) {
-    Switcher.buildContext({ url, apiKey, domain, component, environment }, { snapshotLocation, offline, logger: true });
-    Switcher.loadSnapshot()
+async function setupSwitcher(offline: boolean) {
+    Switcher.buildContext({ url, apiKey, domain, component, environment }, { offline, logger: true });
+    await Switcher.loadSnapshot(false, true)
         .then(() => console.log('Snapshot loaded'))
         .catch(() => console.log('Failed to load Snapshot'));
 }
 
 // Requires online API
 const _testSimpleAPICall = async (offline: boolean) => {
-    setupSwitcher(offline);
+    await setupSwitcher(offline);
     
     await Switcher.checkSwitchers([SWITCHER_KEY])
         .then(() => console.log('Switcher checked'))
         .catch(error => console.log(error));
 
     switcher = Switcher.factory();
-    await switcher.isItOn(SWITCHER_KEY, [checkValue('user_1')]);
 
-    console.log(Switcher.getLogger(SWITCHER_KEY));
-    Switcher.unloadSnapshot();
+    setInterval(async () => {
+        const time = Date.now();
+        await switcher.isItOn(SWITCHER_KEY, [checkValue('user_1')]);
+        console.log(`- ${Date.now() - time} ms - ${await switcher.isItOn(SWITCHER_KEY, [checkValue('user_1')])}`);
+    }, 5000);
 };
 
 // Requires online API
