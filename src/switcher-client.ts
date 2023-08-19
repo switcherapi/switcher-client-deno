@@ -14,7 +14,6 @@ import {
   DEFAULT_OFFLINE,
   DEFAULT_REGEX_MAX_BLACKLISTED,
   DEFAULT_REGEX_MAX_TIME_LIMIT,
-  DEFAULT_RETRY_TIME,
   DEFAULT_TEST_MODE,
 } from './lib/constants.ts';
 
@@ -50,10 +49,6 @@ export class Switcher {
     this._testEnabled = DEFAULT_TEST_MODE;
 
     this._snapshot = undefined;
-    this._context = {
-      domain: context.domain,
-      environment: context.environment,
-    };
     this._context = context;
     this._context.url = context.url;
     this._context.environment = context.environment || DEFAULT_ENVIRONMENT;
@@ -76,26 +71,13 @@ export class Switcher {
       services.setCerts(options.certPath);
     }
 
-    if ('silentMode' in options) {
-      this._options.silentMode = options.silentMode;
-      this.loadSnapshot();
+    if ('silentMode' in options && options.silentMode) {
+      this._initSilentMode(options.silentMode);
     }
 
     if ('snapshotAutoUpdateInterval' in options) {
       this._options.snapshotAutoUpdateInterval = options.snapshotAutoUpdateInterval;
       this.scheduleSnapshotAutoUpdate();
-    }
-
-    if ('retryAfter' in options) {
-      this._retryOptions = {
-        retryTime: parseInt(options.retryAfter?.slice(0, -1) || DEFAULT_RETRY_TIME.charAt(0)),
-        retryDurationIn: options.retryAfter?.slice(-1) || DEFAULT_RETRY_TIME.charAt(1),
-      };
-    } else {
-      this._retryOptions = {
-        retryTime: parseInt(DEFAULT_RETRY_TIME.charAt(0)),
-        retryDurationIn: DEFAULT_RETRY_TIME.charAt(1),
-      };
     }
 
     this._initTimedMatch(options);
@@ -297,6 +279,16 @@ export class Switcher {
         }
       }
     }
+  }
+
+  private static _initSilentMode(silentMode: string) {
+    this._retryOptions = {
+      retryTime: parseInt(silentMode.slice(0, -1)),
+      retryDurationIn: silentMode.slice(-1),
+    };
+
+    this._options.silentMode = silentMode;
+    this.loadSnapshot();
   }
 
   private static _initTimedMatch(options: SwitcherOptions) {

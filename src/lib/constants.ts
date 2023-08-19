@@ -1,5 +1,4 @@
 export const DEFAULT_ENVIRONMENT = 'default';
-export const DEFAULT_RETRY_TIME = '5m';
 export const DEFAULT_OFFLINE = false;
 export const DEFAULT_LOGGER = false;
 export const DEFAULT_TEST_MODE = false;
