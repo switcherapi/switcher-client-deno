@@ -165,7 +165,7 @@ describe('Integrated test - Switcher:', function () {
       given('GET@/check', null, 429);
 
       //test
-      Switcher.buildContext(contextSettings, { silentMode: true, regexSafe: false, snapshotLocation: './snapshot/' });
+      Switcher.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './snapshot/' });
       await assertRejects(async () =>
         await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02']),
         Error, 'Something went wrong: [FEATURE01,FEATURE02] not found');
@@ -180,7 +180,7 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria', { error: 'Too many requests' }, 429);
 
       // test
-      Switcher.buildContext(contextSettings, { silentMode: true, regexSafe: false, snapshotLocation: './snapshot/' });
+      Switcher.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './snapshot/' });
       const switcher = Switcher.factory();
       
       assertTrue(await switcher.isItOn('FF2FOR2022'));
@@ -449,8 +449,7 @@ describe('Integrated test - Switcher:', function () {
       Switcher.buildContext(contextSettings, {
         snapshotLocation: './snapshot/',
         regexSafe: false,
-        silentMode: true,
-        retryAfter: '2s'
+        silentMode: '2s',
       });
       
       const switcher = Switcher.factory();
@@ -506,7 +505,7 @@ describe('Integrated test - Switcher:', function () {
       Switcher.buildContext(contextSettings, {
         snapshotLocation: './snapshot/',
         regexSafe: false,
-        silentMode: true
+        silentMode: '5m'
       });
 
       const switcher = Switcher.factory();
