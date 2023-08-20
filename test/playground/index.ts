@@ -112,7 +112,7 @@ const _testWatchSnapshot = async () => {
 // Requires online API
 const _testSnapshotAutoUpdate = async () => {
     Switcher.buildContext({ url, apiKey, domain, component, environment }, 
-        { offline: true, logger: true, snapshotAutoUpdateInterval: 3000 });
+        { offline: true, logger: true, snapshotAutoUpdateInterval: 3 });
 
     await Switcher.loadSnapshot(false, true);
     const switcher = Switcher.factory();

@@ -66,7 +66,7 @@ You can also activate features such as offline and silent mode:
 const offline = true;
 const logger = true;
 const snapshotLocation = './snapshot/';
-const snapshotAutoUpdateInterval = 3000;
+const snapshotAutoUpdateInterval = 3;
 const silentMode = '5m';
 const certPath = './certs/ca.pem';
 
@@ -80,7 +80,7 @@ const switcher = Switcher.factory();
 - **offline**: If activated, the client will only fetch the configuration inside your snapshot file. The default value is 'false'.
 - **logger**: If activated, it is possible to retrieve the last results from a given Switcher key using Switcher.getLogger('KEY')
 - **snapshotLocation**: Location of snapshot files.
-- **snapshotAutoUpdateInterval**: Enable Snapshot Auto Update given an interval in ms (default: 0 disabled).
+- **snapshotAutoUpdateInterval**: Enable Snapshot Auto Update given an interval in seconds (default: 0 disabled).
 - **silentMode**: Enable contigency given the time for the client to retry - e.g. 5s (s: seconds - m: minutes - h: hours)
 - **regexSafe**: Enable REGEX Safe mode - Prevent agaist reDOS attack (default: true).
 - **regexMaxBlackList**: Number of entries cached when REGEX Strategy fails to perform (reDOS safe) - default: 50
@@ -202,5 +202,5 @@ You can also schedule a snapshot update using the method below.<br>
 It allows you to run the Client SDK in offline mode (zero latency) and still have the snapshot updated automatically.
 
 ```ts
-Switcher.scheduleSnapshotAutoUpdate(1000 * 60 * 60 * 24); // 24 hours
+Switcher.scheduleSnapshotAutoUpdate(1 * 60 * 60 * 24); // 24 hours
 ```

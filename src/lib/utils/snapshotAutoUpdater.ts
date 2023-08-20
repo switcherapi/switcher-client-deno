@@ -23,7 +23,7 @@ export default class SnapshotAutoUpdater {
           reject(err);
         }
       }
-    }, interval);
+    }, interval * 1000);
   }
 
   static terminate() {
