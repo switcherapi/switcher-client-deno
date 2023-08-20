@@ -46,7 +46,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should be valid', async function () {
       // given API responding properly
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', generateResult(true));
 
@@ -60,7 +59,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should NOT be valid - API returned 429 (too many requests)', async function () {
       // given API responding properly
-      given('GET@/check', null);
       given('POST@/criteria/auth', null, 429);
 
       // test
@@ -74,7 +72,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should be valid - throttle', async function () {
       // given API responding properly
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', generateResult(true));
 
@@ -133,7 +130,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should NOT be valid - API returned 429 (too many requests) at checkHealth/auth', async function () {
       // given API responding properly
-      given('GET@/check', null, 429);
       given('POST@/criteria/auth', { error: 'Too many requests' }, 429);
 
       // test
@@ -147,7 +143,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should NOT be valid - API returned 429 (too many requests) at checkCriteria', async function () {
       // given API responding properly
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', { error: 'Too many requests' }, 429);
 
@@ -161,10 +156,6 @@ describe('Integrated test - Switcher:', function () {
     });
 
     it('should use silent mode when fail to check switchers', async function() {
-      //given
-      given('GET@/check', null, 429);
-
-      //test
       Switcher.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './snapshot/' });
       await assertRejects(async () =>
         await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02']),
@@ -175,7 +166,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should use silent mode when fail to check criteria', async function () {
       // given API responding properly
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', { error: 'Too many requests' }, 429);
 
@@ -196,7 +186,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should be valid', async function () {
       // given API responding properly
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', generateResult(true));
 
@@ -228,7 +217,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should not throw when switcher keys provided were configured properly', async function() {
       //given
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria/switchers_check', { not_found: [] });
 
@@ -242,7 +230,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should throw when switcher keys provided were not configured properly', async function() {
       //given
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria/switchers_check', { not_found: ['FEATURE02'] });
 
@@ -255,7 +242,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should throw when no switcher keys were provided', async function() {
       //given
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria/switchers_check', null, 422);
 
@@ -484,10 +470,6 @@ describe('Integrated test - Switcher:', function () {
     });
 
     it('should run in silent mode when API is unavailable', async function () {
-      // given: API unavailable
-      given('GET@/check', undefined, 503);
-
-      // test
       Switcher.buildContext(contextSettings, {
         snapshotLocation: './snapshot/',
         regexSafe: false,
