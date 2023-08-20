@@ -30,11 +30,12 @@ const _testSimpleAPICall = async (offline: boolean) => {
 
     switcher = Switcher.factory();
 
-    setInterval(async () => {
+    while(true) {
         const time = Date.now();
-        await switcher.isItOn(SWITCHER_KEY, [checkValue('user_1')]);
-        console.log(`- ${Date.now() - time} ms - ${await switcher.isItOn(SWITCHER_KEY, [checkValue('user_1')])}`);
-    }, 5000);
+        const result = await switcher.isItOn(SWITCHER_KEY);
+        console.log(`- ${Date.now() - time} ms - ${result}`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
 };
 
 // Requires online API
