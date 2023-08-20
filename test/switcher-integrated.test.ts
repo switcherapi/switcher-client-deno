@@ -272,7 +272,6 @@ describe('Integrated test - Switcher:', function () {
     
     it('should renew the token after expiration', async function () {
       // given API responding properly
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 1));
 
       Switcher.buildContext(contextSettings);
@@ -303,7 +302,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should be valid - when sending key without calling prepare', async function () {
       // given API responding properly
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', generateResult(true));
 
@@ -318,7 +316,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should be valid - when preparing key and sending input strategy afterwards', async function () {
       // given API responding properly
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', generateResult(true));
 
@@ -335,7 +332,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should be invalid - Missing API url field', async function () {
       // given
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
 
       // test
@@ -356,7 +352,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should be invalid - Missing API Key field', async function () {
       // given
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
 
       // test
@@ -382,7 +377,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should be invalid - Missing key field', async function () {
       // given
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
 
       // test
@@ -396,7 +390,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should be invalid - Missing component field', async function () {
       // given
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
 
       // test
@@ -417,7 +410,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should be invalid - Missing token field', async function () {
       // given
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth(undefined, 5));
 
       // test
@@ -431,7 +423,6 @@ describe('Integrated test - Switcher:', function () {
 
     it('should be invalid - bad strategy input', async function () {
       // given
-      given('GET@/check', null);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
 
       // test
@@ -453,7 +444,7 @@ describe('Integrated test - Switcher:', function () {
       });
       
       const switcher = Switcher.factory();
-      const spyPrepare = spy(switcher, 'prepare');
+      const spyOnline = spy(switcher, '_executeOnlineCriteria');
 
       // First attempt to reach the API - Since it's configured to use silent mode, it should return true (according to the snapshot)
       givenError('POST@/criteria/auth', 'ECONNREFUSED');
@@ -464,16 +455,9 @@ describe('Integrated test - Switcher:', function () {
       assertTrue(await switcher.isItOn());
 
       // As the silent mode was configured to retry after 2 seconds, it's still in time, 
-      // therefore, prepare was never called
-      assertSpyCalls(spyPrepare, 0);
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Silent mode has expired. Again, the online API is still offline. Prepare still not be invoked
-
-      assertTrue(await switcher.isItOn());
-      assertSpyCalls(spyPrepare, 0);
-
+      // therefore, online call was not yet invoked
+      assertSpyCalls(spyOnline, 0);
+      
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       // Setup the online mocked response and made it to return false just to make sure it's not fetching from the snapshot
@@ -481,8 +465,10 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria/auth', generateAuth('[auth_token]', 10));
       given('POST@/criteria', generateResult(false));
 
+      // Auth is async when silent mode is enabled to prevent blocking the execution while the API is not available
+      assertTrue(await switcher.isItOn());
       assertFalse(await switcher.isItOn());
-      assertSpyCalls(spyPrepare, 1);
+      assertSpyCalls(spyOnline, 1);
     });
 
     it('should throw error if not in silent mode', async function () {

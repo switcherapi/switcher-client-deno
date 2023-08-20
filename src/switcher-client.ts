@@ -312,38 +312,31 @@ export class Switcher {
     Switcher._context.exp = response.exp;
   }
 
-  private static async _checkHealth() {
-    // checks if silent mode is still activated
-    if (Switcher._context.token === 'SILENT') {
-      if (
-        !Switcher._context.exp ||
-        Date.now() < (Switcher._context.exp * 1000)
-      ) {
-        const expirationTime = new DateMoment(new Date())
-          .add(
-            Switcher._retryOptions.retryTime,
-            Switcher._retryOptions.retryDurationIn,
-          )
-          .getDate();
-
-        Switcher._context.exp = expirationTime.getTime() / 1000;
-        return false;
-      }
+  private static _checkHealth() {
+    if (Switcher._context.token !== 'SILENT') {
+      return;
     }
 
-    const response = await services.checkAPIHealth(
-      Switcher._context.url || '',
-      Switcher._options,
-      Switcher._retryOptions,
-    );
-
-    if (response) {
-      Switcher._context.token = response.data.token;
-      Switcher._context.exp = response.data.exp;
-      return false;
+    if (Switcher._isTokenExpired()) {
+      Switcher._updateSilentToken();
+      services.checkAPIHealth(Switcher._context.url || '').then((isAlive) => {
+        if (isAlive) {
+          Switcher._auth();
+        }
+      });
     }
+  }
 
-    return true;
+  private static _updateSilentToken() {
+    const expirationTime = new DateMoment(new Date())
+      .add(Switcher._retryOptions.retryTime, Switcher._retryOptions.retryDurationIn).getDate();
+
+    Switcher._context.token = 'SILENT';
+    Switcher._context.exp = Math.round(expirationTime.getTime() / 1000);
+  }
+
+  private static _isTokenExpired() {
+    return !Switcher._context.exp || Date.now() > (Switcher._context.exp * 1000);
   }
 
   /**
@@ -469,6 +462,7 @@ export class Switcher {
         }
       } catch (err) {
         if (Switcher._options.silentMode) {
+          Switcher._updateSilentToken();
           return this._executeOfflineCriteria();
         }
 
@@ -530,14 +524,13 @@ export class Switcher {
   }
 
   async _executeApiValidation() {
-    if (this._useSync()) {
-      if (
-        await Switcher._checkHealth() &&
-        (!Switcher._context.exp ||
-          Date.now() > (Switcher._context.exp * 1000))
-      ) {
-        await this.prepare(this._key, this._input);
-      }
+    if (!this._useSync()) {
+      return;
+    }
+
+    Switcher._checkHealth();
+    if (Switcher._isTokenExpired()) {
+      await this.prepare(this._key, this._input);
     }
   }
 

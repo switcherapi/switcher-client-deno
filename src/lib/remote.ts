@@ -1,12 +1,5 @@
-import DateMoment from './utils/datemoment.ts';
-import {
-  ApiConnectionError,
-  AuthError,
-  CheckSwitcherError,
-  CriteriaError,
-  SnapshotServiceError,
-} from './exceptions/index.ts';
-import { Criteria, Entry, RetryOptions, SwitcherContext, SwitcherOptions } from '../types/index.d.ts';
+import { AuthError, CheckSwitcherError, CriteriaError, SnapshotServiceError } from './exceptions/index.ts';
+import { Criteria, Entry, SwitcherContext } from '../types/index.d.ts';
 
 let httpClient: Deno.HttpClient;
 
@@ -17,22 +10,6 @@ const getHeader = (token: string | undefined) => {
     'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json',
   };
-};
-
-const trySilent = (options: SwitcherOptions, retryOptions: RetryOptions) => {
-  if (options && 'silentMode' in options) {
-    if (options.silentMode) {
-      const expirationTime = new DateMoment(new Date())
-        .add(retryOptions.retryTime, retryOptions.retryDurationIn).getDate();
-
-      return {
-        data: {
-          token: 'SILENT',
-          exp: expirationTime.getTime() / 1000,
-        },
-      };
-    }
-  }
 };
 
 export const setCerts = (certPath: string) => {
@@ -62,14 +39,12 @@ export const getEntry = (input?: string[][]) => {
   return entry;
 };
 
-export const checkAPIHealth = async (url: string, options: SwitcherOptions, retryOptions: RetryOptions) => {
+export const checkAPIHealth = async (url: string) => {
   try {
     const response = await fetch(`${url}/check`, { client: httpClient, method: 'get' });
-    if (response.status != 200) {
-      throw new ApiConnectionError('API is offline');
-    }
+    return response.status == 200;
   } catch (_e) {
-    return trySilent(options, retryOptions);
+    return false;
   }
 };
 

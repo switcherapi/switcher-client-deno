@@ -1,10 +1,3 @@
-export class ApiConnectionError extends Error {
-  constructor(message: string) {
-    super(`Something went wrong: ${message}`);
-    this.name = this.constructor.name;
-  }
-}
-
 export class AuthError extends Error {
   constructor(message: string) {
     super(`Something went wrong: ${message}`);
