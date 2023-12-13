@@ -14,14 +14,14 @@ jobs:
 
     steps:
       - name: Git checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Deno v1.36.1
+      - name: Setup Deno v1.38.5
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.36.1
+          deno-version: v1.38.5
 
       - name: Setup LCOV        
         run: sudo apt install -y lcov
