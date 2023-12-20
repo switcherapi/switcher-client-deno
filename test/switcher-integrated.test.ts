@@ -80,7 +80,7 @@ describe('Integrated test - Switcher:', function () {
       const switcher = Switcher.factory();
       switcher.throttle(1000);
 
-      const spyAsyncOnlineCriteria = spy(switcher, '_executeAsyncOnlineCriteria');
+      const spyAsyncRemoteCriteria = spy(switcher, '_executeAsyncRemoteCriteria');
       let throttledRunTimer;
       for (let index = 0; index < 10; index++) {
         assertTrue(await switcher.isItOn('FLAG_1'));
@@ -95,12 +95,12 @@ describe('Integrated test - Switcher:', function () {
         }
       }
 
-      assertSpyCalls(spyAsyncOnlineCriteria, 9);
+      assertSpyCalls(spyAsyncRemoteCriteria, 9);
 
       // Next call should call the API again as the throttle has expired
       await new Promise(resolve => setTimeout(resolve, 2000));
       assertTrue(await switcher.isItOn('FLAG_1'));
-      assertSpyCalls(spyAsyncOnlineCriteria, 10);
+      assertSpyCalls(spyAsyncRemoteCriteria, 10);
 
       // Throttle expired, set up new throttle run timer
       assertNotEquals(throttledRunTimer, switcher.nextRun);
@@ -430,23 +430,23 @@ describe('Integrated test - Switcher:', function () {
       });
       
       const switcher = Switcher.factory();
-      const spyOnline = spy(switcher, '_executeOnlineCriteria');
+      const spyRemote = spy(switcher, '_executeRemoteCriteria');
 
       // First attempt to reach the API - Since it's configured to use silent mode, it should return true (according to the snapshot)
       givenError('POST@/criteria/auth', 'ECONNREFUSED');
       assertTrue(await switcher.isItOn('FF2FOR2030'));
 
       await new Promise(resolve => setTimeout(resolve, 500));
-      // The call below is in silent mode. It is getting the configuration from the offline snapshot again
+      // The call below is in silent mode. It is getting the configuration from the local snapshot again
       assertTrue(await switcher.isItOn());
 
       // As the silent mode was configured to retry after 2 seconds, it's still in time, 
-      // therefore, online call was not yet invoked
-      assertSpyCalls(spyOnline, 0);
+      // therefore, remote call was not yet invoked
+      assertSpyCalls(spyRemote, 0);
       
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // Setup the online mocked response and made it to return false just to make sure it's not fetching from the snapshot
+      // Setup the remote mocked response and made it to return false just to make sure it's not fetching from the snapshot
       given('GET@/check', undefined, 200);
       given('POST@/criteria/auth', generateAuth('[auth_token]', 10));
       given('POST@/criteria', generateResult(false));
@@ -454,7 +454,7 @@ describe('Integrated test - Switcher:', function () {
       // Auth is async when silent mode is enabled to prevent blocking the execution while the API is not available
       assertTrue(await switcher.isItOn());
       assertFalse(await switcher.isItOn());
-      assertSpyCalls(spyOnline, 1);
+      assertSpyCalls(spyRemote, 1);
     });
 
     it('should throw error if not in silent mode', async function () {

@@ -19,7 +19,7 @@ const invalidateJSON = () => {
   Deno.writeTextFileSync('generated-snapshots/watch.json', '[INVALID]');
 };
 
-describe('E2E test - Switcher offline - Watch Snapshot:', function () {
+describe('E2E test - Switcher local - Watch Snapshot:', function () {
   const domain = 'Business';
   const component = 'business-service';
   const environment = 'watch';
@@ -28,7 +28,7 @@ describe('E2E test - Switcher offline - Watch Snapshot:', function () {
     updateSwitcher(true);
     Switcher.buildContext({ domain, component, environment }, {
       snapshotLocation: 'generated-snapshots/',
-      offline: true,
+      local: true,
       regexSafe: false
     });
 

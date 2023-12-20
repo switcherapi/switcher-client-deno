@@ -14,7 +14,7 @@ import {
 
 const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExit: false };
 
-describe('E2E test - Switcher offline:', function () {
+describe('E2E test - Switcher local:', function () {
   let switcher: Switcher;
   const apiKey = '[api_key]';
   const domain = 'Business';
@@ -25,7 +25,7 @@ describe('E2E test - Switcher offline:', function () {
 
   beforeAll(async function() {
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
-      snapshotLocation, offline: true, logger: true, regexMaxBlackList: 1, regexMaxTimeLimit: 500
+      snapshotLocation, local: true, logger: true, regexMaxBlackList: 1, regexMaxTimeLimit: 500
     });
 
     await Switcher.loadSnapshot();
@@ -178,7 +178,7 @@ describe('E2E test - Switcher offline:', function () {
   it('should enable test mode which will prevent a snapshot to be watchable', testSettings, async function () {
     //given
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
-      offline: true, logger: true, regexSafe: false
+      local: true, logger: true, regexSafe: false
     });
 
     switcher = Switcher.factory();
@@ -190,11 +190,11 @@ describe('E2E test - Switcher offline:', function () {
     assertTrue(await switcher.isItOn('FF2FOR2020'));
   });
 
-  it('should be valid - Offline mode', testSettings, async function () {
+  it('should be valid - Local mode', testSettings, async function () {
     await delay(2000);
     
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
-      offline: true,
+      local: true,
       regexSafe: false,
       snapshotLocation: 'generated-snapshots/'
     });
@@ -204,11 +204,11 @@ describe('E2E test - Switcher offline:', function () {
     assertExists(Switcher.snapshot);
   });
 
-  it('should be invalid - Offline mode cannot load snapshot from an invalid path', testSettings, async function () {
+  it('should be invalid - Local mode cannot load snapshot from an invalid path', testSettings, async function () {
     await delay(2000);
 
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
-      offline: true,
+      local: true,
       regexSafe: false,
       snapshotLocation: '//somewhere/'
     });

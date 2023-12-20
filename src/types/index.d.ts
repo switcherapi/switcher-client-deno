@@ -23,7 +23,7 @@ export interface SwitcherContext {
 }
 
 export interface SwitcherOptions {
-  offline?: boolean;
+  local?: boolean;
   logger?: boolean;
   snapshotLocation?: string;
   snapshotAutoUpdateInterval?: number;

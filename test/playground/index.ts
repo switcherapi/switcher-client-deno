@@ -13,16 +13,16 @@ let switcher: Switcher;
 /**
  * Playground environment for showcasing the API
  */
-async function setupSwitcher(offline: boolean) {
-    Switcher.buildContext({ url, apiKey, domain, component, environment }, { offline, logger: true });
+async function setupSwitcher(local: boolean) {
+    Switcher.buildContext({ url, apiKey, domain, component, environment }, { local, logger: true });
     await Switcher.loadSnapshot(false, true)
         .then(() => console.log('Snapshot loaded'))
         .catch(() => console.log('Failed to load Snapshot'));
 }
 
-// Requires online API
-const _testSimpleAPICall = async (offline: boolean) => {
-    await setupSwitcher(offline);
+// Requires remote API
+const _testSimpleAPICall = async (local: boolean) => {
+    await setupSwitcher(local);
     
     await Switcher.checkSwitchers([SWITCHER_KEY])
         .then(() => console.log('Switcher checked'))
@@ -38,7 +38,7 @@ const _testSimpleAPICall = async (offline: boolean) => {
     }
 };
 
-// Requires online API
+// Requires remote API
 const _testThrottledAPICall = async () => {
     setupSwitcher(false);
     
@@ -53,7 +53,7 @@ const _testThrottledAPICall = async () => {
     Switcher.unloadSnapshot();
 };
 
-// Requires online API
+// Requires remote API
 const _testSnapshotUpdate = async () => {
     setupSwitcher(false);
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -95,9 +95,9 @@ const _testBypasser = async () => {
     Switcher.unloadSnapshot();
 };
 
-// Requires online API
+// Requires remote API
 const _testWatchSnapshot = async () => {
-    Switcher.buildContext({ url, apiKey, domain, component, environment }, { snapshotLocation, offline: true, logger: true });
+    Switcher.buildContext({ url, apiKey, domain, component, environment }, { snapshotLocation, local: true, logger: true });
     await Switcher.loadSnapshot(false, true)
         .then(() => console.log('Snapshot loaded'))
         .catch(() => console.log('Failed to load Snapshot'));
@@ -109,10 +109,10 @@ const _testWatchSnapshot = async () => {
         (err: Error) => console.log(err));
 };
 
-// Requires online API
+// Requires remote API
 const _testSnapshotAutoUpdate = async () => {
     Switcher.buildContext({ url, apiKey, domain, component, environment }, 
-        { offline: true, logger: true });
+        { local: true, logger: true });
 
     await Switcher.loadSnapshot(false, true);
     const switcher = Switcher.factory();
