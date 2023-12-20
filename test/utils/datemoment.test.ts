@@ -1,6 +1,6 @@
-import { assertThrows, assertFalse, describe, it } from './deps.ts';
-import { assertTrue } from './helper/utils.ts';
-import DateMoment from '../src/lib/utils/datemoment.ts';
+import { assertThrows, assertFalse, describe, it } from '../deps.ts';
+import { assertTrue } from '../helper/utils.ts';
+import DateMoment from '../../src/lib/utils/datemoment.ts';
 
 describe('DateMoment tests:', function () {
     it('should be true when the compared date is before', function () {

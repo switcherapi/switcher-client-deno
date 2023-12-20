@@ -1,7 +1,7 @@
-import { beforeEach, describe, it, assertEquals } from './deps.ts';
+import { beforeEach, describe, it, assertEquals } from '../deps.ts';
 
-import ExecutionLogger from '../src/lib/utils/executionLogger.ts';
-import { checkValue } from '../src/lib/middlewares/check.ts';
+import ExecutionLogger from '../../src/lib/utils/executionLogger.ts';
+import { checkValue } from '../../src/lib/middlewares/check.ts';
 
 describe('ExecutionLogger tests:', function () {
     beforeEach(function () {

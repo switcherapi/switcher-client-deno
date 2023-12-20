@@ -107,6 +107,54 @@ describe('Integrated test - Switcher:', function () {
     });
   });
 
+  describe('force remote (hybrid):', function () {
+    
+    const forceRemoteOptions = { 
+      local: true, 
+      snapshotLocation: './snapshot/',
+      regexSafe: false
+    };
+
+    afterEach(function() {
+      tearDown();
+    });
+
+    it('should return true - snapshot switcher is true', async function () {
+      Switcher.buildContext(contextSettings, forceRemoteOptions);
+
+      const switcher = Switcher.factory();
+      await Switcher.loadSnapshot();
+      assertTrue(await switcher.isItOn('FF2FOR2030'));
+    });
+
+    it('should return false - same switcher return false when remote', async function () {
+      // given API responding properly
+      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
+      given('POST@/criteria', generateResult(false));
+
+      // test
+      Switcher.buildContext(contextSettings, forceRemoteOptions);
+
+      const switcher = Switcher.factory();
+      const executeRemoteCriteria = spy(switcher, '_executeRemoteCriteria');
+      
+      await Switcher.loadSnapshot();
+      assertFalse(await switcher.remote().isItOn('FF2FOR2030'));
+      assertSpyCalls(executeRemoteCriteria, 1);
+    });
+
+    it('should return error when local is not enabled', async function () {
+      Switcher.buildContext(contextSettings, { regexSafe: false, local: false });
+
+      const switcher = Switcher.factory();
+      
+      await assertRejects(async () =>
+        await switcher.remote().isItOn('FF2FOR2030'),
+        Error, 'Local mode is not enabled');
+    });
+
+  });
+
   describe('check fail response (e2e):', function () {
 
     let contextSettings: SwitcherContext;

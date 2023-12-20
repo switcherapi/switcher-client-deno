@@ -1,6 +1,6 @@
-import { afterAll, beforeAll, beforeEach, describe, it, assertFalse } from "./deps.ts";
-import { assertTrue } from './helper/utils.ts';
-import TimedMatch from "../src/lib/utils/timed-match/index.ts";
+import { afterAll, beforeAll, beforeEach, describe, it, assertFalse } from "../deps.ts";
+import { assertTrue } from '../helper/utils.ts';
+import TimedMatch from "../../src/lib/utils/timed-match/index.ts";
 
 const okRE = "[a-z]";
 const okInput = "a";
