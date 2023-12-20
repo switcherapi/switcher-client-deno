@@ -38,6 +38,7 @@ export class Switcher {
   private _nextRun = 0;
   private _input?: string[][];
   private _key = '';
+  private _forceRemote = false;
 
   /**
    * Create the necessary configuration to communicate with the API
@@ -133,7 +134,7 @@ export class Switcher {
    */
   static async loadSnapshot(
     watchSnapshot = false,
-    fecthRemote = false,
+    fetchRemote = false,
   ) {
     Switcher._snapshot = loadDomain(
       Switcher._options.snapshotLocation || '',
@@ -142,7 +143,7 @@ export class Switcher {
 
     if (
       Switcher._snapshot?.data.domain.version == 0 &&
-      (fecthRemote || !Switcher._options.local)
+      (fetchRemote || !Switcher._options.local)
     ) {
       await Switcher.checkSnapshot();
     }
@@ -399,7 +400,7 @@ export class Switcher {
 
     if (input) this._input = input;
 
-    if (!Switcher._options.local) {
+    if (!Switcher._options.local || this._forceRemote) {
       await Switcher._auth();
     }
   }
@@ -450,7 +451,7 @@ export class Switcher {
     }
 
     // verify if query from snapshot
-    if (Switcher._options.local) {
+    if (Switcher._options.local && !this._forceRemote) {
       result = await this._executeLocalCriteria();
     } else {
       try {
@@ -486,6 +487,20 @@ export class Switcher {
       Switcher._options.logger = true;
     }
 
+    return this;
+  }
+
+  /**
+   * Force the use of the remote API when local is enabled
+   *
+   * @param forceRemote default true
+   */
+  remote(forceRemote = true) {
+    if (!Switcher._options.local) {
+      throw new Error('Local mode is not enabled');
+    }
+
+    this._forceRemote = forceRemote;
     return this;
   }
 
