@@ -5,13 +5,13 @@ import TimedMatch from './lib/utils/timed-match/index.ts';
 import SnapshotAutoUpdater from './lib/utils/snapshotAutoUpdater.ts';
 import { checkSwitchersLocal, loadDomain, validateSnapshot } from './lib/snapshot.ts';
 import * as services from './lib/remote.ts';
-import checkCriteriaOffline from './lib/resolver.ts';
+import checkCriteriaLocal from './lib/resolver.ts';
 import { RetryOptions, Snapshot, SwitcherContext, SwitcherOptions } from './types/index.d.ts';
 import { SnapshotNotFoundError } from './lib/exceptions/index.ts';
 import {
   DEFAULT_ENVIRONMENT,
+  DEFAULT_LOCAL,
   DEFAULT_LOGGER,
-  DEFAULT_OFFLINE,
   DEFAULT_REGEX_MAX_BLACKLISTED,
   DEFAULT_REGEX_MAX_TIME_LIMIT,
   DEFAULT_TEST_MODE,
@@ -57,7 +57,7 @@ export class Switcher {
     this._options = {
       snapshotAutoUpdateInterval: 0,
       snapshotLocation: options?.snapshotLocation,
-      offline: options?.offline != undefined ? options.offline : DEFAULT_OFFLINE,
+      local: options?.local != undefined ? options.local : DEFAULT_LOCAL,
       logger: options?.logger != undefined ? options.logger : DEFAULT_LOGGER,
     };
 
@@ -133,7 +133,7 @@ export class Switcher {
    */
   static async loadSnapshot(
     watchSnapshot = false,
-    fecthOnline = false,
+    fecthRemote = false,
   ) {
     Switcher._snapshot = loadDomain(
       Switcher._options.snapshotLocation || '',
@@ -142,7 +142,7 @@ export class Switcher {
 
     if (
       Switcher._snapshot?.data.domain.version == 0 &&
-      (fecthOnline || !Switcher._options.offline)
+      (fecthRemote || !Switcher._options.local)
     ) {
       await Switcher.checkSnapshot();
     }
@@ -232,7 +232,7 @@ export class Switcher {
    * @throws when one or more Switcher Keys were not found
    */
   static async checkSwitchers(switcherKeys: string[]) {
-    if (Switcher._options.offline && Switcher._snapshot) {
+    if (Switcher._options.local && Switcher._snapshot) {
       checkSwitchersLocal(Switcher._snapshot, switcherKeys);
     } else {
       await Switcher.checkSwitchersRemote(switcherKeys);
@@ -399,7 +399,7 @@ export class Switcher {
 
     if (input) this._input = input;
 
-    if (!Switcher._options.offline) {
+    if (!Switcher._options.local) {
       await Switcher._auth();
     }
   }
@@ -450,20 +450,20 @@ export class Switcher {
     }
 
     // verify if query from snapshot
-    if (Switcher._options.offline) {
-      result = await this._executeOfflineCriteria();
+    if (Switcher._options.local) {
+      result = await this._executeLocalCriteria();
     } else {
       try {
         await this.validate();
         if (Switcher._context.token === 'SILENT') {
-          result = await this._executeOfflineCriteria();
+          result = await this._executeLocalCriteria();
         } else {
-          result = await this._executeOnlineCriteria(showReason);
+          result = await this._executeRemoteCriteria(showReason);
         }
       } catch (err) {
         if (Switcher._options.silentMode) {
           Switcher._updateSilentToken();
-          return this._executeOfflineCriteria();
+          return this._executeLocalCriteria();
         }
 
         throw err;
@@ -489,9 +489,9 @@ export class Switcher {
     return this;
   }
 
-  async _executeOnlineCriteria(showReason: boolean) {
+  async _executeRemoteCriteria(showReason: boolean) {
     if (!this._useSync()) {
-      return this._executeAsyncOnlineCriteria(showReason);
+      return this._executeAsyncRemoteCriteria(showReason);
     }
 
     const responseCriteria = await services.checkCriteria(
@@ -508,7 +508,7 @@ export class Switcher {
     return responseCriteria.result;
   }
 
-  _executeAsyncOnlineCriteria(showReason: boolean) {
+  _executeAsyncRemoteCriteria(showReason: boolean) {
     if (this._nextRun < Date.now()) {
       this._nextRun = Date.now() + this._delay;
       services.checkCriteria(
@@ -534,8 +534,8 @@ export class Switcher {
     }
   }
 
-  async _executeOfflineCriteria() {
-    const response = await checkCriteriaOffline(
+  async _executeLocalCriteria() {
+    const response = await checkCriteriaLocal(
       Switcher._snapshot,
       this._key || '',
       this._input || [],

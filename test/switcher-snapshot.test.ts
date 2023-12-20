@@ -6,7 +6,7 @@ import { SwitcherContext } from '../src/types/index.d.ts';
 
 const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExit: false };
 
-describe('E2E test - Switcher offline - Snapshot:', function () {
+describe('E2E test - Switcher local - Snapshot:', function () {
   const token = '[token]';
   let contextSettings: SwitcherContext;
 
@@ -29,7 +29,7 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     
     Switcher.buildContext(contextSettings, {
       snapshotLocation: './snapshot/',
-      offline: true,
+      local: true,
       regexSafe: false
     });
 
@@ -83,7 +83,7 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
 
     //test
     Switcher.buildContext(contextSettings, {
-      offline: true,
+      local: true,
       regexSafe: false
     });
     
@@ -102,7 +102,7 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     //test
     Switcher.buildContext(contextSettings, {
       snapshotLocation: 'generated-snapshots/',
-      offline: true,
+      local: true,
       regexSafe: false
     });
     
@@ -125,7 +125,7 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     //test
     Switcher.buildContext(contextSettings, {
       snapshotLocation: 'generated-snapshots/',
-      offline: true,
+      local: true,
       regexSafe: false,
       snapshotAutoUpdateInterval: 1
     });
@@ -161,7 +161,7 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
     //test
     Switcher.buildContext(contextSettings, {
       snapshotLocation: 'generated-snapshots/',
-      offline: true,
+      local: true,
       regexSafe: false
     });
 
@@ -285,7 +285,7 @@ describe('E2E test - Switcher offline - Snapshot:', function () {
 
   it('should be invalid - Load snapshot was not called', testSettings, async function () {
     Switcher.buildContext(contextSettings, {
-      offline: true, logger: true, regexSafe: false
+      local: true, logger: true, regexSafe: false
     });
     
     const switcher = Switcher.factory();

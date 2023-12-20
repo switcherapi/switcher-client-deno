@@ -126,7 +126,7 @@ async function checkStrategyInput(strategyInput: Strategy, entry?: Entry[]) {
   }
 }
 
-export default async function checkCriteriaOffline(
+export default async function checkCriteriaLocal(
   snapshot: Snapshot | undefined,
   key: string,
   input?: string[][],
