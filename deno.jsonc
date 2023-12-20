@@ -2,7 +2,7 @@
   "tasks": {
     "cache-reload": "deno cache --reload --lock=deno.lock --lock-write mod.ts",
     "fmt": "deno fmt mod.ts src/ --options-single-quote --options-line-width=120 --check",
-    "fmt-fix": "deno fmt mod.ts src/ --options-single-quote --options-line-width=120",
+    "fmt:fix": "deno fmt mod.ts src/ --options-single-quote --options-line-width=120",
     "test": "deno test --unstable --allow-read --allow-net --allow-write --coverage=coverage",
     "lcov": "deno coverage coverage --lcov --output=coverage/report.lcov",
     "clean": "rm -rf ./npm ./coverage ./generated-snapshots",

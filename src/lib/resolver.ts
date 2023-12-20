@@ -133,7 +133,7 @@ export default async function checkCriteriaOffline(
 ) {
   if (!snapshot) {
     throw new Error(
-      'Snapshot not loaded. Try to use \'Switcher.loadSnapshot()\'',
+      "Snapshot not loaded. Try to use 'Switcher.loadSnapshot()'",
     );
   }
 
