@@ -1,6 +1,6 @@
 import { processOperation } from './snapshot.ts';
 import * as services from '../lib/remote.ts';
-import { Config, Entry, Group, Snapshot, SnapshotData, Strategy } from '../types/index.d.ts';
+import type { Config, Entry, Group, Snapshot, SnapshotData, Strategy } from '../types/index.d.ts';
 
 async function resolveCriteria(
   data: SnapshotData,

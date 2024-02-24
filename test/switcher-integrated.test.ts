@@ -13,7 +13,7 @@ import {
   checkNumeric, 
   checkPayload
 } from '../mod.ts';
-import { SwitcherContext } from '../src/types/index.d.ts';
+import type { SwitcherContext } from '../src/types/index.d.ts';
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 
 describe('Integrated test - Switcher:', function () {

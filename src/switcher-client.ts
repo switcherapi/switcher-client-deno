@@ -6,7 +6,7 @@ import SnapshotAutoUpdater from './lib/utils/snapshotAutoUpdater.ts';
 import { checkSwitchersLocal, loadDomain, validateSnapshot } from './lib/snapshot.ts';
 import * as services from './lib/remote.ts';
 import checkCriteriaLocal from './lib/resolver.ts';
-import { RetryOptions, Snapshot, SwitcherContext, SwitcherOptions } from './types/index.d.ts';
+import type { RetryOptions, Snapshot, SwitcherContext, SwitcherOptions } from './types/index.d.ts';
 import { SnapshotNotFoundError } from './lib/exceptions/index.ts';
 import {
   DEFAULT_ENVIRONMENT,
@@ -26,6 +26,7 @@ import {
  */
 export class Switcher {
   private static _testEnabled = DEFAULT_TEST_MODE;
+  private static _watching = false;
   private static _watcher: Deno.FsWatcher;
   private static _watchDebounce = new Map<string, number>();
 
@@ -168,6 +169,7 @@ export class Switcher {
 
     const snapshotFile = `${Switcher._options.snapshotLocation}${Switcher._context.environment}.json`;
     Switcher._watcher = Deno.watchFs(snapshotFile);
+    Switcher._watching = true;
     for await (const event of Switcher._watcher) {
       const dataString = JSON.stringify(event);
       if (Switcher._watchDebounce.has(dataString)) {
@@ -193,8 +195,9 @@ export class Switcher {
     }
 
     Switcher._snapshot = undefined;
-    if (Switcher._watcher?.rid in Deno.resources()) {
-      Deno.close(Switcher._watcher.rid);
+    if (Switcher._watcher && Switcher._watching) {
+      Switcher._watching = false;
+      Switcher._watcher.close();
     }
   }
 
