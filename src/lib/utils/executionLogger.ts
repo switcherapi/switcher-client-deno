@@ -1,4 +1,4 @@
-import { Criteria } from '../../types/index.d.ts';
+import type { Criteria } from '../../types/index.d.ts';
 
 const logger: ExecutionLogger[] = [];
 

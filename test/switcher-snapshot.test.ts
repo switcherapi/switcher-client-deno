@@ -2,7 +2,7 @@ import { describe, it, afterAll, beforeEach, assertRejects, assertFalse, assertE
 import { given, givenError, tearDown, generateAuth, generateStatus, assertTrue, WaitSafe } from './helper/utils.ts';
 
 import { Switcher } from '../mod.ts';
-import { SwitcherContext } from '../src/types/index.d.ts';
+import type { SwitcherContext } from '../src/types/index.d.ts';
 
 const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExit: false };
 

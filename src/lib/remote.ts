@@ -1,5 +1,5 @@
 import { AuthError, CheckSwitcherError, CriteriaError, SnapshotServiceError } from './exceptions/index.ts';
-import { Criteria, Entry, SwitcherContext } from '../types/index.d.ts';
+import type { Criteria, Entry, SwitcherContext } from '../types/index.d.ts';
 
 let httpClient: Deno.HttpClient;
 

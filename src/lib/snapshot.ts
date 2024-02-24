@@ -7,7 +7,7 @@ import TimedMatch from './utils/timed-match/index.ts';
 import { parseJSON, payloadReader } from './utils/payloadReader.ts';
 import { CheckSwitcherError } from './exceptions/index.ts';
 import { checkSnapshotVersion, resolveSnapshot } from './remote.ts';
-import { Snapshot, SwitcherContext } from '../types/index.d.ts';
+import type { Snapshot, SwitcherContext } from '../types/index.d.ts';
 
 export const loadDomain = (snapshotLocation: string, environment: string) => {
   let dataJSON;
