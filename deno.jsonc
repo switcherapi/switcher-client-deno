@@ -1,4 +1,7 @@
 {
+  "name": "@switcherapi/switcher-client-deno",
+  "version": "1.0.7",
+  "description": "A Deno SDK for Switcher API",
   "tasks": {
     "cache-reload": "deno cache --reload --lock=deno.lock --lock-write mod.ts",
     "fmt": "deno fmt mod.ts src/ --options-single-quote --options-line-width=120 --check",
