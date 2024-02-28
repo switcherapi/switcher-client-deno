@@ -15,6 +15,7 @@ import {
   DEFAULT_REGEX_MAX_BLACKLISTED,
   DEFAULT_REGEX_MAX_TIME_LIMIT,
   DEFAULT_TEST_MODE,
+  SWITCHER_OPTIONS,
 } from './lib/constants.ts';
 
 /**
@@ -69,15 +70,15 @@ export class Switcher {
   }
 
   private static buildOptions(options: SwitcherOptions) {
-    if ('certPath' in options && options.certPath) {
+    if (SWITCHER_OPTIONS.CERT_PATH in options && options.certPath) {
       services.setCerts(options.certPath);
     }
 
-    if ('silentMode' in options && options.silentMode) {
+    if (SWITCHER_OPTIONS.SILENT_MODE in options && options.silentMode) {
       this._initSilentMode(options.silentMode);
     }
 
-    if ('snapshotAutoUpdateInterval' in options) {
+    if (SWITCHER_OPTIONS.SNAPSHOT_AUTO_UPDATE_INTERVAL in options) {
       this._options.snapshotAutoUpdateInterval = options.snapshotAutoUpdateInterval;
       this.scheduleSnapshotAutoUpdate();
     }
@@ -296,15 +297,15 @@ export class Switcher {
   }
 
   private static _initTimedMatch(options: SwitcherOptions) {
-    if ('regexMaxBlackList' in options) {
+    if (SWITCHER_OPTIONS.REGEX_MAX_BLACK_LIST in options) {
       TimedMatch.setMaxBlackListed(options.regexMaxBlackList || DEFAULT_REGEX_MAX_BLACKLISTED);
     }
 
-    if ('regexMaxTimeLimit' in options) {
+    if (SWITCHER_OPTIONS.REGEX_MAX_TIME_LIMIT in options) {
       TimedMatch.setMaxTimeLimit(options.regexMaxTimeLimit || DEFAULT_REGEX_MAX_TIME_LIMIT);
     }
 
-    const hasRegexSafeOption = 'regexSafe' in options;
+    const hasRegexSafeOption = SWITCHER_OPTIONS.REGEX_SAFE in options;
     if (!hasRegexSafeOption || (hasRegexSafeOption && options.regexSafe)) {
       TimedMatch.initializeWorker();
     }
@@ -572,8 +573,7 @@ export class Switcher {
   }
 
   _useSync() {
-    return this._delay == 0 ||
-      !ExecutionLogger.getExecution(this._key, this._input);
+    return this._delay == 0 || !ExecutionLogger.getExecution(this._key, this._input);
   }
 
   get key() {

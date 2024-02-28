@@ -1,7 +1,7 @@
 {
   "name": "@switcherapi/switcher-client-deno",
   "version": "1.0.7",
-  "description": "A Deno SDK for Switcher API",
+  "description": "Switcher4Deno is a Feature Flag Deno SDK client for Switcher API",
   "tasks": {
     "cache-reload": "deno cache --reload --lock=deno.lock --lock-write mod.ts",
     "fmt": "deno fmt mod.ts src/ --options-single-quote --options-line-width=120 --check",
@@ -10,5 +10,10 @@
     "lcov": "deno coverage coverage --lcov --output=coverage/report.lcov",
     "clean": "rm -rf ./npm ./coverage ./generated-snapshots",
     "cover": "deno task clean && deno task test && deno task lcov && genhtml -o coverage/html coverage/report.lcov"
+  },
+  "test": {
+    "include": [
+      "test/**/*.ts"
+    ]
   }
 }

@@ -44,9 +44,9 @@ The context properties stores all information regarding connectivity.
 
 > Initialization
 ```ts
-import { Switcher } from "https://deno.land/x/switcher4deno@v1.0.2/mod.ts";
+import { Switcher } from "https://deno.land/x/switcher4deno@v[VERSION]/mod.ts";
 
-const url = 'https://switcherapi.com/api';
+const url = 'https://api.switcherapi.com';
 const apiKey = '[API_KEY]';
 const environment = 'default';
 const domain = 'My Domain';
