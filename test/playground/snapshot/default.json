@@ -2,7 +2,7 @@
     "data": {
         "domain": {
             "name": "Playground",
-            "version": 1656648899029,
+            "version": 1,
             "activated": true,
             "group": [
                 {
@@ -15,7 +15,7 @@
                             "strategies": [
                                 {
                                     "strategy": "VALUE_VALIDATION",
-                                    "activated": true,
+                                    "activated": false,
                                     "operation": "EXIST",
                                     "values": [
                                         "user_1"

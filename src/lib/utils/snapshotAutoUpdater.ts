@@ -1,32 +1,28 @@
 export default class SnapshotAutoUpdater {
-  static _worker: number | undefined;
+  private static _intervalId: number | undefined;
 
   static schedule(
     interval: number,
     checkSnapshot: () => Promise<boolean>,
-    success?: (updated: boolean) => void,
-    reject?: (err: Error) => void,
+    success: (updated: boolean) => void = () => {},
+    reject: (err: Error) => void = () => {},
   ) {
-    if (this._worker) {
+    if (this._intervalId) {
       this.terminate();
     }
 
-    this._worker = setInterval(async () => {
+    this._intervalId = setInterval(async () => {
       try {
         const updated = await checkSnapshot();
-        if (success) {
-          success(updated);
-        }
+        success(updated);
       } catch (err) {
-        if (reject) {
-          this.terminate();
-          reject(err);
-        }
+        this.terminate();
+        reject(err);
       }
     }, interval * 1000);
   }
 
   static terminate() {
-    clearInterval(this._worker);
+    clearInterval(this._intervalId);
   }
 }

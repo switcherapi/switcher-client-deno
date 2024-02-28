@@ -5,7 +5,7 @@ const apiKey = 'JDJiJDA4JEFweTZjSTR2bE9pUjNJOUYvRy9raC4vRS80Q2tzUnk1d3o1aXFmS2o5
 const domain = 'Playground';
 const component = 'switcher-playground';
 const environment = 'default';
-const url = 'https://switcherapi.com/api';
+const url = 'https://api.switcherapi.com';
 const snapshotLocation = './snapshot/';
 
 let switcher: Switcher;
@@ -15,10 +15,38 @@ let switcher: Switcher;
  */
 async function setupSwitcher(local: boolean) {
     Switcher.buildContext({ url, apiKey, domain, component, environment }, { local, logger: true });
-    await Switcher.loadSnapshot(false, true)
-        .then(() => console.log('Snapshot loaded'))
+    await Switcher.loadSnapshot(false, local)
+        .then(version => console.log('Snapshot loaded - version:', version))
         .catch(() => console.log('Failed to load Snapshot'));
 }
+
+/**
+ * This code snippet is a minimal example of how to configure and use Switcher4Deno locally.
+ * No remote API account is required.
+ * 
+ * Snapshot is loaded from file at test/playground/snapshot/local.json
+ */
+const _testLocal = async () => {
+    Switcher.buildContext({ 
+        domain: 'Local Playground', 
+        environment: 'local' 
+    }, { 
+        snapshotLocation: './snapshot/', 
+        local: true
+    });
+
+    await Switcher.loadSnapshot()
+        .then(version => console.log('Snapshot loaded - version:', version))
+        .catch(() => console.log('Failed to load Snapshot'));
+
+    switcher = Switcher.factory();
+
+    setInterval(async () => {
+        const time = Date.now();
+        const result = await switcher.isItOn(SWITCHER_KEY);
+        console.log(`- ${Date.now() - time} ms - ${result}`);
+    }, 1000);
+};
 
 // Requires remote API
 const _testSimpleAPICall = async (local: boolean) => {
@@ -30,12 +58,11 @@ const _testSimpleAPICall = async (local: boolean) => {
 
     switcher = Switcher.factory();
 
-    while(true) {
+    setInterval(async () => {
         const time = Date.now();
         const result = await switcher.isItOn(SWITCHER_KEY);
         console.log(`- ${Date.now() - time} ms - ${result}`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-    }
+    }, 1000);
 };
 
 // Requires remote API
@@ -47,8 +74,9 @@ const _testThrottledAPICall = async () => {
     switcher = Switcher.factory();
     switcher.throttle(1000);
 
-    for (let index = 0; index < 10; index++)
+    for (let index = 0; index < 10; index++) {
         console.log(`Call #${index} - ${await switcher.isItOn(SWITCHER_KEY, [checkNumeric('1')])}}`);
+    }
 
     Switcher.unloadSnapshot();
 };
@@ -129,4 +157,4 @@ const _testSnapshotAutoUpdate = async () => {
     }, 2000);
 };
 
-_testSimpleAPICall(true);
+_testLocal();

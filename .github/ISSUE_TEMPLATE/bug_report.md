@@ -21,9 +21,9 @@ A clear and concise description of what you expected to happen.
  - Deno version: e.g. (use deno --version)
 
 ```
-deno 1.22.2 (release, x86_64-pc-windows-msvc)
-v8 10.3.174.6
-typescript 4.6.2
+deno 1.41.0 (release, x86_64-pc-windows-msvc)
+v8 12.1.285.27
+typescript 5.3.3
 ```
 
 **Additional context**
