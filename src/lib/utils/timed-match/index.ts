@@ -130,7 +130,7 @@ export default class TimedMatch {
   }
 }
 
-interface Blacklist {
+type Blacklist = {
   res: string[];
   input: string;
-}
+};
