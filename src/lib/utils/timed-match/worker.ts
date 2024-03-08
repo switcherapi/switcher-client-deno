@@ -5,7 +5,7 @@ self.onmessage = (e: MessageEvent<Param>) => {
   self.postMessage(tryMatch(params.values, params.input));
 };
 
-interface Param {
+type Param = {
   values: string[];
   input: string;
-}
+};
