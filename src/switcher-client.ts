@@ -6,7 +6,7 @@ import SnapshotAutoUpdater from './lib/utils/snapshotAutoUpdater.ts';
 import { checkSwitchersLocal, loadDomain, validateSnapshot } from './lib/snapshot.ts';
 import * as services from './lib/remote.ts';
 import checkCriteriaLocal from './lib/resolver.ts';
-import type { RetryOptions, Snapshot, SwitcherContext, SwitcherOptions } from './types/index.d.ts';
+import type { ResultDetail, RetryOptions, Snapshot, SwitcherContext, SwitcherOptions } from './types/index.d.ts';
 import { SnapshotNotFoundError } from './lib/exceptions/index.ts';
 import {
   DEFAULT_ENVIRONMENT,
@@ -442,33 +442,34 @@ export class Switcher {
    *
    * @param key
    * @param input
-   * @param showReason Display details when using ExecutionLogger
+   * @param showDetail Display details (ResultDetail)
    */
-  async isItOn(key?: string, input?: string[][], showReason = false): Promise<boolean> {
-    let result;
+  async isItOn(key?: string, input?: string[][], showDetail = false): Promise<boolean | ResultDetail> {
+    let result: boolean | ResultDetail;
     this._validateArgs(key, input);
 
     // verify if query from Bypasser
     const bypassKey = Bypasser.searchBypassed(this._key);
     if (bypassKey) {
-      return bypassKey.getValue();
+      const response = bypassKey.getResponse();
+      return showDetail ? response : response.result;
     }
 
     // verify if query from snapshot
     if (Switcher._options.local && !this._forceRemote) {
-      result = await this._executeLocalCriteria();
+      result = await this._executeLocalCriteria(showDetail);
     } else {
       try {
         await this.validate();
         if (Switcher._context.token === 'SILENT') {
-          result = await this._executeLocalCriteria();
+          result = await this._executeLocalCriteria(showDetail);
         } else {
-          result = await this._executeRemoteCriteria(showReason);
+          result = await this._executeRemoteCriteria(showDetail);
         }
       } catch (err) {
         if (Switcher._options.silentMode) {
           Switcher._updateSilentToken();
-          return this._executeLocalCriteria();
+          return this._executeLocalCriteria(showDetail);
         }
 
         throw err;
@@ -508,38 +509,46 @@ export class Switcher {
     return this;
   }
 
-  async _executeRemoteCriteria(showReason: boolean) {
+  async _executeRemoteCriteria(showDetail: boolean) {
     if (!this._useSync()) {
-      return this._executeAsyncRemoteCriteria(showReason);
+      return this._executeAsyncRemoteCriteria(showDetail);
     }
 
     const responseCriteria = await services.checkCriteria(
       Switcher._context,
       this._key,
       this._input,
-      showReason,
+      showDetail,
     );
 
     if (Switcher._options.logger && this._key) {
       ExecutionLogger.add(responseCriteria, this._key, this._input);
     }
 
+    if (showDetail) {
+      return responseCriteria;
+    }
+
     return responseCriteria.result;
   }
 
-  _executeAsyncRemoteCriteria(showReason: boolean) {
+  _executeAsyncRemoteCriteria(showDetail: boolean) {
     if (this._nextRun < Date.now()) {
       this._nextRun = Date.now() + this._delay;
       services.checkCriteria(
         Switcher._context,
         this._key,
         this._input,
-        showReason,
-      )
-        .then((response) => ExecutionLogger.add(response, this._key, this._input));
+        showDetail,
+      ).then((response) => ExecutionLogger.add(response, this._key, this._input));
     }
 
-    return ExecutionLogger.getExecution(this._key, this._input).response.result;
+    const executionLog = ExecutionLogger.getExecution(this._key, this._input);
+    if (showDetail) {
+      return executionLog.response;
+    }
+
+    return executionLog.response.result;
   }
 
   async _executeApiValidation() {
@@ -553,7 +562,7 @@ export class Switcher {
     }
   }
 
-  async _executeLocalCriteria() {
+  async _executeLocalCriteria(showDetail: boolean) {
     const response = await checkCriteriaLocal(
       Switcher._snapshot,
       this._key || '',
@@ -562,6 +571,10 @@ export class Switcher {
 
     if (Switcher._options.logger) {
       ExecutionLogger.add(response, this._key, this._input);
+    }
+
+    if (showDetail) {
+      return response;
     }
 
     return response.result;

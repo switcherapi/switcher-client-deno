@@ -43,7 +43,7 @@ const _testLocal = async () => {
 
     setInterval(async () => {
         const time = Date.now();
-        const result = await switcher.isItOn(SWITCHER_KEY);
+        const result = await switcher.isItOn(SWITCHER_KEY) as boolean;
         console.log(`- ${Date.now() - time} ms - ${result}`);
     }, 1000);
 };
@@ -60,7 +60,7 @@ const _testSimpleAPICall = async (local: boolean) => {
 
     setInterval(async () => {
         const time = Date.now();
-        const result = await switcher.isItOn(SWITCHER_KEY);
+        const result = await switcher.isItOn(SWITCHER_KEY) as boolean;
         console.log(`- ${Date.now() - time} ms - ${result}`);
     }, 1000);
 };
@@ -75,7 +75,7 @@ const _testThrottledAPICall = async () => {
     switcher.throttle(1000);
 
     for (let index = 0; index < 10; index++) {
-        console.log(`Call #${index} - ${await switcher.isItOn(SWITCHER_KEY, [checkNumeric('1')])}}`);
+        console.log(`Call #${index} - ${await switcher.isItOn(SWITCHER_KEY, [checkNumeric('1')]) as boolean}}`);
     }
 
     Switcher.unloadSnapshot();

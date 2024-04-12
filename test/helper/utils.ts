@@ -1,7 +1,6 @@
-// deno-lint-ignore-file no-explicit-any
 import { assertEquals, mf } from '../deps.ts';
 
-export function given(route: string, expect: any, status = 200) {
+export function given(route: string, expect: object | undefined, status = 200) {
   mf.mock(route, (_req, _match) => {
     return new Response(JSON.stringify(expect), {
       status,
@@ -9,7 +8,7 @@ export function given(route: string, expect: any, status = 200) {
   });
 }
 
-export function givenError(route: string, expect: any) {
+export function givenError(route: string, expect: string) {
   mf.mock(route, () => {
     throw new HttpError(expect);
   });
@@ -20,7 +19,7 @@ export function tearDown() {
   mf.install();
 }
 
-export function assertTrue(value: any) {
+export function assertTrue(value: object | boolean | undefined) {
   assertEquals(value, true);
 }
 
@@ -37,6 +36,10 @@ export function generateResult(result?: boolean) {
   };
 }
 
+export function generateDetailedResult(detailedResult: object) {
+  return detailedResult;
+}
+
 export function generateStatus(status: boolean) {
   return {
     status,
@@ -44,8 +47,8 @@ export function generateStatus(status: boolean) {
 }
 
 export class WaitSafe {
-  static timelimit = 5000;
-  static exit: boolean;
+  private static timelimit = 5000;
+  private static exit: boolean;
 
   static async wait() {
     WaitSafe.exit = false;

@@ -1,5 +1,5 @@
 import { AuthError, CheckSwitcherError, CriteriaError, SnapshotServiceError } from './exceptions/index.ts';
-import type { Criteria, Entry, SwitcherContext } from '../types/index.d.ts';
+import type { Entry, SwitcherContext } from '../types/index.d.ts';
 
 let httpClient: Deno.HttpClient;
 
@@ -52,12 +52,12 @@ export const checkCriteria = async (
   context: SwitcherContext,
   key?: string,
   input?: string[][],
-  showReason = false,
-): Promise<Criteria> => {
+  showDetail = false,
+) => {
   try {
     const entry = getEntry(input);
     const response = await fetch(
-      `${context.url}/criteria?showReason=${showReason}&key=${key}`,
+      `${context.url}/criteria?showReason=${showDetail}&key=${key}`,
       {
         client: httpClient,
         method: 'post',
