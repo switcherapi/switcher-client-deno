@@ -46,7 +46,7 @@ describe('E2E test - Switcher local - Snapshot:', function () {
   it('should NOT update snapshot - Too many requests at checkSnapshotVersion', testSettings, async function () {
     //given
     given('POST@/criteria/auth', generateAuth(token, 5));
-    given('GET@/criteria/snapshot_check/:version', null, 429);
+    given('GET@/criteria/snapshot_check/:version', undefined, 429);
     
     //test
     Switcher.setTestEnabled();
@@ -60,7 +60,7 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     //given
     given('POST@/criteria/auth', generateAuth(token, 5));
     given('GET@/criteria/snapshot_check/:version', generateStatus(false)); // Snapshot outdated
-    given('POST@/graphql', null, 429);
+    given('POST@/graphql', undefined, 429);
 
     //test
     Switcher.buildContext(contextSettings, {

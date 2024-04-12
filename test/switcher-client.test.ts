@@ -2,6 +2,7 @@ import { describe, it, afterAll, beforeEach, beforeAll, delay,
   assertEquals, assertRejects, assertFalse, assertExists } from './deps.ts';
 import { assertTrue } from './helper/utils.ts'
 
+import type { ResultDetail } from "../src/types/index.d.ts";
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 import { StrategiesType } from '../src/lib/snapshot.ts';
 import { 
@@ -49,6 +50,16 @@ describe('E2E test - Switcher local:', function () {
     ]);
 
     assertTrue(await switcher.isItOn('FF2FOR2020'));
+  });
+
+  it('should be valid - isItOn - with detail', testSettings, async function () {
+    const response = await switcher.isItOn('FF2FOR2020', [
+      checkValue('Japan'),
+      checkNetwork('10.0.0.3')
+    ], true) as ResultDetail;
+
+    assertTrue(response.result);
+    assertEquals(response.reason, 'Success');
   });
 
   it('should be valid - No prepare function needed', testSettings, async function () {
@@ -158,6 +169,23 @@ describe('E2E test - Switcher local:', function () {
     
     Switcher.forget('FF2FOR2020');
     assertTrue(await switcher.isItOn());
+  });
+
+  it('should be valid assuming key to be false - with details', async function () {
+    Switcher.assume('FF2FOR2020').false();
+    const { result, reason } = await switcher.isItOn('FF2FOR2020', [], true) as ResultDetail;
+
+    assertFalse(result);
+    assertEquals(reason, 'Forced to false');
+  });
+
+  it('should be valid assuming key to be false - with metadata', async function () {
+    Switcher.assume('FF2FOR2020').false().withMetadata({ value: 'something' });
+    const { result, reason, metadata } = await switcher.isItOn('FF2FOR2020', [], true) as ResultDetail;
+
+    assertFalse(result);
+    assertEquals(reason, 'Forced to false');
+    assertEquals(metadata, { value: 'something' });
   });
 
   it('should be valid assuming unknown key to be true', testSettings, async function () {

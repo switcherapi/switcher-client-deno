@@ -1,7 +1,7 @@
 import { describe, it, afterAll, afterEach, beforeEach, 
   assertEquals, assertNotEquals, assertRejects, assertThrows, assertFalse, 
   assertSpyCalls, spy } from './deps.ts';
-import { given, givenError, tearDown, assertTrue, generateAuth, generateResult } from './helper/utils.ts'
+import { given, givenError, tearDown, assertTrue, generateAuth, generateResult, generateDetailedResult } from './helper/utils.ts'
 
 import { 
   Switcher, 
@@ -13,8 +13,9 @@ import {
   checkNumeric, 
   checkPayload
 } from '../mod.ts';
-import type { SwitcherContext } from '../src/types/index.d.ts';
+import type { ResultDetail, SwitcherContext } from '../src/types/index.d.ts';
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
+import ExecutionLogger from "../src/lib/utils/executionLogger.ts";
 
 describe('Integrated test - Switcher:', function () {
 
@@ -59,7 +60,7 @@ describe('Integrated test - Switcher:', function () {
 
     it('should NOT be valid - API returned 429 (too many requests)', async function () {
       // given API responding properly
-      given('POST@/criteria/auth', null, 429);
+      given('POST@/criteria/auth', undefined, 429);
 
       // test
       Switcher.buildContext(contextSettings);
@@ -81,14 +82,18 @@ describe('Integrated test - Switcher:', function () {
       switcher.throttle(1000);
 
       const spyAsyncRemoteCriteria = spy(switcher, '_executeAsyncRemoteCriteria');
+      const spyExecutionLogger = spy(ExecutionLogger, 'add');
+
+
       let throttledRunTimer;
       for (let index = 0; index < 10; index++) {
         assertTrue(await switcher.isItOn('FLAG_1'));
         
-        if (index === 0)
+        if (index === 0) {
           // First run calls API
           assertEquals(0, switcher.nextRun);
-        else {
+          assertSpyCalls(spyExecutionLogger, 1);
+        } else {
           // Set up throttle for next API call 
           assertNotEquals(0, switcher.nextRun);
           throttledRunTimer = switcher.nextRun;
@@ -104,6 +109,25 @@ describe('Integrated test - Switcher:', function () {
 
       // Throttle expired, set up new throttle run timer
       assertNotEquals(throttledRunTimer, switcher.nextRun);
+      assertSpyCalls(spyExecutionLogger, 2);
+    });
+    
+    it('should be valid - throttle - with details', async function () {
+      // given API responding properly
+      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
+      given('POST@/criteria', generateResult(true));
+
+      // test
+      Switcher.buildContext(contextSettings);
+      const switcher = Switcher.factory();
+      switcher.throttle(1000);
+
+      // first API call - stores result in cache
+      await switcher.isItOn('FLAG_2');
+
+      // first async API call
+      const response = await switcher.isItOn('FLAG_2', undefined, true) as ResultDetail;
+      assertTrue(response.result);
     });
   });
 
@@ -141,6 +165,27 @@ describe('Integrated test - Switcher:', function () {
       await Switcher.loadSnapshot();
       assertFalse(await switcher.remote().isItOn('FF2FOR2030'));
       assertSpyCalls(executeRemoteCriteria, 1);
+    });
+
+    it('should return true - including reason and metadata', async function () {
+      // given API responding properly
+      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
+      given('POST@/criteria', generateDetailedResult({
+        result: true, 
+        reason: 'Success',
+        metadata: { 
+          user: 'user1',
+        }
+      }));
+
+      // test
+      Switcher.buildContext(contextSettings);
+
+      const switcher = Switcher.factory();
+      const detailedResult = await switcher.isItOn('FF2FOR2030', undefined, true) as ResultDetail;
+      assertTrue(detailedResult.result);
+      assertEquals(detailedResult.reason, 'Success');
+      assertEquals(detailedResult.metadata, { user: 'user1' });
     });
 
     it('should return error when local is not enabled', async function () {
@@ -291,7 +336,7 @@ describe('Integrated test - Switcher:', function () {
     it('should throw when no switcher keys were provided', async function() {
       //given
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-      given('POST@/criteria/switchers_check', null, 422);
+      given('POST@/criteria/switchers_check', undefined, 422);
 
       //test
       Switcher.buildContext(contextSettings);

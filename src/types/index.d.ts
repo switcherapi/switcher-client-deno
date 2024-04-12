@@ -82,3 +82,9 @@ export type Criteria = {
   result: boolean;
   reason?: string;
 };
+
+export type ResultDetail = {
+  result: boolean;
+  reason?: string;
+  metadata?: object;
+};

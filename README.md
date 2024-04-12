@@ -160,6 +160,10 @@ switcher.isItOn('FEATURE01'); // true
 
 Switcher.forget('FEATURE01');
 switcher.isItOn('FEATURE01'); // Now, it's going to return the result retrieved from the API or the Snaopshot file
+
+Switcher.assume('FEATURE01').false().withMetadata({ message: 'Feature is disabled' }); // Include metadata to emulate Relay response
+const response = await switcher.isItOn('FEATURE01', [], true) as ResultDetail; // false
+console.log(response.metadata.message); // Feature is disabled
 ```
 
 **Enabling Test Mode**
