@@ -1,11 +1,11 @@
-import type { Criteria } from '../../types/index.d.ts';
+import type { ResultDetail } from '../../types/index.d.ts';
 
 const logger: ExecutionLogger[] = [];
 
 export default class ExecutionLogger {
   key?: string;
   input?: string[][];
-  response: Criteria = { result: false };
+  response: ResultDetail = { result: false };
 
   /**
    * Add new execution result
@@ -15,7 +15,7 @@ export default class ExecutionLogger {
    * @param response
    */
   static add(
-    response: Criteria,
+    response: ResultDetail,
     key: string,
     input?: string[][],
   ): void {

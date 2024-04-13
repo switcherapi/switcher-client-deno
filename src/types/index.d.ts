@@ -12,6 +12,8 @@ declare global {
   };
 }
 
+// Client SDK settings types
+
 export type SwitcherContext = {
   url?: string;
   apiKey?: string;
@@ -38,6 +40,19 @@ export type RetryOptions = {
   retryTime: number;
   retryDurationIn: string;
 };
+
+// Remote API types
+
+export type AuthResponse = {
+  token: string;
+  exp: number;
+};
+
+export type CheckSnapshotVersionResponse = {
+  status: boolean;
+};
+
+// Switcher API domain types
 
 export type Snapshot = {
   data: SnapshotData;
@@ -76,11 +91,6 @@ export type Strategy = {
 export type Entry = {
   strategy: string;
   input: string;
-};
-
-export type Criteria = {
-  result: boolean;
-  reason?: string;
 };
 
 export type ResultDetail = {

@@ -126,7 +126,7 @@ describe('Integrated test - Switcher:', function () {
       await switcher.isItOn('FLAG_2');
 
       // first async API call
-      const response = await switcher.isItOn('FLAG_2', undefined, true) as ResultDetail;
+      const response = await switcher.detail().isItOn('FLAG_2') as ResultDetail;
       assertTrue(response.result);
     });
   });
@@ -182,7 +182,7 @@ describe('Integrated test - Switcher:', function () {
       Switcher.buildContext(contextSettings);
 
       const switcher = Switcher.factory();
-      const detailedResult = await switcher.isItOn('FF2FOR2030', undefined, true) as ResultDetail;
+      const detailedResult = await switcher.detail().isItOn('FF2FOR2030') as ResultDetail;
       assertTrue(detailedResult.result);
       assertEquals(detailedResult.reason, 'Success');
       assertEquals(detailedResult.metadata, { user: 'user1' });

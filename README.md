@@ -99,7 +99,9 @@ Invoking the API can be done by instantiating the switcher and calling *isItOn* 
 
 ```ts
 const switcher = Switcher.factory();
-await switcher.isItOn('FEATURE01');
+await switcher.isItOn('FEATURE01') as boolean;
+// or
+const { result, reason, metadata } = await switcher.detail().isItOn('FEATURE01') as ResultDetail;
 ```
 
 2. **Promise**
@@ -162,7 +164,7 @@ Switcher.forget('FEATURE01');
 switcher.isItOn('FEATURE01'); // Now, it's going to return the result retrieved from the API or the Snaopshot file
 
 Switcher.assume('FEATURE01').false().withMetadata({ message: 'Feature is disabled' }); // Include metadata to emulate Relay response
-const response = await switcher.isItOn('FEATURE01', [], true) as ResultDetail; // false
+const response = await switcher.detail().isItOn('FEATURE01') as ResultDetail; // false
 console.log(response.metadata.message); // Feature is disabled
 ```
 
