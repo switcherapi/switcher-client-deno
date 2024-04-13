@@ -53,10 +53,10 @@ describe('E2E test - Switcher local:', function () {
   });
 
   it('should be valid - isItOn - with detail', testSettings, async function () {
-    const response = await switcher.isItOn('FF2FOR2020', [
+    const response = await switcher.detail().isItOn('FF2FOR2020', [
       checkValue('Japan'),
       checkNetwork('10.0.0.3')
-    ], true) as ResultDetail;
+    ]) as ResultDetail;
 
     assertTrue(response.result);
     assertEquals(response.reason, 'Success');
@@ -173,7 +173,7 @@ describe('E2E test - Switcher local:', function () {
 
   it('should be valid assuming key to be false - with details', async function () {
     Switcher.assume('FF2FOR2020').false();
-    const { result, reason } = await switcher.isItOn('FF2FOR2020', [], true) as ResultDetail;
+    const { result, reason } = await switcher.detail().isItOn('FF2FOR2020', []) as ResultDetail;
 
     assertFalse(result);
     assertEquals(reason, 'Forced to false');
@@ -181,7 +181,7 @@ describe('E2E test - Switcher local:', function () {
 
   it('should be valid assuming key to be false - with metadata', async function () {
     Switcher.assume('FF2FOR2020').false().withMetadata({ value: 'something' });
-    const { result, reason, metadata } = await switcher.isItOn('FF2FOR2020', [], true) as ResultDetail;
+    const { result, reason, metadata } = await switcher.detail(true).isItOn('FF2FOR2020', []) as ResultDetail;
 
     assertFalse(result);
     assertEquals(reason, 'Forced to false');

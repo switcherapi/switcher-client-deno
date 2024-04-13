@@ -41,6 +41,7 @@ export class Switcher {
   private _input?: string[][];
   private _key = '';
   private _forceRemote = false;
+  private _showDetail = false;
 
   /**
    * Create the necessary configuration to communicate with the API
@@ -442,9 +443,8 @@ export class Switcher {
    *
    * @param key
    * @param input
-   * @param showDetail Display details (ResultDetail)
    */
-  async isItOn(key?: string, input?: string[][], showDetail = false): Promise<boolean | ResultDetail> {
+  async isItOn(key?: string, input?: string[][]): Promise<boolean | ResultDetail> {
     let result: boolean | ResultDetail;
     this._validateArgs(key, input);
 
@@ -452,24 +452,24 @@ export class Switcher {
     const bypassKey = Bypasser.searchBypassed(this._key);
     if (bypassKey) {
       const response = bypassKey.getResponse();
-      return showDetail ? response : response.result;
+      return this._showDetail ? response : response.result;
     }
 
     // verify if query from snapshot
     if (Switcher._options.local && !this._forceRemote) {
-      result = await this._executeLocalCriteria(showDetail);
+      result = await this._executeLocalCriteria();
     } else {
       try {
         await this.validate();
         if (Switcher._context.token === 'SILENT') {
-          result = await this._executeLocalCriteria(showDetail);
+          result = await this._executeLocalCriteria();
         } else {
-          result = await this._executeRemoteCriteria(showDetail);
+          result = await this._executeRemoteCriteria();
         }
       } catch (err) {
         if (Switcher._options.silentMode) {
           Switcher._updateSilentToken();
-          return this._executeLocalCriteria(showDetail);
+          return this._executeLocalCriteria();
         }
 
         throw err;
@@ -509,30 +509,33 @@ export class Switcher {
     return this;
   }
 
-  async _executeRemoteCriteria(showDetail: boolean) {
-    if (!this._useSync()) {
-      return this._executeAsyncRemoteCriteria(showDetail);
-    }
-
-    const responseCriteria = await services.checkCriteria(
-      Switcher._context,
-      this._key,
-      this._input,
-      showDetail,
-    );
-
-    if (Switcher._options.logger && this._key) {
-      ExecutionLogger.add(responseCriteria, this._key, this._input);
-    }
-
-    if (showDetail) {
-      return responseCriteria;
-    }
-
-    return responseCriteria.result;
+  detail(showDetail = true) {
+    this._showDetail = showDetail;
+    return this;
   }
 
-  _executeAsyncRemoteCriteria(showDetail: boolean) {
+  async _executeRemoteCriteria(): Promise<boolean | ResultDetail> {
+    let responseCriteria: ResultDetail;
+
+    if (this._useSync()) {
+      responseCriteria = await services.checkCriteria(
+        Switcher._context,
+        this._key,
+        this._input,
+        this._showDetail,
+      );
+
+      if (Switcher._options.logger && this._key) {
+        ExecutionLogger.add(responseCriteria, this._key, this._input);
+      }
+    } else {
+      responseCriteria = this._executeAsyncRemoteCriteria(this._showDetail);
+    }
+
+    return this._showDetail ? responseCriteria : responseCriteria.result;
+  }
+
+  _executeAsyncRemoteCriteria(showDetail: boolean): ResultDetail {
     if (this._nextRun < Date.now()) {
       this._nextRun = Date.now() + this._delay;
       services.checkCriteria(
@@ -544,11 +547,7 @@ export class Switcher {
     }
 
     const executionLog = ExecutionLogger.getExecution(this._key, this._input);
-    if (showDetail) {
-      return executionLog.response;
-    }
-
-    return executionLog.response.result;
+    return executionLog.response;
   }
 
   async _executeApiValidation() {
@@ -562,7 +561,7 @@ export class Switcher {
     }
   }
 
-  async _executeLocalCriteria(showDetail: boolean) {
+  async _executeLocalCriteria() {
     const response = await checkCriteriaLocal(
       Switcher._snapshot,
       this._key || '',
@@ -573,7 +572,7 @@ export class Switcher {
       ExecutionLogger.add(response, this._key, this._input);
     }
 
-    if (showDetail) {
+    if (this._showDetail) {
       return response;
     }
 

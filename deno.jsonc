@@ -9,7 +9,8 @@
     "test": "deno test --allow-read --allow-net --allow-write --coverage=coverage",
     "lcov": "deno coverage coverage --lcov --output=coverage/report.lcov",
     "clean": "rm -rf ./npm ./coverage ./generated-snapshots",
-    "cover": "deno task clean && deno task test && deno task lcov && genhtml -o coverage/html coverage/report.lcov"
+    "cover": "deno task clean && deno task test && deno task lcov && genhtml -o coverage/html coverage/report.lcov",
+    "play": "deno run -A test/playground/index.ts"
   },
   "lock": false,
   "test": {

@@ -1,5 +1,11 @@
 import { AuthError, CheckSwitcherError, CriteriaError, SnapshotServiceError } from './exceptions/index.ts';
-import type { Entry, SwitcherContext } from '../types/index.d.ts';
+import type {
+  AuthResponse,
+  CheckSnapshotVersionResponse,
+  Entry,
+  ResultDetail,
+  SwitcherContext,
+} from '../types/index.d.ts';
 
 let httpClient: Deno.HttpClient;
 
@@ -67,7 +73,7 @@ export const checkCriteria = async (
     );
 
     if (response.status == 200) {
-      return response.json();
+      return response.json() as Promise<ResultDetail>;
     }
 
     throw new Error(`[checkCriteria] failed with status ${response.status}`);
@@ -95,7 +101,7 @@ export const auth = async (context: SwitcherContext) => {
     });
 
     if (response.status == 200) {
-      return response.json();
+      return response.json() as Promise<AuthResponse>;
     }
 
     throw new Error(`[auth] failed with status ${response.status}`);
@@ -149,7 +155,7 @@ export const checkSnapshotVersion = async (
     });
 
     if (response.status == 200) {
-      return response.json();
+      return response.json() as Promise<CheckSnapshotVersionResponse>;
     }
 
     throw new Error(`[checkSnapshotVersion] failed with status ${response.status}`);
