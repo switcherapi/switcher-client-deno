@@ -164,9 +164,12 @@ export class Switcher {
    * @param success when snapshot has successfully updated
    * @param error when any error has thrown when attempting to load snapshot
    */
-  static async watchSnapshot(success?: () => void | Promise<void>, error?: (err: Error) => void): Promise<void> {
+  static async watchSnapshot(
+    success: () => void | Promise<void> = () => {},
+    error: (err: Error) => void = () => {},
+  ): Promise<void> {
     if (Switcher._testEnabled || !Switcher._options.snapshotLocation?.length) {
-      return;
+      return error(new Error('Watch Snapshot cannot be used in test mode or without a snapshot location'));
     }
 
     const snapshotFile = `${Switcher._options.snapshotLocation}${Switcher._context.environment}.json`;
@@ -181,9 +184,7 @@ export class Switcher {
 
       Switcher._watchDebounce.set(
         dataString,
-        setTimeout(() => {
-          Switcher._onModifySnapshot(dataString, event, success, error);
-        }, 20),
+        setTimeout(() => Switcher._onModifySnapshot(dataString, event, success, error), 20),
       );
     }
   }
@@ -265,8 +266,8 @@ export class Switcher {
   private static _onModifySnapshot(
     dataString: string,
     event: Deno.FsEvent,
-    success?: () => void | Promise<void>,
-    error?: (err: Error) => void,
+    success: () => void | Promise<void>,
+    error: (err: Error) => void,
   ) {
     Switcher._watchDebounce.delete(dataString);
     if (event.kind === 'modify') {
@@ -276,13 +277,9 @@ export class Switcher {
           Switcher._context.environment,
         );
 
-        if (success) {
-          success();
-        }
+        success();
       } catch (err) {
-        if (error) {
-          error(err);
-        }
+        error(err);
       }
     }
   }

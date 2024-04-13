@@ -128,7 +128,7 @@ export const checkSwitchers = async (
     }
 
     const json = await response.json();
-    if (json.not_found.length) {
+    if (json.not_found?.length) {
       throw new CheckSwitcherError(json.not_found);
     }
   } catch (e) {
