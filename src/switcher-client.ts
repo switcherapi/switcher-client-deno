@@ -4,7 +4,7 @@ import DateMoment from './lib/utils/datemoment.ts';
 import TimedMatch from './lib/utils/timed-match/index.ts';
 import SnapshotAutoUpdater from './lib/utils/snapshotAutoUpdater.ts';
 import { checkSwitchersLocal, loadDomain, validateSnapshot } from './lib/snapshot.ts';
-import * as services from './lib/remote.ts';
+import * as remote from './lib/remote.ts';
 import checkCriteriaLocal from './lib/resolver.ts';
 import type { ResultDetail, RetryOptions, Snapshot, SwitcherContext, SwitcherOptions } from './types/index.d.ts';
 import { SnapshotNotFoundError } from './lib/exceptions/index.ts';
@@ -72,7 +72,7 @@ export class Switcher {
 
   private static buildOptions(options: SwitcherOptions) {
     if (SWITCHER_OPTIONS.CERT_PATH in options && options.certPath) {
-      services.setCerts(options.certPath);
+      remote.setCerts(options.certPath);
     }
 
     if (SWITCHER_OPTIONS.SILENT_MODE in options && options.silentMode) {
@@ -249,7 +249,7 @@ export class Switcher {
   private static async checkSwitchersRemote(switcherKeys: string[]) {
     try {
       await Switcher._auth();
-      await services.checkSwitchers(
+      await remote.checkSwitchers(
         Switcher._context.url || '',
         Switcher._context.token,
         switcherKeys,
@@ -310,7 +310,7 @@ export class Switcher {
   }
 
   private static async _auth() {
-    const response = await services.auth(Switcher._context);
+    const response = await remote.auth(Switcher._context);
     Switcher._context.token = response.token;
     Switcher._context.exp = response.exp;
   }
@@ -322,7 +322,7 @@ export class Switcher {
 
     if (Switcher._isTokenExpired()) {
       Switcher._updateSilentToken();
-      services.checkAPIHealth(Switcher._context.url || '').then((isAlive) => {
+      remote.checkAPIHealth(Switcher._context.url || '').then((isAlive) => {
         if (isAlive) {
           Switcher._auth();
         }
@@ -515,7 +515,7 @@ export class Switcher {
     let responseCriteria: ResultDetail;
 
     if (this._useSync()) {
-      responseCriteria = await services.checkCriteria(
+      responseCriteria = await remote.checkCriteria(
         Switcher._context,
         this._key,
         this._input,
@@ -535,7 +535,7 @@ export class Switcher {
   _executeAsyncRemoteCriteria(showDetail: boolean): ResultDetail {
     if (this._nextRun < Date.now()) {
       this._nextRun = Date.now() + this._delay;
-      services.checkCriteria(
+      remote.checkCriteria(
         Switcher._context,
         this._key,
         this._input,
