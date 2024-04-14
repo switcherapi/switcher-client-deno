@@ -33,7 +33,7 @@ describe('E2E test - Switcher local - Snapshot:', function () {
       regexSafe: false
     });
 
-    Switcher.setTestEnabled();
+    Switcher.testMode();
     tearDown();
   });
 
@@ -49,7 +49,7 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     given('GET@/criteria/snapshot_check/:version', undefined, 429);
     
     //test
-    Switcher.setTestEnabled();
+    Switcher.testMode();
     await Switcher.loadSnapshot();
     await assertRejects(async () =>
         await Switcher.checkSnapshot(),
@@ -203,7 +203,7 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     givenError('GET@/criteria/snapshot_check/:version', 'ECONNREFUSED');
     
     //test
-    Switcher.setTestEnabled();
+    Switcher.testMode();
     await Switcher.loadSnapshot();
     await assertRejects(async () =>
       await Switcher.checkSnapshot(), 
@@ -219,7 +219,7 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     givenError('POST@/graphql', 'ECONNREFUSED');
     
     //test
-    Switcher.setTestEnabled();
+    Switcher.testMode();
     await Switcher.loadSnapshot();
     await assertRejects(async () =>
       await Switcher.checkSnapshot(),
@@ -232,7 +232,7 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     given('GET@/criteria/snapshot_check/:version', generateStatus(true));
     
     //pre-load snapshot
-    Switcher.setTestDisabled();
+    Switcher.testMode(false);
     await Switcher.loadSnapshot();
     assertFalse(await Switcher.checkSnapshot());
 

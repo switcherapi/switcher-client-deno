@@ -377,18 +377,11 @@ export class Switcher {
   }
 
   /**
-   * Enable testing mode
+   * Enable/Disable test mode
    * It prevents from watching Snapshots that may hold process
    */
-  static setTestEnabled() {
-    Switcher._testEnabled = true;
-  }
-
-  /**
-   * Disable testing mode
-   */
-  static setTestDisabled() {
-    Switcher._testEnabled = false;
+  static testMode(testEnabled: boolean = true) {
+    Switcher._testEnabled = testEnabled;
   }
 
   /**
@@ -547,7 +540,7 @@ export class Switcher {
     return executionLog.response;
   }
 
-  async _executeApiValidation() {
+  private async _executeApiValidation() {
     if (!this._useSync()) {
       return;
     }
@@ -576,12 +569,12 @@ export class Switcher {
     return response.result;
   }
 
-  _validateArgs(key?: string, input?: string[][]) {
+  private _validateArgs(key?: string, input?: string[][]) {
     if (key) this._key = key;
     if (input) this._input = input;
   }
 
-  _useSync() {
+  private _useSync() {
     return this._delay == 0 || !ExecutionLogger.getExecution(this._key, this._input);
   }
 

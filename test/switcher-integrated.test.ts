@@ -28,7 +28,7 @@ describe('Integrated test - Switcher:', function () {
 
   beforeEach(function() {
     tearDown();
-    Switcher.setTestEnabled();
+    Switcher.testMode();
 
     contextSettings = { 
       url: 'http://localhost:3000',
@@ -210,7 +210,7 @@ describe('Integrated test - Switcher:', function () {
 
     beforeEach(function() {
       tearDown();
-      Switcher.setTestEnabled();
+      Switcher.testMode();
   
       contextSettings = { 
         url: 'http://localhost:3000',

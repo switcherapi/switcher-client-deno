@@ -241,7 +241,7 @@ describe('E2E test - Switcher local:', function () {
       snapshotLocation: '//somewhere/'
     });
 
-    Switcher.setTestEnabled();
+    Switcher.testMode();
     
     //test
     await assertRejects(async () =>

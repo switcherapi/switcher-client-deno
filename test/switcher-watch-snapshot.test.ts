@@ -86,7 +86,7 @@ describe('E2E test - Switcher local - Watch Snapshot:', function () {
   });
 
   it('should NOT allow to watch snapshot - Switcher test is enabled', async function () {
-    Switcher.setTestEnabled();
+    Switcher.testMode();
     Switcher.watchSnapshot(undefined, (err: any) => {
       assertEquals(err.message, 'Watch Snapshot cannot be used in test mode or without a snapshot location');
       WaitSafe.finish();
@@ -94,7 +94,7 @@ describe('E2E test - Switcher local - Watch Snapshot:', function () {
 
     await WaitSafe.wait();
     Switcher.unloadSnapshot();
-    Switcher.setTestDisabled();
+    Switcher.testMode(false);
   });
 
 });
