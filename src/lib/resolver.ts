@@ -1,5 +1,5 @@
 import { processOperation } from './snapshot.ts';
-import * as services from '../lib/remote.ts';
+import { getEntry } from '../lib/remote.ts';
 import type { Config, Entry, Group, Snapshot, SnapshotData, Strategy } from '../types/index.d.ts';
 
 async function resolveCriteria(
@@ -90,7 +90,7 @@ async function checkConfig(group: Group, config: Config, input?: string[][]) {
 
 async function checkStrategy(config: Config, input: string[][]) {
   const { strategies } = config;
-  const entry = services.getEntry(input);
+  const entry = getEntry(input);
 
   for (const strategy of strategies) {
     if (!strategy.activated) {
