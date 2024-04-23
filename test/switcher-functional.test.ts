@@ -129,6 +129,49 @@ describe('Integrated test - Switcher:', function () {
       const response = await switcher.detail().isItOn('FLAG_2') as ResultDetail;
       assertTrue(response.result);
     });
+
+    it('should renew token when using throttle', async function () {
+      // given API responding properly
+      // first API call
+      given('POST@/criteria/auth', generateAuth('[auth_token]', 1));
+      given('POST@/criteria', generateResult(true)); // before token expires
+
+      // test
+      Switcher.buildContext(contextSettings);
+
+      const switcher = Switcher.factory();
+      switcher.throttle(500);
+
+      const spyPrepare = spy(switcher, 'prepare');
+
+      // first API call - stores result in cache
+      let result = await switcher.isItOn('FLAG_3');
+      assertTrue(result);
+      assertSpyCalls(spyPrepare, 1);
+
+      // first async API call
+      result = await switcher.isItOn('FLAG_3');
+      assertTrue(result);
+      assertSpyCalls(spyPrepare, 1);
+
+      // Next call should call the API again - token has expired
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // given
+      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
+      given('POST@/criteria', generateResult(false)); // after token expires
+
+      // test - stores result in cache after token renewal
+      await new Promise(resolve => setTimeout(resolve, 500));
+      result = await switcher.isItOn('FLAG_3');
+      assertTrue(result);
+      assertSpyCalls(spyPrepare, 2);
+
+      await new Promise(resolve => setTimeout(resolve, 50));
+      result = await switcher.isItOn('FLAG_3');
+      assertFalse(result);
+      assertSpyCalls(spyPrepare, 2);
+    });
   });
 
   describe('force remote (hybrid):', function () {
