@@ -543,7 +543,7 @@ export class Switcher {
 
   private executeAsyncCheckCriteria() {
     remote.checkCriteria(Switcher._context, this._key, this._input, this._showDetail)
-      .then(response => ExecutionLogger.add(response, this._key, this._input));
+      .then((response) => ExecutionLogger.add(response, this._key, this._input));
   }
 
   private async _executeApiValidation() {
