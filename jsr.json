@@ -1,5 +1,0 @@
-{
-    "name": "@switcherapi/switcher4deno",
-    "version": "1.0.9",
-    "exports": "./mod.ts"
-}

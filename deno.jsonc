@@ -12,6 +12,7 @@
     "cover": "deno task clean && deno task test && deno task lcov && genhtml -o coverage/html coverage/report.lcov",
     "play": "deno run -A test/playground/index.ts"
   },
+  "exports": "./mod.ts",
   "lock": false,
   "test": {
     "include": [
