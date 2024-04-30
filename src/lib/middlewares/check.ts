@@ -1,29 +1,50 @@
 import { StrategiesType } from '../snapshot.ts';
 
-export function checkValue(input: string) {
+/**
+ * Adds VALUE_VALIDATION input for strategy validation
+ */
+export function checkValue(input: string): string[] {
   return [StrategiesType.VALUE, input];
 }
 
-export function checkNumeric(input: string) {
+/**
+ * Adds NUMERIC_VALIDATION input for strategy validation
+ */
+export function checkNumeric(input: string): string[] {
   return [StrategiesType.NUMERIC, input];
 }
 
-export function checkNetwork(input: string) {
+/**
+ * Adds NETWORK_VALIDATION input for strategy validation
+ */
+export function checkNetwork(input: string): string[] {
   return [StrategiesType.NETWORK, input];
 }
 
-export function checkDate(input: string) {
+/**
+ * Adds DATE_VALIDATION input for strategy validation
+ */
+export function checkDate(input: string): string[] {
   return [StrategiesType.DATE, input];
 }
 
-export function checkTime(input: string) {
+/**
+ * Adds TIME_VALIDATION input for strategy validation
+ */
+export function checkTime(input: string): string[] {
   return [StrategiesType.TIME, input];
 }
 
-export function checkRegex(input: string) {
+/**
+ * Adds REGEX_VALIDATION input for strategy validation
+ */
+export function checkRegex(input: string): string[] {
   return [StrategiesType.REGEX, input];
 }
 
-export function checkPayload(input: string) {
+/**
+ * Adds PAYLOAD_VALIDATION input for strategy validation
+ */
+export function checkPayload(input: string): string[] {
   return [StrategiesType.PAYLOAD, input];
 }
