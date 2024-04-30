@@ -7,6 +7,7 @@ import { checkSwitchersLocal, loadDomain, validateSnapshot } from './lib/snapsho
 import * as remote from './lib/remote.ts';
 import checkCriteriaLocal from './lib/resolver.ts';
 import type { ResultDetail, RetryOptions, Snapshot, SwitcherContext, SwitcherOptions } from './types/index.d.ts';
+import type Key from './lib/bypasser/key.ts';
 import { SnapshotNotFoundError } from './lib/exceptions/index.ts';
 import {
   DEFAULT_ENVIRONMENT,
@@ -90,7 +91,7 @@ export class Switcher {
   /**
    * Creates a new instance of Switcher
    */
-  static factory() {
+  static factory(): Switcher {
     return new Switcher();
   }
 
@@ -98,7 +99,7 @@ export class Switcher {
    * Verifies if the current snapshot file is updated.
    * Return true if an update has been made.
    */
-  static async checkSnapshot() {
+  static async checkSnapshot(): Promise<boolean> {
     if (!Switcher._snapshot) {
       throw new SnapshotNotFoundError('Snapshot is not loaded. Use Switcher.loadSnapshot()');
     }
@@ -138,7 +139,7 @@ export class Switcher {
   static async loadSnapshot(
     watchSnapshot = false,
     fetchRemote = false,
-  ) {
+  ): Promise<number> {
     Switcher._snapshot = loadDomain(
       Switcher._options.snapshotLocation || '',
       Switcher._context.environment,
@@ -347,7 +348,7 @@ export class Switcher {
    *
    * @param key
    */
-  static assume(key: string) {
+  static assume(key: string): Key {
     return Bypasser.assume(key);
   }
 
@@ -356,7 +357,7 @@ export class Switcher {
    *
    * @param key
    */
-  static forget(key: string) {
+  static forget(key: string): void {
     return Bypasser.forget(key);
   }
 
@@ -365,14 +366,14 @@ export class Switcher {
    *
    * @param key
    */
-  static getLogger(key: string) {
+  static getLogger(key: string): ExecutionLogger[] {
     return ExecutionLogger.getByKey(key);
   }
 
   /**
    * Clear all results from the execution log
    */
-  static clearLogger() {
+  static clearLogger(): void {
     ExecutionLogger.clearLogger();
   }
 
@@ -380,7 +381,7 @@ export class Switcher {
    * Enable/Disable test mode
    * It prevents from watching Snapshots that may hold process
    */
-  static testMode(testEnabled: boolean = true) {
+  static testMode(testEnabled: boolean = true): void {
     Switcher._testEnabled = testEnabled;
   }
 
@@ -390,7 +391,7 @@ export class Switcher {
    * @param key
    * @param input
    */
-  async prepare(key: string, input?: string[][]) {
+  async prepare(key: string, input?: string[][]): Promise<void> {
     this._key = key;
 
     if (input) this._input = input;
@@ -403,7 +404,7 @@ export class Switcher {
   /**
    * Validate the input provided to access the API
    */
-  async validate() {
+  async validate(): Promise<void> {
     const errors = [];
 
     if (!Switcher._context.apiKey) {
@@ -475,7 +476,7 @@ export class Switcher {
    *
    * @param delay in milliseconds
    */
-  throttle(delay: number) {
+  throttle(delay: number): this {
     this._delay = delay;
 
     if (delay > 0) {
@@ -490,7 +491,7 @@ export class Switcher {
    *
    * @param forceRemote default true
    */
-  remote(forceRemote = true) {
+  remote(forceRemote = true): this {
     if (!Switcher._options.local) {
       throw new Error('Local mode is not enabled');
     }
@@ -499,7 +500,7 @@ export class Switcher {
     return this;
   }
 
-  detail(showDetail = true) {
+  detail(showDetail = true): this {
     this._showDetail = showDetail;
     return this;
   }
@@ -557,7 +558,12 @@ export class Switcher {
     }
   }
 
-  async _executeLocalCriteria() {
+  async _executeLocalCriteria(): Promise<
+    boolean | {
+      result: boolean;
+      reason: string;
+    }
+  > {
     const response = await checkCriteriaLocal(
       Switcher._snapshot,
       this._key || '',
@@ -584,19 +590,19 @@ export class Switcher {
     return this._delay == 0 || !ExecutionLogger.getExecution(this._key, this._input);
   }
 
-  get key() {
+  get key(): string {
     return this._key;
   }
 
-  get input() {
+  get input(): string[][] | undefined {
     return this._input;
   }
 
-  get nextRun() {
+  get nextRun(): number {
     return this._nextRun;
   }
 
-  static get snapshot() {
+  static get snapshot(): Snapshot | undefined {
     return Switcher._snapshot;
   }
 }

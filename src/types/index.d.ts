@@ -1,17 +1,5 @@
 export {};
 
-declare global {
-  interface Window {
-    onmessage: (e: MessageEvent<Param>) => void;
-    postMessage: (message: boolean) => void;
-  }
-
-  type Param = {
-    values: string[];
-    input: string;
-  };
-}
-
 // Client SDK settings types
 
 export type SwitcherContext = {

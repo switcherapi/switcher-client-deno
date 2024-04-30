@@ -15,7 +15,7 @@ export default class Key {
   /**
    * Force result to true
    */
-  true() {
+  true(): this {
     this.result = true;
     this.reaason = 'Forced to true';
     return this;
@@ -24,7 +24,7 @@ export default class Key {
   /**
    * Force result to false
    */
-  false() {
+  false(): this {
     this.result = false;
     this.reaason = 'Forced to false';
     return this;
@@ -33,7 +33,7 @@ export default class Key {
   /**
    * Define metadata for the response
    */
-  withMetadata(metadata: object) {
+  withMetadata(metadata: object): this {
     this.metadata = metadata;
     return this;
   }
@@ -48,7 +48,11 @@ export default class Key {
   /**
    * Return current value
    */
-  getResponse() {
+  getResponse(): {
+    result: boolean;
+    reason: string | undefined;
+    metadata: object | undefined;
+  } {
     return {
       result: this.result,
       reason: this.reaason,
