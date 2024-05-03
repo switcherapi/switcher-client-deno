@@ -3,6 +3,8 @@ import type { ResultDetail } from '../../types/index.d.ts';
 const logger: ExecutionLogger[] = [];
 
 export default class ExecutionLogger {
+  private static _callbackError: (err: Error) => void;
+
   key?: string;
   input?: string[][];
   response: ResultDetail = { result: false };
@@ -58,6 +60,22 @@ export default class ExecutionLogger {
    */
   static clearLogger(): void {
     logger.splice(0, logger.length);
+  }
+
+  /**
+   * Subscribe to error notifications
+   */
+  static subscribeNotifyError(callbackError: (err: Error) => void) {
+    ExecutionLogger._callbackError = callbackError;
+  }
+
+  /**
+   * Push error notification
+   */
+  static notifyError(error: Error) {
+    if (ExecutionLogger._callbackError) {
+      ExecutionLogger._callbackError(error);
+    }
   }
 
   private static hasExecution(log: ExecutionLogger, key: string, input: string[][] | undefined) {

@@ -255,7 +255,7 @@ export class Switcher {
     try {
       await Switcher._auth();
       await remote.checkSwitchers(
-        Switcher._context.url || '',
+        Switcher._get(Switcher._context.url, ''),
         Switcher._context.token,
         switcherKeys,
       );
@@ -327,11 +327,12 @@ export class Switcher {
 
     if (Switcher._isTokenExpired()) {
       Switcher._updateSilentToken();
-      remote.checkAPIHealth(Switcher._get(Switcher._context.url, '')).then((isAlive) => {
-        if (isAlive) {
-          Switcher._auth();
-        }
-      });
+      remote.checkAPIHealth(Switcher._get(Switcher._context.url, ''))
+        .then((isAlive) => {
+          if (isAlive) {
+            Switcher._auth();
+          }
+        });
     }
   }
 
@@ -466,6 +467,8 @@ export class Switcher {
           result = await this._executeRemoteCriteria();
         }
       } catch (err) {
+        Switcher._notifyError(err);
+
         if (Switcher._options.silentMode) {
           Switcher._updateSilentToken();
           return this._executeLocalCriteria();
@@ -543,7 +546,8 @@ export class Switcher {
 
       if (Switcher._isTokenExpired()) {
         this.prepare(this._key, this._input)
-          .then(() => this.executeAsyncCheckCriteria());
+          .then(() => this.executeAsyncCheckCriteria())
+          .catch((err) => Switcher._notifyError(err));
       } else {
         this.executeAsyncCheckCriteria();
       }
@@ -555,7 +559,23 @@ export class Switcher {
 
   private executeAsyncCheckCriteria() {
     remote.checkCriteria(Switcher._context, this._key, this._input, this._showDetail)
-      .then((response) => ExecutionLogger.add(response, this._key, this._input));
+      .then((response) => ExecutionLogger.add(response, this._key, this._input))
+      .catch((err) => Switcher._notifyError(err));
+  }
+
+  private static _notifyError(err: Error) {
+    ExecutionLogger.notifyError(err);
+  }
+
+  /**
+   * Subscribe to notify when an asynchronous error is thrown.
+   *
+   * It is usually used when throttle and silent mode are enabled.
+   *
+   * @param callback function to be called when an error is thrown
+   */
+  static subscribeNotifyError(callback: (err: Error) => void) {
+    ExecutionLogger.subscribeNotifyError(callback);
   }
 
   private async _executeApiValidation() {
