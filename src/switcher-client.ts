@@ -255,7 +255,7 @@ export class Switcher {
     try {
       await Switcher._auth();
       await remote.checkSwitchers(
-        Switcher._context.url || '',
+        Switcher._get(Switcher._context.url, ''),
         Switcher._context.token,
         switcherKeys,
       );
@@ -332,8 +332,7 @@ export class Switcher {
           if (isAlive) {
             Switcher._auth();
           }
-        })
-        .catch((err) => Switcher._notifyError(err));
+        });
     }
   }
 
