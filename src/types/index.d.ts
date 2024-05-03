@@ -7,7 +7,7 @@ export type SwitcherContext = {
   apiKey?: string;
   domain: string;
   component?: string;
-  environment: string;
+  environment?: string;
   token?: string;
   exp?: number;
 };

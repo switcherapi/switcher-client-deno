@@ -1,5 +1,5 @@
 // deno-lint-ignore-file
-import { existsSync } from 'jsr:@std/fs';
+import { existsSync } from '@std/fs';
 
 import DateMoment from './utils/datemoment.ts';
 import IPCIDR from './utils/ipcidr.ts';
@@ -7,7 +7,7 @@ import TimedMatch from './utils/timed-match/index.ts';
 import { parseJSON, payloadReader } from './utils/payloadReader.ts';
 import { CheckSwitcherError } from './exceptions/index.ts';
 import { checkSnapshotVersion, resolveSnapshot } from './remote.ts';
-import type { Snapshot, SwitcherContext } from '../types/index.d.ts';
+import type { Snapshot } from '../types/index.d.ts';
 
 export const loadDomain = (snapshotLocation: string, environment: string) => {
   let dataJSON;
@@ -40,25 +40,20 @@ export const loadDomain = (snapshotLocation: string, environment: string) => {
 };
 
 export const validateSnapshot = async (
-  context: SwitcherContext,
+  url: string,
+  token: string,
+  domain: string,
+  environment: string,
+  component: string,
   snapshotVersion: number,
 ) => {
-  const { status } = await checkSnapshotVersion(
-    context.url || '',
-    context.token || '',
-    snapshotVersion,
-  );
+  const { status } = await checkSnapshotVersion(url, token, snapshotVersion);
 
   if (!status) {
-    const snapshot = await resolveSnapshot(
-      context.url || '',
-      context.token || '',
-      context.domain,
-      context.environment,
-      context.component || '',
-    );
+    const snapshot = await resolveSnapshot(url, token, domain, environment, component);
     return snapshot;
   }
+
   return undefined;
 };
 
