@@ -1,5 +1,5 @@
 // deno-lint-ignore-file
-import { existsSync } from 'jsr:@std/fs';
+import { existsSync } from '@std/fs';
 
 import DateMoment from './utils/datemoment.ts';
 import IPCIDR from './utils/ipcidr.ts';
@@ -54,7 +54,7 @@ export const validateSnapshot = async (
       context.url || '',
       context.token || '',
       context.domain,
-      context.environment,
+      context.environment || '',
       context.component || '',
     );
     return snapshot;
