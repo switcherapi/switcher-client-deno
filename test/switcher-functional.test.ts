@@ -1,5 +1,5 @@
 import { describe, it, afterAll, afterEach, beforeEach, 
-  assertEquals, assertNotEquals, assertRejects, assertThrows, assertFalse, 
+  assertEquals, assertRejects, assertThrows, assertFalse, 
   assertSpyCalls, spy } from './deps.ts';
 import { given, givenError, tearDown, assertTrue, generateAuth, generateResult, generateDetailedResult } from './helper/utils.ts'
 
@@ -45,6 +45,10 @@ describe('Integrated test - Switcher:', function () {
       tearDown();
     });
 
+    beforeEach(function() {
+      ExecutionLogger.clearLogger();
+    });
+
     it('should be valid', async function () {
       // given API responding properly
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
@@ -81,35 +85,15 @@ describe('Integrated test - Switcher:', function () {
       const switcher = Switcher.factory();
       switcher.throttle(1000);
 
-      const spyAsyncRemoteCriteria = spy(switcher, '_executeAsyncRemoteCriteria');
+      const spyPrepare = spy(switcher, '_executeAsyncRemoteCriteria');
       const spyExecutionLogger = spy(ExecutionLogger, 'add');
 
+      assertTrue(await switcher.isItOn('FLAG_1')); // sync
+      assertTrue(await switcher.isItOn('FLAG_1')); // async
+      await new Promise(resolve => setTimeout(resolve, 100)); // wait resolve async Promise
 
-      let throttledRunTimer;
-      for (let index = 0; index < 10; index++) {
-        assertTrue(await switcher.isItOn('FLAG_1'));
-        
-        if (index === 0) {
-          // First run calls API
-          assertEquals(0, switcher.nextRun);
-          assertSpyCalls(spyExecutionLogger, 1);
-        } else {
-          // Set up throttle for next API call 
-          assertNotEquals(0, switcher.nextRun);
-          throttledRunTimer = switcher.nextRun;
-        }
-      }
-
-      assertSpyCalls(spyAsyncRemoteCriteria, 9);
-
-      // Next call should call the API again as the throttle has expired
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      assertTrue(await switcher.isItOn('FLAG_1'));
-      assertSpyCalls(spyAsyncRemoteCriteria, 10);
-
-      // Throttle expired, set up new throttle run timer
-      assertNotEquals(throttledRunTimer, switcher.nextRun);
-      assertSpyCalls(spyExecutionLogger, 2);
+      assertSpyCalls(spyPrepare, 1);
+      assertSpyCalls(spyExecutionLogger, 2); // 1st (sync) + 2nd (async)
     });
     
     it('should be valid - throttle - with details', async function () {
@@ -171,6 +155,35 @@ describe('Integrated test - Switcher:', function () {
       result = await switcher.isItOn('FLAG_3');
       assertFalse(result);
       assertSpyCalls(spyPrepare, 2);
+    });
+
+    it('should not crash when async checkCriteria fails', async function () {
+      // given API responding properly
+      // first API call
+      given('POST@/criteria/auth', generateAuth('[auth_token]', 1));
+      given('POST@/criteria', generateResult(true)); // before token expires
+
+      // test
+      let asyncErrorMessage = null;
+      Switcher.buildContext(contextSettings);
+      Switcher.subscribeNotifyError((error) => asyncErrorMessage = error.message);
+
+      const switcher = Switcher.factory();
+      switcher.throttle(1000);
+
+      assertTrue(await switcher.isItOn('FLAG_1')); // sync
+      assertTrue(await switcher.isItOn('FLAG_1')); // async
+
+      // Next call should call the API again - valid token but crashes on checkCriteria
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      assertEquals(asyncErrorMessage, null);
+
+      // given
+      given('POST@/criteria', { message: 'error' }, 500);
+      assertTrue(await switcher.isItOn('FLAG_1')); // async
+
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      assertEquals(asyncErrorMessage, 'Something went wrong: [checkCriteria] failed with status 500');
     });
   });
 
@@ -306,10 +319,14 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria', { error: 'Too many requests' }, 429);
 
       // test
+      let asyncErrorMessage = null;
       Switcher.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './snapshot/' });
+      Switcher.subscribeNotifyError((error) => asyncErrorMessage = error.message);
+
       const switcher = Switcher.factory();
       
       assertTrue(await switcher.isItOn('FF2FOR2022'));
+      assertEquals(asyncErrorMessage, 'Something went wrong: [checkCriteria] failed with status 429');
     });
 
   });
