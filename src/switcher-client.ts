@@ -56,14 +56,14 @@ export class Switcher {
     this._snapshot = undefined;
     this._context = context;
     this._context.url = context.url;
-    this._context.environment = this._get(context.environment, DEFAULT_ENVIRONMENT);
+    this._context.environment = Switcher._get(context.environment, DEFAULT_ENVIRONMENT);
 
     // Default values
     this._options = {
       snapshotAutoUpdateInterval: 0,
       snapshotLocation: options?.snapshotLocation,
-      local: this._get(options?.local, DEFAULT_LOCAL),
-      logger: this._get(options?.logger, DEFAULT_LOGGER),
+      local: Switcher._get(options?.local, DEFAULT_LOCAL),
+      logger: Switcher._get(options?.logger, DEFAULT_LOGGER),
     };
 
     if (options) {
@@ -112,7 +112,11 @@ export class Switcher {
     }
 
     const snapshot = await validateSnapshot(
-      Switcher._context,
+      Switcher._get(Switcher._context.url, ''),
+      Switcher._get(Switcher._context.token, ''),
+      Switcher._get(Switcher._context.domain, ''),
+      Switcher._get(Switcher._context.environment, DEFAULT_ENVIRONMENT),
+      Switcher._get(Switcher._context.component, ''),
       Switcher._snapshot.data.domain.version,
     );
 
@@ -141,8 +145,8 @@ export class Switcher {
     fetchRemote = false,
   ): Promise<number> {
     Switcher._snapshot = loadDomain(
-      this._get(Switcher._options.snapshotLocation, ''),
-      this._get(Switcher._context.environment, DEFAULT_ENVIRONMENT),
+      Switcher._get(Switcher._options.snapshotLocation, ''),
+      Switcher._get(Switcher._context.environment, DEFAULT_ENVIRONMENT),
     );
 
     if (
@@ -274,8 +278,8 @@ export class Switcher {
     if (event.kind === 'modify') {
       try {
         Switcher._snapshot = loadDomain(
-          this._get(Switcher._options.snapshotLocation, ''),
-          this._get(Switcher._context.environment, DEFAULT_ENVIRONMENT),
+          Switcher._get(Switcher._options.snapshotLocation, ''),
+          Switcher._get(Switcher._context.environment, DEFAULT_ENVIRONMENT),
         );
 
         success();
@@ -297,11 +301,11 @@ export class Switcher {
 
   private static _initTimedMatch(options: SwitcherOptions) {
     if (SWITCHER_OPTIONS.REGEX_MAX_BLACK_LIST in options) {
-      TimedMatch.setMaxBlackListed(this._get(options.regexMaxBlackList, DEFAULT_REGEX_MAX_BLACKLISTED));
+      TimedMatch.setMaxBlackListed(Switcher._get(options.regexMaxBlackList, DEFAULT_REGEX_MAX_BLACKLISTED));
     }
 
     if (SWITCHER_OPTIONS.REGEX_MAX_TIME_LIMIT in options) {
-      TimedMatch.setMaxTimeLimit(this._get(options.regexMaxTimeLimit, DEFAULT_REGEX_MAX_TIME_LIMIT));
+      TimedMatch.setMaxTimeLimit(Switcher._get(options.regexMaxTimeLimit, DEFAULT_REGEX_MAX_TIME_LIMIT));
     }
 
     const hasRegexSafeOption = SWITCHER_OPTIONS.REGEX_SAFE in options;
@@ -323,7 +327,7 @@ export class Switcher {
 
     if (Switcher._isTokenExpired()) {
       Switcher._updateSilentToken();
-      remote.checkAPIHealth(this._get(Switcher._context.url, '')).then((isAlive) => {
+      remote.checkAPIHealth(Switcher._get(Switcher._context.url, '')).then((isAlive) => {
         if (isAlive) {
           Switcher._auth();
         }
