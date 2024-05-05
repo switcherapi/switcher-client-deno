@@ -5,7 +5,7 @@ import { assertTrue, WaitSafe } from './helper/utils.ts';
 import { Switcher } from '../mod.ts';
 
 const updateSwitcher = (status: boolean) => {
-  const dataBuffer = Deno.readTextFileSync('./snapshot/dev.json');
+  const dataBuffer = Deno.readTextFileSync('./test/snapshot/dev.json');
   const dataJSON = JSON.parse(dataBuffer.toString());
 
   dataJSON.data.domain.group[0].config[0].activated = status;

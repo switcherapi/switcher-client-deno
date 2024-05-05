@@ -191,7 +191,7 @@ describe('Integrated test - Switcher:', function () {
     
     const forceRemoteOptions = { 
       local: true, 
-      snapshotLocation: './snapshot/',
+      snapshotLocation: './test/snapshot/',
       regexSafe: false
     };
 
@@ -305,7 +305,7 @@ describe('Integrated test - Switcher:', function () {
     });
 
     it('should use silent mode when fail to check switchers', async function() {
-      Switcher.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './snapshot/' });
+      Switcher.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './test/snapshot/' });
       await assertRejects(async () =>
         await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02']),
         Error, 'Something went wrong: [FEATURE01,FEATURE02] not found');
@@ -320,7 +320,7 @@ describe('Integrated test - Switcher:', function () {
 
       // test
       let asyncErrorMessage = null;
-      Switcher.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './snapshot/' });
+      Switcher.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './test/snapshot/' });
       Switcher.subscribeNotifyError((error) => asyncErrorMessage = error.message);
 
       const switcher = Switcher.factory();
@@ -577,7 +577,7 @@ describe('Integrated test - Switcher:', function () {
     it('should run in silent mode', async function () {
       // setup context to read the snapshot in case the API does not respond
       Switcher.buildContext(contextSettings, {
-        snapshotLocation: './snapshot/',
+        snapshotLocation: './test/snapshot/',
         regexSafe: false,
         silentMode: '2s',
       });
@@ -623,7 +623,7 @@ describe('Integrated test - Switcher:', function () {
 
     it('should run in silent mode when API is unavailable', async function () {
       Switcher.buildContext(contextSettings, {
-        snapshotLocation: './snapshot/',
+        snapshotLocation: './test/snapshot/',
         regexSafe: false,
         silentMode: '5m'
       });

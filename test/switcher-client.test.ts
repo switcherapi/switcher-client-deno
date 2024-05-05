@@ -22,7 +22,7 @@ describe('E2E test - Switcher local:', function () {
   const component = 'business-service';
   const environment = 'default';
   const url = 'http://localhost:3000';
-  const snapshotLocation = './snapshot/';
+  const snapshotLocation = './test/snapshot/';
 
   beforeAll(async function() {
     Switcher.buildContext({ url, apiKey, domain, component, environment }, {
