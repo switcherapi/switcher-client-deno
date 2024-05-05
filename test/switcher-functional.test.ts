@@ -1,7 +1,7 @@
 import { describe, it, afterAll, afterEach, beforeEach, 
   assertEquals, assertRejects, assertThrows, assertFalse, 
   assertSpyCalls, spy } from './deps.ts';
-import { given, givenError, tearDown, assertTrue, generateAuth, generateResult, generateDetailedResult } from './helper/utils.ts'
+import { given, givenError, tearDown, assertTrue, generateAuth, generateResult, generateDetailedResult, sleep } from './helper/utils.ts'
 
 import { 
   Switcher, 
@@ -90,7 +90,7 @@ describe('Integrated test - Switcher:', function () {
 
       assertTrue(await switcher.isItOn('FLAG_1')); // sync
       assertTrue(await switcher.isItOn('FLAG_1')); // async
-      await new Promise(resolve => setTimeout(resolve, 100)); // wait resolve async Promise
+      await sleep(100); // wait resolve async Promise
 
       assertSpyCalls(spyPrepare, 1);
       assertSpyCalls(spyExecutionLogger, 2); // 1st (sync) + 2nd (async)
@@ -139,19 +139,19 @@ describe('Integrated test - Switcher:', function () {
       assertSpyCalls(spyPrepare, 1);
 
       // Next call should call the API again - token has expired
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await sleep(2000); // wait resolve async Promise
       
       // given
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', generateResult(false)); // after token expires
 
       // test - stores result in cache after token renewal
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await sleep(500);
       result = await switcher.isItOn('FLAG_3');
       assertTrue(result);
       assertSpyCalls(spyPrepare, 2);
 
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await sleep(50);
       result = await switcher.isItOn('FLAG_3');
       assertFalse(result);
       assertSpyCalls(spyPrepare, 2);
@@ -175,14 +175,14 @@ describe('Integrated test - Switcher:', function () {
       assertTrue(await switcher.isItOn('FLAG_1')); // async
 
       // Next call should call the API again - valid token but crashes on checkCriteria
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await sleep(1000);
       assertEquals(asyncErrorMessage, null);
 
       // given
       given('POST@/criteria', { message: 'error' }, 500);
       assertTrue(await switcher.isItOn('FLAG_1')); // async
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await sleep(1000);
       assertEquals(asyncErrorMessage, 'Something went wrong: [checkCriteria] failed with status 500');
     });
   });
@@ -423,7 +423,7 @@ describe('Integrated test - Switcher:', function () {
       assertTrue(await switcher.isItOn());
 
       // The program delay 2 secs later for the next call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await sleep(2000);
 
       // Prepare the stub to provide the new token
       given('POST@/criteria/auth', generateAuth('asdad12d2232d2323f', 1));
@@ -589,15 +589,14 @@ describe('Integrated test - Switcher:', function () {
       givenError('POST@/criteria/auth', 'ECONNREFUSED');
       assertTrue(await switcher.isItOn('FF2FOR2030'));
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await sleep(500);
       // The call below is in silent mode. It is getting the configuration from the local snapshot again
       assertTrue(await switcher.isItOn());
 
       // As the silent mode was configured to retry after 2 seconds, it's still in time, 
       // therefore, remote call was not yet invoked
       assertSpyCalls(spyRemote, 0);
-      
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await sleep(3000);
       
       // Setup the remote mocked response and made it to return false just to make sure it's not fetching from the snapshot
       given('GET@/check', undefined, 200);
