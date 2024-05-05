@@ -4,8 +4,6 @@
  * Switcher Clinet SDK for working with Switcher API
  *
  * ```ts
- * import { Switcher } from '@switcherapi/switcher4deno';
- *
  * Switcher.buildContext({ url, apiKey, domain, component, environment });
  *
  * const switcher = Switcher.factory();
@@ -25,3 +23,5 @@ export {
   checkTime,
   checkValue,
 } from './src/lib/middlewares/check.ts';
+
+export type { Entry, ResultDetail, SwitcherContext, SwitcherOptions } from './src/types/index.d.ts';

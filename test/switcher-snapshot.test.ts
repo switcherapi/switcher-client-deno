@@ -10,10 +10,10 @@ describe('E2E test - Switcher local - Snapshot:', function () {
   const token = '[token]';
   let contextSettings: SwitcherContext;
 
-  const dataBuffer = Deno.readTextFileSync('./snapshot/dev.json');
+  const dataBuffer = Deno.readTextFileSync('./test/snapshot/dev.json');
   const dataJSON = dataBuffer.toString();
 
-  const dataBufferV2 = Deno.readTextFileSync('./snapshot/dev_v2.json');
+  const dataBufferV2 = Deno.readTextFileSync('./test/snapshot/dev_v2.json');
   const dataJSONV2 = dataBufferV2.toString();
 
   beforeEach(function() {
@@ -28,7 +28,7 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     };
     
     Switcher.buildContext(contextSettings, {
-      snapshotLocation: './snapshot/',
+      snapshotLocation: './test/snapshot/',
       local: true,
       regexSafe: false
     });
