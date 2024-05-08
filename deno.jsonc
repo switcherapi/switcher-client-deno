@@ -1,6 +1,6 @@
 {
   "name": "@switcherapi/switcher-client-deno",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Switcher4Deno is a Feature Flag Deno SDK client for Switcher API",
   "tasks": {
     "cache-reload": "deno cache --reload --lock=deno.lock --lock-write mod.ts",

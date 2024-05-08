@@ -1,0 +1,36 @@
+name: Staging CI
+run-name: Staging - Deno ${{ github.event.inputs.deno }} / ${{ github.event.inputs.os }} by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      deno:
+        description: 'Deno version'
+        required: true
+        default: 'v1.43.x'
+      os:
+        description: 'Operating System (ubuntu-20.04, ubuntu-latest, windows-latest)'
+        required: true
+        default: 'ubuntu-latest'
+      deno-flag:
+        description: 'Deno flag (e.g. --unstable)'
+        required: false
+        default: ''
+
+jobs:
+  test:
+    name: Test - Deno ${{ github.event.inputs.deno }} on ${{ github.event.inputs.os }}
+    runs-on: ${{ github.event.inputs.os }}
+
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ github.event.inputs.deno }}
+
+      - run: deno task test ${{ github.event.inputs.deno-flag }}

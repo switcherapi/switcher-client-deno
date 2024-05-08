@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-test:
-    name: Build & Test
+    name: Quality Gate
     runs-on: ubuntu-latest
     if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
 
@@ -43,3 +43,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  test-matrix:
+    name: Test Matrix - Deno ${{ matrix.deno-version }} on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        deno-version: [v1.40.0, v1.43.x]
+        os: [ ubuntu-latest, windows-latest ]
+    runs-on: ${{ matrix.os }}
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
+
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Deno ${{ matrix.deno-version }}
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ matrix.deno-version }}
+
+      - run: deno task test

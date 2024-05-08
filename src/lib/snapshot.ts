@@ -13,7 +13,7 @@ export const loadDomain = (snapshotLocation: string, environment: string) => {
   let dataJSON;
   try {
     let dataBuffer;
-    const snapshotFile = `${snapshotLocation}${environment}.json`;
+    const snapshotFile = `${snapshotLocation}/${environment}.json`;
     if (existsSync(snapshotFile)) {
       dataBuffer = Deno.readTextFileSync(snapshotFile);
     } else {

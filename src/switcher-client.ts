@@ -123,7 +123,7 @@ export class Switcher {
     if (snapshot) {
       if (Switcher._options.snapshotLocation?.length) {
         Deno.writeTextFileSync(
-          `${Switcher._options.snapshotLocation}${Switcher._context.environment}.json`,
+          `${Switcher._options.snapshotLocation}/${Switcher._context.environment}.json`,
           snapshot,
         );
       }
@@ -177,7 +177,7 @@ export class Switcher {
       return error(new Error('Watch Snapshot cannot be used in test mode or without a snapshot location'));
     }
 
-    const snapshotFile = `${Switcher._options.snapshotLocation}${Switcher._context.environment}.json`;
+    const snapshotFile = `${Switcher._options.snapshotLocation}/${Switcher._context.environment}.json`;
     Switcher._watcher = Deno.watchFs(snapshotFile);
     Switcher._watching = true;
     for await (const event of Switcher._watcher) {

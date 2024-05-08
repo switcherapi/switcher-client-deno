@@ -34,12 +34,13 @@ https://github.com/switcherapi/switcher-api
 ## Module initialization
 The context properties stores all information regarding connectivity.
 
+(*) Requires Deno 1.4x or higher
+
 > Flags required
 ```
 --allow-read
 --allow-write
 --allow-net
---unstable (only if using certPath)
 ```
 
 > Initialization
