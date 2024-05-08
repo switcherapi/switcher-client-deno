@@ -12,6 +12,10 @@ on:
         description: 'Operating System (ubuntu-20.04, ubuntu-latest, windows-latest)'
         required: true
         default: 'ubuntu-latest'
+      deno-flag:
+        description: 'Deno flag (e.g. --unstable)'
+        required: false
+        default: ''
 
 jobs:
   test:
@@ -29,4 +33,4 @@ jobs:
         with:
           deno-version: ${{ github.event.inputs.deno }}
 
-      - run: deno task test
+      - run: deno task test ${{ github.event.inputs.deno-flag }}
