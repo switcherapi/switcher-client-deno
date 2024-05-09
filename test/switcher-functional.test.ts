@@ -3,16 +3,7 @@ import { describe, it, afterAll, afterEach, beforeEach,
   assertSpyCalls, spy } from './deps.ts';
 import { given, givenError, tearDown, assertTrue, generateAuth, generateResult, generateDetailedResult, sleep } from './helper/utils.ts'
 
-import { 
-  Switcher, 
-  checkValue, 
-  checkNetwork, 
-  checkDate, 
-  checkTime, 
-  checkRegex, 
-  checkNumeric, 
-  checkPayload
-} from '../mod.ts';
+import { Switcher } from '../mod.ts';
 import type { ResultDetail, SwitcherContext } from '../src/types/index.d.ts';
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 import ExecutionLogger from "../src/lib/utils/executionLogger.ts";
@@ -346,15 +337,15 @@ describe('Integrated test - Switcher:', function () {
       Switcher.buildContext(contextSettings);
       const switcher = Switcher.factory();
       
-      await switcher.prepare('FLAG_1', [
-        checkValue('User 1'),
-        checkNumeric('1'),
-        checkNetwork('192.168.0.1'),
-        checkDate('2019-12-01T08:30'),
-        checkTime('08:00'),
-        checkRegex('\\bUSER_[0-9]{1,2}\\b'),
-        checkPayload(JSON.stringify({ name: 'User 1' }))
-      ]);
+      await switcher
+        .checkValue('User 1')
+        .checkNumeric('1')
+        .checkNetwork('192.168.0.1')
+        .checkDate('2019-12-01T08:30')
+        .checkTime('08:00')
+        .checkRegex('\\bUSER_[0-9]{1,2}\\b')
+        .checkPayload(JSON.stringify({ name: 'User 1' }))
+        .prepare('FLAG_1');
 
       assertEquals(switcher.input, [
         [ 'VALUE_VALIDATION', 'User 1' ],
@@ -447,10 +438,10 @@ describe('Integrated test - Switcher:', function () {
       // test
       Switcher.buildContext(contextSettings);
       const switcher = Switcher.factory();
-      assertTrue(await switcher.isItOn('MY_FLAG', [
-        checkValue('User 1'),
-        checkNetwork('192.168.0.1')
-      ]));
+      assertTrue(await switcher
+        .checkValue('User 1')
+        .checkNetwork('192.168.0.1')
+        .isItOn('MY_FLAG'));
     });
 
     it('should be valid - when preparing key and sending input strategy afterwards', async function () {
@@ -463,10 +454,10 @@ describe('Integrated test - Switcher:', function () {
       const switcher = Switcher.factory();
 
       await switcher.prepare('MY_FLAG');
-      assertTrue(await switcher.isItOn(undefined, [
-        checkValue('User 1'),
-        checkNetwork('192.168.0.1')
-      ]));
+      assertTrue(await switcher
+        .checkValue('User 1')
+        .checkNetwork('192.168.0.1')
+        .isItOn());
     });
 
     it('should be invalid - Missing API url field', async function () {
@@ -504,10 +495,10 @@ describe('Integrated test - Switcher:', function () {
 
       const switcher = Switcher.factory();
 
-      await switcher.prepare('MY_FLAG', [
-        checkValue('User 1'),
-        checkNetwork('192.168.0.1')
-      ]);
+      await switcher
+        .checkValue('User 1')
+        .checkNetwork('192.168.0.1')
+        .prepare('MY_FLAG');
 
       await assertRejects(async () =>
         await switcher.isItOn(),
@@ -558,20 +549,6 @@ describe('Integrated test - Switcher:', function () {
       await assertRejects(async () =>
         await switcher.isItOn('MY_FLAG'),
         Error, 'Something went wrong: Missing token field');
-    });
-
-    it('should be invalid - bad strategy input', async function () {
-      // given
-      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-
-      // test
-      Switcher.buildContext(contextSettings);
-      const switcher = Switcher.factory();
-      await switcher.prepare('MY_WRONG_FLAG', [['THIS IS WRONG']]);
-
-      await assertRejects(async () =>
-        await switcher.isItOn(),
-        Error, 'Something went wrong: Invalid input format for \'THIS IS WRONG\'');
     });
 
     it('should run in silent mode', async function () {

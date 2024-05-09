@@ -2,6 +2,9 @@ import type { ResultDetail } from '../../types/index.d.ts';
 
 const logger: ExecutionLogger[] = [];
 
+/**
+ * It keeps track of latest execution results.
+ */
 export default class ExecutionLogger {
   private static _callbackError: (err: Error) => void;
 
@@ -11,10 +14,6 @@ export default class ExecutionLogger {
 
   /**
    * Add new execution result
-   *
-   * @param key
-   * @param input
-   * @param response
    */
   static add(
     response: ResultDetail,
@@ -34,9 +33,6 @@ export default class ExecutionLogger {
 
   /**
    * Retrieve a specific result given a key and an input
-   *
-   * @param key Switcher key
-   * @param input Switcher input
    */
   static getExecution(
     key: string,
@@ -48,8 +44,6 @@ export default class ExecutionLogger {
 
   /**
    * Retrieve results given a switcher key
-   *
-   * @param key
    */
   static getByKey(key: string): ExecutionLogger[] {
     return logger.filter((value) => value.key === key);

@@ -14,14 +14,4 @@
  */
 
 export { Switcher } from './src/switcher-client.ts';
-export {
-  checkDate,
-  checkNetwork,
-  checkNumeric,
-  checkPayload,
-  checkRegex,
-  checkTime,
-  checkValue,
-} from './src/lib/middlewares/check.ts';
-
-export type { Entry, ResultDetail, SwitcherContext, SwitcherOptions } from './src/types/index.d.ts';
+export type { ResultDetail, SwitcherContext, SwitcherOptions } from './src/types/index.d.ts';

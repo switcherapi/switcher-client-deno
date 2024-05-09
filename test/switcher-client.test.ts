@@ -5,13 +5,7 @@ import { assertTrue } from './helper/utils.ts'
 import type { ResultDetail } from "../src/types/index.d.ts";
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 import { StrategiesType } from '../src/lib/snapshot.ts';
-import { 
-  Switcher, 
-  checkValue, 
-  checkNetwork, 
-  checkPayload,
-  checkRegex
-} from '../mod.ts';
+import { Switcher } from '../mod.ts';
 
 const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExit: false };
 
@@ -44,29 +38,29 @@ describe('E2E test - Switcher local:', function () {
   });
 
   it('should be valid - isItOn', testSettings, async function () {
-    await switcher.prepare('FF2FOR2020', [
-      checkValue('Japan'),
-      checkNetwork('10.0.0.3')
-    ]);
+    await switcher
+      .checkValue('Japan')
+      .checkNetwork('10.0.0.3')
+      .prepare('FF2FOR2021')
 
     assertTrue(await switcher.isItOn('FF2FOR2020'));
   });
 
   it('should be valid - isItOn - with detail', testSettings, async function () {
-    const response = await switcher.detail().isItOn('FF2FOR2020', [
-      checkValue('Japan'),
-      checkNetwork('10.0.0.3')
-    ]) as ResultDetail;
+    const response = await switcher.detail()
+      .checkValue('Japan')
+      .checkNetwork('10.0.0.3')
+      .isItOn('FF2FOR2020') as ResultDetail;
 
     assertTrue(response.result);
     assertEquals(response.reason, 'Success');
   });
 
   it('should be valid - No prepare function needed', testSettings, async function () {
-    const result = await switcher.isItOn('FF2FOR2020', [
-      checkValue('Japan'),
-      checkNetwork('10.0.0.3')
-    ]);
+    const result = await switcher
+      .checkValue('Japan')
+      .checkNetwork('10.0.0.3')
+      .isItOn('FF2FOR2020');
     
     assertTrue(result);
   });
@@ -77,7 +71,7 @@ describe('E2E test - Switcher local:', function () {
   });
 
   it('should be valid - Switcher strategy disabled', testSettings, async function () {
-    const result = await switcher.isItOn('FF2FOR2021', [checkNetwork('192.168.0.1')]);
+    const result = await switcher.checkNetwork('192.168.0.1').isItOn('FF2FOR2021');
     assertTrue(result);
   });
 
@@ -87,15 +81,15 @@ describe('E2E test - Switcher local:', function () {
   });
 
   it('should be valid - JSON Payload matches all keys', testSettings, async function () {
-    await switcher.prepare('FF2FOR2023', [
-      checkPayload(JSON.stringify({
+    await switcher
+      .checkPayload(JSON.stringify({
         id: 1,
         user: {
           login: 'USER_LOGIN',
           role: 'ADMIN'
         }
       }))
-    ]);
+      .prepare('FF2FOR2023');
 
     const result = await switcher.isItOn();
     assertTrue(result);
@@ -105,7 +99,10 @@ describe('E2E test - Switcher local:', function () {
     const getTimer = (timer: number) => (timer - Date.now()) * -1;
 
     let timer = Date.now();
-    const result = await switcher.isItOn('FF2FOR2024', [checkRegex('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')]);
+    const result = await switcher
+      .checkRegex('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+      .isItOn('FF2FOR2024');
+
     timer = getTimer(timer);
 
     assertFalse(result);
@@ -114,14 +111,14 @@ describe('E2E test - Switcher local:', function () {
   });
 
   it('should be invalid - JSON Payload does NOT match all keys', testSettings, async function () {
-    await switcher.prepare('FF2FOR2023', [
-      checkPayload(JSON.stringify({
+    await switcher
+      .checkPayload(JSON.stringify({
         id: 1,
         user: {
           login: 'USER_LOGIN'
         }
       }))
-    ]);
+      .prepare('FF2FOR2023');
 
     assertFalse(await switcher.isItOn());
     assertEquals(Switcher.getLogger('FF2FOR2023')[0].response.reason, 
@@ -129,10 +126,10 @@ describe('E2E test - Switcher local:', function () {
   });
 
   it('should be invalid - Input (IP) does not match', testSettings, async function () {
-    await switcher.prepare('FF2FOR2020', [
-      checkValue('Japan'),
-      checkNetwork('192.168.0.2')
-    ]);
+    await switcher
+      .checkValue('Japan')
+      .checkNetwork('192.168.0.2')  
+      .prepare('FF2FOR2020');
 
     assertFalse(await switcher.isItOn());
     assertEquals(Switcher.getLogger('FF2FOR2020')[0].response.reason, 
@@ -158,10 +155,10 @@ describe('E2E test - Switcher local:', function () {
   });
 
   it('should be valid assuming key to be false and then forgetting it', testSettings, async function () {
-    await switcher.prepare('FF2FOR2020', [
-      checkValue('Japan'),
-      checkNetwork('10.0.0.3')
-    ]);
+    await switcher
+      .checkValue('Japan')
+      .checkNetwork('10.0.0.3')
+      .prepare('FF2FOR2020');
     
     assertTrue(await switcher.isItOn());
     Switcher.assume('FF2FOR2020').false();
@@ -173,7 +170,7 @@ describe('E2E test - Switcher local:', function () {
 
   it('should be valid assuming key to be false - with details', async function () {
     Switcher.assume('FF2FOR2020').false();
-    const { result, reason } = await switcher.detail().isItOn('FF2FOR2020', []) as ResultDetail;
+    const { result, reason } = await switcher.detail().isItOn('FF2FOR2020') as ResultDetail;
 
     assertFalse(result);
     assertEquals(reason, 'Forced to false');
@@ -181,7 +178,7 @@ describe('E2E test - Switcher local:', function () {
 
   it('should be valid assuming key to be false - with metadata', async function () {
     Switcher.assume('FF2FOR2020').false().withMetadata({ value: 'something' });
-    const { result, reason, metadata } = await switcher.detail(true).isItOn('FF2FOR2020', []) as ResultDetail;
+    const { result, reason, metadata } = await switcher.detail(true).isItOn('FF2FOR2020') as ResultDetail;
 
     assertFalse(result);
     assertEquals(reason, 'Forced to false');
@@ -189,10 +186,10 @@ describe('E2E test - Switcher local:', function () {
   });
 
   it('should be valid assuming unknown key to be true', testSettings, async function () {
-    await switcher.prepare('UNKNOWN', [
-      checkValue('Japan'),
-      checkNetwork('10.0.0.3')
-    ]);
+    await switcher
+      .checkValue('Japan')
+      .checkNetwork('10.0.0.3')  
+      .prepare('UNKNOWN');
     
     Switcher.assume('UNKNOWN').true();
     assertTrue(await switcher.isItOn());
