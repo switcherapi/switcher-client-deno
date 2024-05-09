@@ -1,4 +1,4 @@
-import { Switcher, checkValue, checkNumeric } from '../../mod.ts'
+import { Switcher } from '../../mod.ts'
 import { sleep } from "../helper/utils.ts";
 
 const SWITCHER_KEY = 'MY_SWITCHER';
@@ -32,7 +32,7 @@ const _testLocal = async () => {
         domain: 'Local Playground', 
         environment: 'local' 
     }, { 
-        snapshotLocation: './test/playground/snapshot/', 
+        snapshotLocation: './test/playground/snapshot', 
         local: true
     });
 
@@ -44,7 +44,10 @@ const _testLocal = async () => {
 
     setInterval(async () => {
         const time = Date.now();
-        const result = await switcher.detail().isItOn(SWITCHER_KEY);
+        const result = await switcher
+            .detail()
+            .isItOn(SWITCHER_KEY);
+
         console.log(`- ${Date.now() - time} ms - ${JSON.stringify(result)}`);
     }, 1000);
 };
@@ -77,7 +80,7 @@ const _testThrottledAPICall = async () => {
 
     setInterval(async () => {
         const time = Date.now();
-        const result = await switcher.isItOn(SWITCHER_KEY, [checkNumeric('1')]);
+        const result = await switcher.isItOn(SWITCHER_KEY);
         console.log(`- ${Date.now() - time} ms - ${JSON.stringify(result)}`);
     }, 1000);
 
@@ -154,7 +157,7 @@ const _testSnapshotAutoUpdate = async () => {
 
     setInterval(async () => {
         const time = Date.now();
-        await switcher.isItOn(SWITCHER_KEY, [checkValue('user_1')]);
+        await switcher.isItOn(SWITCHER_KEY);
         console.clear();
         console.log(Switcher.getLogger(SWITCHER_KEY), `executed in ${Date.now() - time}ms`);
     }, 2000);

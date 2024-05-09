@@ -3,7 +3,7 @@ import ExecutionLogger from './lib/utils/executionLogger.ts';
 import DateMoment from './lib/utils/datemoment.ts';
 import TimedMatch from './lib/utils/timed-match/index.ts';
 import SnapshotAutoUpdater from './lib/utils/snapshotAutoUpdater.ts';
-import { checkSwitchersLocal, loadDomain, validateSnapshot } from './lib/snapshot.ts';
+import { StrategiesType, checkSwitchersLocal, loadDomain, validateSnapshot } from './lib/snapshot.ts';
 import * as remote from './lib/remote.ts';
 import checkCriteriaLocal from './lib/resolver.ts';
 import type { ResultDetail, RetryOptions, Snapshot, SwitcherContext, SwitcherOptions } from './types/index.d.ts';
@@ -43,6 +43,10 @@ export class Switcher {
   private _key = '';
   private _forceRemote = false;
   private _showDetail = false;
+
+  constructor(key: string) {
+    this._key = key;
+  }
 
   /**
    * Create the necessary configuration to communicate with the API
@@ -91,8 +95,8 @@ export class Switcher {
   /**
    * Creates a new instance of Switcher
    */
-  static factory(): Switcher {
-    return new Switcher();
+  static factory(key?: string): Switcher {
+    return new Switcher(Switcher._get(key, ''));
   }
 
   /**
@@ -398,12 +402,9 @@ export class Switcher {
    * Pre-set input values before calling the API
    *
    * @param key
-   * @param input
    */
-  async prepare(key: string, input?: string[][]): Promise<void> {
+  async prepare(key: string): Promise<void> {
     this._key = key;
-
-    if (input) this._input = input;
 
     if (!Switcher._options.local || this._forceRemote) {
       await Switcher._auth();
@@ -439,14 +440,13 @@ export class Switcher {
   }
 
   /**
-   * Execute async criteria
+   * Execute criteria
    *
    * @param key
-   * @param input
    */
-  async isItOn(key?: string, input?: string[][]): Promise<boolean | ResultDetail> {
+  async isItOn(key?: string): Promise<boolean | ResultDetail> {
     let result: boolean | ResultDetail;
-    this._validateArgs(key, input);
+    this._validateArgs(key, this._input);
 
     // verify if query from Bypasser
     const bypassKey = Bypasser.searchBypassed(this._key);
@@ -519,6 +519,67 @@ export class Switcher {
     return this;
   }
 
+  /**
+   * Adds a strategy for validation
+   */
+  check(startegyType: string, input: string): this {
+    if (!this._input) {
+      this._input = [];
+    }
+
+    this._input.push([startegyType, input]);
+    return this;
+  }
+
+  /**
+   * Adds VALUE_VALIDATION input for strategy validation
+   */
+  checkValue(input: string): this {
+    return this.check(StrategiesType.VALUE, input);
+  }
+
+  /**
+   * Adds NUMERIC_VALIDATION input for strategy validation
+   */
+  checkNumeric(input: string): this {
+    return this.check(StrategiesType.NUMERIC, input);
+  }
+
+  /**
+   * Adds NETWORK_VALIDATION input for strategy validation
+   */
+  checkNetwork(input: string): this {
+    return this.check(StrategiesType.NETWORK, input);
+  }
+
+  /**
+   * Adds DATE_VALIDATION input for strategy validation
+   */
+  checkDate(input: string): this {
+    return this.check(StrategiesType.DATE, input);
+  }
+
+  /**
+   * Adds TIME_VALIDATION input for strategy validation
+   */
+  checkTime(input: string): this {
+    return this.check(StrategiesType.TIME, input);
+  }
+
+  /**
+   * Adds REGEX_VALIDATION input for strategy validation
+   */
+  checkRegex(input: string): this {
+    return this.check(StrategiesType.REGEX, input);
+  }
+
+  /**
+   * Adds PAYLOAD_VALIDATION input for strategy validation
+   */
+  checkPayload(input: string): this {
+    return this.check(StrategiesType.PAYLOAD, input);
+  }
+
   async _executeRemoteCriteria(): Promise<boolean | ResultDetail> {
     let responseCriteria: ResultDetail;
 
@@ -545,7 +606,7 @@ export class Switcher {
       this._nextRun = Date.now() + this._delay;
 
       if (Switcher._isTokenExpired()) {
-        this.prepare(this._key, this._input)
+        this.prepare(this._key)
           .then(() => this.executeAsyncCheckCriteria())
           .catch((err) => Switcher._notifyError(err));
       } else {
@@ -585,7 +646,7 @@ export class Switcher {
 
     Switcher._checkHealth();
     if (Switcher._isTokenExpired()) {
-      await this.prepare(this._key, this._input);
+      await this.prepare(this._key);
     }
   }
 
