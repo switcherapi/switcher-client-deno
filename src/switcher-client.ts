@@ -3,7 +3,7 @@ import ExecutionLogger from './lib/utils/executionLogger.ts';
 import DateMoment from './lib/utils/datemoment.ts';
 import TimedMatch from './lib/utils/timed-match/index.ts';
 import SnapshotAutoUpdater from './lib/utils/snapshotAutoUpdater.ts';
-import { StrategiesType, checkSwitchersLocal, loadDomain, validateSnapshot } from './lib/snapshot.ts';
+import { checkSwitchersLocal, loadDomain, StrategiesType, validateSnapshot } from './lib/snapshot.ts';
 import * as remote from './lib/remote.ts';
 import checkCriteriaLocal from './lib/resolver.ts';
 import type { ResultDetail, RetryOptions, Snapshot, SwitcherContext, SwitcherOptions } from './types/index.d.ts';

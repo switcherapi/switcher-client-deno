@@ -4,7 +4,7 @@ export {};
 
 /**
  * SwitcherContext is used to build the context
- * 
+ *
  * @param domain - The domain name of the Switcher API account
  * @param url - The API URL, e.g. https://api.switcherapi.com
  * @param apiKey - The API key provided for the component
@@ -23,7 +23,7 @@ export type SwitcherContext = {
 
 /**
  * SwitcherOptions is used to set optional settings
- * 
+ *
  * @param local - When enabled it will use the local snapshot (file or in-memory)
  * @param logger - When enabled it allows inspecting the result details with Switcher.getLogger(key)
  * @param snapshotLocation - When defined it will use file-managed snapshot
