@@ -330,6 +330,13 @@ export class Client {
   }
 
   /**
+   * Retrieve execution log from a switcher
+   */
+  static getExecution(switcher: Switcher): ExecutionLogger {
+    return ExecutionLogger.getExecution(switcher.key, switcher.input);
+  }
+
+  /**
    * Clear all results from the execution log
    */
   static clearLogger(): void {
