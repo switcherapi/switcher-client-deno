@@ -82,13 +82,13 @@ async function checkConfig(group: Group, config: Config, input?: string[][]) {
   }
 
   if (config.strategies) {
-    return await checkStrategy(config, input || []);
+    return await checkStrategy(config, input);
   }
 
   return true;
 }
 
-async function checkStrategy(config: Config, input: string[][]) {
+async function checkStrategy(config: Config, input?: string[][]) {
   const { strategies } = config;
   const entry = getEntry(input);
 
@@ -133,7 +133,7 @@ export default async function checkCriteriaLocal(
 ) {
   if (!snapshot) {
     throw new Error(
-      "Snapshot not loaded. Try to use 'Switcher.loadSnapshot()'",
+      "Snapshot not loaded. Try to use 'Client.loadSnapshot()'",
     );
   }
 

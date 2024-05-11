@@ -17,15 +17,13 @@ export type SwitcherContext = {
   domain: string;
   component?: string;
   environment?: string;
-  token?: string;
-  exp?: number;
 };
 
 /**
  * SwitcherOptions is used to set optional settings
  *
  * @param local - When enabled it will use the local snapshot (file or in-memory)
- * @param logger - When enabled it allows inspecting the result details with Switcher.getLogger(key)
+ * @param logger - When enabled it allows inspecting the result details with Client.getLogger(key)
  * @param snapshotLocation - When defined it will use file-managed snapshot
  * @param snapshotAutoUpdateInterval - The interval in milliseconds to auto-update the snapshot
  * @param silentMode - When defined it will switch to local during the specified time beofre it switches back to remote

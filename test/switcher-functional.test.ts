@@ -3,23 +3,23 @@ import { describe, it, afterAll, afterEach, beforeEach,
   assertSpyCalls, spy } from './deps.ts';
 import { given, givenError, tearDown, assertTrue, generateAuth, generateResult, generateDetailedResult, sleep } from './helper/utils.ts'
 
-import { Switcher } from '../mod.ts';
+import { Client } from '../mod.ts';
 import type { ResultDetail, SwitcherContext } from '../src/types/index.d.ts';
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 import ExecutionLogger from "../src/lib/utils/executionLogger.ts";
 
-describe('Integrated test - Switcher:', function () {
+describe('Integrated test - Client:', function () {
 
   let contextSettings: SwitcherContext;
 
   afterAll(function() {
-    Switcher.unloadSnapshot();
+    Client.unloadSnapshot();
     TimedMatch.terminateWorker();
   });
 
   beforeEach(function() {
     tearDown();
-    Switcher.testMode();
+    Client.testMode();
 
     contextSettings = { 
       url: 'http://localhost:3000',
@@ -46,8 +46,8 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria', generateResult(true));
 
       // test
-      Switcher.buildContext(contextSettings);
-      const switcher = Switcher.factory();
+      Client.buildContext(contextSettings);
+      const switcher = Client.getSwitcher();
       
       await switcher.prepare('FLAG_1');
       assertTrue(await switcher.isItOn());
@@ -58,8 +58,8 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria/auth', undefined, 429);
 
       // test
-      Switcher.buildContext(contextSettings);
-      const switcher = Switcher.factory();
+      Client.buildContext(contextSettings);
+      const switcher = Client.getSwitcher();
       
       await assertRejects(async () =>
         await switcher.isItOn('FLAG_1'),
@@ -72,8 +72,8 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria', generateResult(true));
 
       // test
-      Switcher.buildContext(contextSettings);
-      const switcher = Switcher.factory();
+      Client.buildContext(contextSettings);
+      const switcher = Client.getSwitcher();
       switcher.throttle(1000);
 
       const spyPrepare = spy(switcher, '_executeAsyncRemoteCriteria');
@@ -93,8 +93,8 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria', generateResult(true));
 
       // test
-      Switcher.buildContext(contextSettings);
-      const switcher = Switcher.factory();
+      Client.buildContext(contextSettings);
+      const switcher = Client.getSwitcher();
       switcher.throttle(1000);
 
       // first API call - stores result in cache
@@ -112,9 +112,9 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria', generateResult(true)); // before token expires
 
       // test
-      Switcher.buildContext(contextSettings);
+      Client.buildContext(contextSettings);
 
-      const switcher = Switcher.factory();
+      const switcher = Client.getSwitcher();
       switcher.throttle(500);
 
       const spyPrepare = spy(switcher, 'prepare');
@@ -156,10 +156,10 @@ describe('Integrated test - Switcher:', function () {
 
       // test
       let asyncErrorMessage = null;
-      Switcher.buildContext(contextSettings);
-      Switcher.subscribeNotifyError((error) => asyncErrorMessage = error.message);
+      Client.buildContext(contextSettings);
+      Client.subscribeNotifyError((error) => asyncErrorMessage = error.message);
 
-      const switcher = Switcher.factory();
+      const switcher = Client.getSwitcher();
       switcher.throttle(1000);
 
       assertTrue(await switcher.isItOn('FLAG_1')); // sync
@@ -191,10 +191,10 @@ describe('Integrated test - Switcher:', function () {
     });
 
     it('should return true - snapshot switcher is true', async function () {
-      Switcher.buildContext(contextSettings, forceRemoteOptions);
+      Client.buildContext(contextSettings, forceRemoteOptions);
 
-      const switcher = Switcher.factory();
-      await Switcher.loadSnapshot();
+      const switcher = Client.getSwitcher();
+      await Client.loadSnapshot();
       assertTrue(await switcher.isItOn('FF2FOR2030'));
     });
 
@@ -204,12 +204,12 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria', generateResult(false));
 
       // test
-      Switcher.buildContext(contextSettings, forceRemoteOptions);
+      Client.buildContext(contextSettings, forceRemoteOptions);
 
-      const switcher = Switcher.factory();
+      const switcher = Client.getSwitcher();
       const executeRemoteCriteria = spy(switcher, '_executeRemoteCriteria');
       
-      await Switcher.loadSnapshot();
+      await Client.loadSnapshot();
       assertFalse(await switcher.remote().isItOn('FF2FOR2030'));
       assertSpyCalls(executeRemoteCriteria, 1);
     });
@@ -226,9 +226,9 @@ describe('Integrated test - Switcher:', function () {
       }));
 
       // test
-      Switcher.buildContext(contextSettings);
+      Client.buildContext(contextSettings);
 
-      const switcher = Switcher.factory();
+      const switcher = Client.getSwitcher();
       const detailedResult = await switcher.detail().isItOn('FF2FOR2030') as ResultDetail;
       assertTrue(detailedResult.result);
       assertEquals(detailedResult.reason, 'Success');
@@ -236,9 +236,9 @@ describe('Integrated test - Switcher:', function () {
     });
 
     it('should return error when local is not enabled', async function () {
-      Switcher.buildContext(contextSettings, { regexSafe: false, local: false });
+      Client.buildContext(contextSettings, { regexSafe: false, local: false });
 
-      const switcher = Switcher.factory();
+      const switcher = Client.getSwitcher();
       
       await assertRejects(async () =>
         await switcher.remote().isItOn('FF2FOR2030'),
@@ -252,12 +252,12 @@ describe('Integrated test - Switcher:', function () {
     let contextSettings: SwitcherContext;
 
     afterAll(function() {
-      Switcher.unloadSnapshot();
+      Client.unloadSnapshot();
     });
 
     beforeEach(function() {
       tearDown();
-      Switcher.testMode();
+      Client.testMode();
   
       contextSettings = { 
         url: 'http://localhost:3000',
@@ -273,8 +273,8 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria/auth', { error: 'Too many requests' }, 429);
 
       // test
-      Switcher.buildContext(contextSettings);
-      const switcher = Switcher.factory();
+      Client.buildContext(contextSettings);
+      const switcher = Client.getSwitcher();
       
       await assertRejects(async () =>
         await switcher.isItOn('FLAG_1'),
@@ -287,8 +287,8 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria', { error: 'Too many requests' }, 429);
 
       // test
-      Switcher.buildContext(contextSettings);
-      const switcher = Switcher.factory();
+      Client.buildContext(contextSettings);
+      const switcher = Client.getSwitcher();
       
       await assertRejects(async () =>
         await switcher.isItOn('FLAG_1'),
@@ -296,12 +296,12 @@ describe('Integrated test - Switcher:', function () {
     });
 
     it('should use silent mode when fail to check switchers', async function() {
-      Switcher.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './test/snapshot/' });
+      Client.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './test/snapshot/' });
       await assertRejects(async () =>
-        await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02']),
+        await Client.checkSwitchers(['FEATURE01', 'FEATURE02']),
         Error, 'Something went wrong: [FEATURE01,FEATURE02] not found');
 
-      await Switcher.checkSwitchers(['FF2FOR2021', 'FF2FOR2021']);
+      await Client.checkSwitchers(['FF2FOR2021', 'FF2FOR2021']);
     });
 
     it('should use silent mode when fail to check criteria', async function () {
@@ -311,10 +311,10 @@ describe('Integrated test - Switcher:', function () {
 
       // test
       let asyncErrorMessage = null;
-      Switcher.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './test/snapshot/' });
-      Switcher.subscribeNotifyError((error) => asyncErrorMessage = error.message);
+      Client.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './test/snapshot/' });
+      Client.subscribeNotifyError((error) => asyncErrorMessage = error.message);
 
-      const switcher = Switcher.factory();
+      const switcher = Client.getSwitcher();
       
       assertTrue(await switcher.isItOn('FF2FOR2022'));
       assertEquals(asyncErrorMessage, 'Something went wrong: [checkCriteria] failed with status 429');
@@ -334,8 +334,8 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria', generateResult(true));
 
       // test
-      Switcher.buildContext(contextSettings);
-      const switcher = Switcher.factory();
+      Client.buildContext(contextSettings);
+      const switcher = Client.getSwitcher();
       
       await switcher
         .checkValue('User 1')
@@ -345,7 +345,7 @@ describe('Integrated test - Switcher:', function () {
         .checkTime('08:00')
         .checkRegex('\\bUSER_[0-9]{1,2}\\b')
         .checkPayload(JSON.stringify({ name: 'User 1' }))
-        .prepare('FLAG_1');
+        .prepare('SWITCHER_MULTIPLE_INPUT');
 
       assertEquals(switcher.input, [
         [ 'VALUE_VALIDATION', 'User 1' ],
@@ -356,6 +356,7 @@ describe('Integrated test - Switcher:', function () {
         [ 'REGEX_VALIDATION', '\\bUSER_[0-9]{1,2}\\b' ],
         [ 'PAYLOAD_VALIDATION', '{"name":"User 1"}' ]
       ]);
+
       assertTrue(await switcher.isItOn());
     });
 
@@ -365,10 +366,10 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria/switchers_check', { not_found: [] });
 
       //test
-      Switcher.buildContext(contextSettings);
+      Client.buildContext(contextSettings);
 
       let error: Error | undefined;
-      await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02']).catch(err => error = err);
+      await Client.checkSwitchers(['FEATURE01', 'FEATURE02']).catch(err => error = err);
       assertEquals(error, undefined);
     });
 
@@ -378,9 +379,9 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria/switchers_check', { not_found: ['FEATURE02'] });
 
       //test
-      Switcher.buildContext(contextSettings);
+      Client.buildContext(contextSettings);
       await assertRejects(async () =>
-        await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02']),
+        await Client.checkSwitchers(['FEATURE01', 'FEATURE02']),
         Error, 'Something went wrong: [FEATURE02] not found');
     });
 
@@ -390,22 +391,22 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria/switchers_check', undefined, 422);
 
       //test
-      Switcher.buildContext(contextSettings);
+      Client.buildContext(contextSettings);
       await assertRejects(async () =>
-        await Switcher.checkSwitchers([]),
+        await Client.checkSwitchers([]),
         Error, 'Something went wrong: [checkSwitchers] failed with status 422');
     });
 
     it('should throw when certPath is invalid', function() {
-      assertThrows(() => Switcher.buildContext(contextSettings, { certPath: 'invalid' }));
+      assertThrows(() => Client.buildContext(contextSettings, { certPath: 'invalid' }));
     });
     
     it('should renew the token after expiration', async function () {
       // given API responding properly
       given('POST@/criteria/auth', generateAuth('[auth_token]', 1));
 
-      Switcher.buildContext(contextSettings);
-      const switcher = Switcher.factory();
+      Client.buildContext(contextSettings);
+      const switcher = Client.getSwitcher();
       const spyPrepare = spy(switcher, 'prepare');
 
       // Prepare the call generating the token
@@ -436,8 +437,8 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria', generateResult(true));
 
       // test
-      Switcher.buildContext(contextSettings);
-      const switcher = Switcher.factory();
+      Client.buildContext(contextSettings);
+      const switcher = Client.getSwitcher();
       assertTrue(await switcher
         .checkValue('User 1')
         .checkNetwork('192.168.0.1')
@@ -450,8 +451,8 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria', generateResult(true));
 
       // test
-      Switcher.buildContext(contextSettings);
-      const switcher = Switcher.factory();
+      Client.buildContext(contextSettings);
+      const switcher = Client.getSwitcher();
 
       await switcher.prepare('MY_FLAG');
       assertTrue(await switcher
@@ -465,7 +466,7 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
 
       // test
-      Switcher.buildContext({ 
+      Client.buildContext({ 
         url: undefined,
         apiKey: '[apiKey]', 
         domain: '[domain]', 
@@ -473,11 +474,11 @@ describe('Integrated test - Switcher:', function () {
         environment: 'default' 
       });
 
-      const switcher = Switcher.factory();
+      const switcher = Client.getSwitcher();
 
       await assertRejects(async () =>
         await switcher.isItOn(),
-        Error, 'Something went wrong: Invalid URL');
+        Error, 'Something went wrong: URL is required');
     });
 
     it('should be invalid - Missing API Key field', async function () {
@@ -485,7 +486,7 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
 
       // test
-      Switcher.buildContext({ 
+      Client.buildContext({ 
         url: 'http://localhost:3000',
         apiKey: undefined, 
         domain: '[domain]', 
@@ -493,7 +494,7 @@ describe('Integrated test - Switcher:', function () {
         environment: 'default' 
       });
 
-      const switcher = Switcher.factory();
+      const switcher = Client.getSwitcher();
 
       await switcher
         .checkValue('User 1')
@@ -502,7 +503,7 @@ describe('Integrated test - Switcher:', function () {
 
       await assertRejects(async () =>
         await switcher.isItOn(),
-        Error, 'Something went wrong: Missing API Key field');
+        Error, 'Something went wrong: API Key is required');
     });
 
     it('should be invalid - Missing key field', async function () {
@@ -510,8 +511,8 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
 
       // test
-      Switcher.buildContext(contextSettings);
-      const switcher = Switcher.factory();
+      Client.buildContext(contextSettings);
+      const switcher = Client.getSwitcher();
 
       await assertRejects(async () =>
         await switcher.isItOn(),
@@ -523,7 +524,7 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
 
       // test
-      Switcher.buildContext({ 
+      Client.buildContext({ 
         url: 'http://localhost:3000',
         apiKey: '[apiKey]', 
         domain: '[domain]', 
@@ -531,11 +532,11 @@ describe('Integrated test - Switcher:', function () {
         environment: 'default' 
       });
 
-      const switcher = Switcher.factory();
+      const switcher = Client.getSwitcher();
 
       await assertRejects(async () =>
         await switcher.isItOn('MY_FLAG'),
-        Error, 'Something went wrong: Missing component field');
+        Error, 'Something went wrong: Component is required');
     });
 
     it('should be invalid - Missing token field', async function () {
@@ -543,8 +544,8 @@ describe('Integrated test - Switcher:', function () {
       given('POST@/criteria/auth', generateAuth(undefined, 5));
 
       // test
-      Switcher.buildContext(contextSettings);
-      const switcher = Switcher.factory();
+      Client.buildContext(contextSettings);
+      const switcher = Client.getSwitcher();
       
       await assertRejects(async () =>
         await switcher.isItOn('MY_FLAG'),
@@ -553,13 +554,13 @@ describe('Integrated test - Switcher:', function () {
 
     it('should run in silent mode', async function () {
       // setup context to read the snapshot in case the API does not respond
-      Switcher.buildContext(contextSettings, {
+      Client.buildContext(contextSettings, {
         snapshotLocation: './test/snapshot/',
         regexSafe: false,
         silentMode: '2s',
       });
       
-      const switcher = Switcher.factory();
+      const switcher = Client.getSwitcher();
       const spyRemote = spy(switcher, '_executeRemoteCriteria');
 
       // First attempt to reach the API - Since it's configured to use silent mode, it should return true (according to the snapshot)
@@ -590,8 +591,8 @@ describe('Integrated test - Switcher:', function () {
       givenError('POST@/criteria/auth', 'ECONNREFUSED');
 
       // test
-      Switcher.buildContext(contextSettings);
-      const switcher = Switcher.factory();
+      Client.buildContext(contextSettings);
+      const switcher = Client.getSwitcher();
 
       await assertRejects(async () =>
         await switcher.isItOn('FF2FOR2030'),
@@ -599,13 +600,13 @@ describe('Integrated test - Switcher:', function () {
     });
 
     it('should run in silent mode when API is unavailable', async function () {
-      Switcher.buildContext(contextSettings, {
+      Client.buildContext(contextSettings, {
         snapshotLocation: './test/snapshot/',
         regexSafe: false,
         silentMode: '5m'
       });
 
-      const switcher = Switcher.factory();
+      const switcher = Client.getSwitcher();
       assertTrue(await switcher.isItOn('FF2FOR2030'));
     });
 

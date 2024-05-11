@@ -34,7 +34,7 @@ https://github.com/switcherapi/switcher-api
 ## Module initialization
 The context properties stores all information regarding connectivity.
 
-(*) Requires Deno 1.4x or higher
+(*) Requires Deno 1.4x or higher (use `--unstable` flag for Deno lower than 1.4x)
 
 > Flags required
 ```
@@ -54,11 +54,11 @@ const domain = 'My Domain';
 const component = 'MyApp';
 ```
 
-- **url**: Swither-API url.
-- **apiKey**: Switcher-API key generated to your component.
-- **environment**: (optional) Environment name. Production environment is named as 'default'.
 - **domain**: Domain name.
-- **component**: Application name.
+- **url**: (optional) Swither-API endpoint.
+- **apiKey**: (optional) Switcher-API key generated to your component.
+- **component**: (optional) Application name.
+- **environment**: (optional) Environment name. Production environment is named as 'default'.
 
 ## Options
 You can also activate features such as local and silent mode:
@@ -71,15 +71,15 @@ const snapshotAutoUpdateInterval = 3;
 const silentMode = '5m';
 const certPath = './certs/ca.pem';
 
-Switcher.buildContext({ url, apiKey, domain, component, environment }, {
+Client.buildContext({ url, apiKey, domain, component, environment }, {
     local, logger, snapshotLocation, snapshotAutoUpdateInterval, silentMode, certPath
 });
 
-const switcher = Switcher.factory();
+const switcher = Client.getSwitcher();
 ```
 
 - **local**: If activated, the client will only fetch the configuration inside your snapshot file. The default value is 'false'.
-- **logger**: If activated, it is possible to retrieve the last results from a given Switcher key using Switcher.getLogger('KEY')
+- **logger**: If activated, it is possible to retrieve the last results from a given Switcher key using Client.getLogger('KEY')
 - **snapshotLocation**: Location of snapshot files.
 - **snapshotAutoUpdateInterval**: Enable Snapshot Auto Update given an interval in seconds (default: 0 disabled).
 - **silentMode**: Enable contigency given the time for the client to retry - e.g. 5s (s: seconds - m: minutes - h: hours)
@@ -99,7 +99,7 @@ Here are some examples:
 Invoking the API can be done by instantiating the switcher and calling *isItOn* passing its key as a parameter.
 
 ```ts
-const switcher = Switcher.factory();
+const switcher = Client.getSwitcher();
 await switcher.isItOn('FEATURE01') as boolean;
 // or
 const { result, reason, metadata } = await switcher.detail().isItOn('FEATURE01') as ResultDetail;
@@ -137,7 +137,7 @@ Throttling is useful when placing Feature Flags at critical code blocks require 
 API calls will happen asynchronously and the result returned is based on the last API response.
 
 ```ts
-const switcher = Switcher.factory();
+const switcher = Client.getSwitcher();
 await switcher
     .throttle(1000)
     .isItOn('FEATURE01');
@@ -146,7 +146,7 @@ await switcher
 In order to capture issues that may occur during the process, it is possible to log the error by subscribing to the error events.
 
 ```js
-Switcher.subscribeNotifyError((error) => {
+Client.subscribeNotifyError((error) => {
     console.log(error);
 });
 ```
@@ -156,21 +156,21 @@ Forcing Switchers to resolve remotely can help you define exclusive features tha
 This feature is ideal if you want to run the SDK in local mode but still want to resolve a specific switcher remotely.
 
 ```ts
-const switcher = Switcher.factory();
+const switcher = Client.getSwitcher();
 await switcher.remote().isItOn('FEATURE01');
 ```
 
 ## Built-in mock feature
-You can also bypass your switcher configuration by invoking 'Switcher.assume'. This is perfect for your test code where you want to test both scenarios when the switcher is true and false.
+You can also bypass your switcher configuration by invoking 'Client.assume'. This is perfect for your test code where you want to test both scenarios when the switcher is true and false.
 
 ```ts
-Switcher.assume('FEATURE01').true();
+Client.assume('FEATURE01').true();
 switcher.isItOn('FEATURE01'); // true
 
-Switcher.forget('FEATURE01');
+Client.forget('FEATURE01');
 switcher.isItOn('FEATURE01'); // Now, it's going to return the result retrieved from the API or the Snaopshot file
 
-Switcher.assume('FEATURE01').false().withMetadata({ message: 'Feature is disabled' }); // Include metadata to emulate Relay response
+Client.assume('FEATURE01').false().withMetadata({ message: 'Feature is disabled' }); // Include metadata to emulate Relay response
 const response = await switcher.detail().isItOn('FEATURE01') as ResultDetail; // false
 console.log(response.metadata.message); // Feature is disabled
 ```
@@ -181,7 +181,7 @@ It prevents the Switcher Client from locking snapshot files even after the test 
 
 To enable this feature, it is recommended to place the following on your test setup files:
 ```ts
-Switcher.testMode();
+Client.testMode();
 ```
 
 **Smoke Test**
@@ -191,7 +191,7 @@ Switcher Keys may not be configured correctly and can cause your code to have un
 This feature will validate using the context provided to check if everything is properly configured.
 In case something is missing, this operation will throw an exception pointing out which Switcher Keys are not configured.
 ```ts
-await Switcher.checkSwitchers(['FEATURE01', 'FEATURE02'])
+await Client.checkSwitchers(['FEATURE01', 'FEATURE02'])
 ```
 
 ## Loading Snapshot from the API
@@ -200,14 +200,14 @@ Activate watchSnapshot optionally passing true in the arguments.<br>
 Auto load Snapshot from API passing true as second argument.
 
 ```ts
-const version = await Switcher.loadSnapshot();
+const version = await Client.loadSnapshot();
 ```
 
 ## Watch for Snapshot file changes
 Activate and monitor snapshot changes using this feature. Optionally, you can implement any action based on the callback response.
 
 ```ts
-Switcher.watchSnapshot(
+Client.watchSnapshot(
     () =>  console.log('In-memory snapshot updated'), 
     (err: any) => console.log(err));
 ```
@@ -216,7 +216,7 @@ Switcher.watchSnapshot(
 For convenience, an implementation of a domain version checker is available if you have external processes that manage snapshot files.
 
 ```ts
-Switcher.checkSnapshot();
+Client.checkSnapshot();
 ```
 
 ## Snapshot Update Scheduler
@@ -224,5 +224,5 @@ You can also schedule a snapshot update using the method below.<br>
 It allows you to run the Client SDK in local mode (zero latency) and still have the snapshot updated automatically.
 
 ```ts
-Switcher.scheduleSnapshotAutoUpdate(1 * 60 * 60 * 24); // 24 hours
+Client.scheduleSnapshotAutoUpdate(1 * 60 * 60 * 24); // 24 hours
 ```

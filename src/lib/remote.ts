@@ -6,6 +6,8 @@ import type {
   ResultDetail,
   SwitcherContext,
 } from '../types/index.d.ts';
+import { Auth } from './remote-auth.ts';
+import * as util from './utils/index.ts';
 
 let httpClient: Deno.HttpClient;
 
@@ -41,6 +43,32 @@ export const getEntry = (input?: string[][]) => {
   return entry;
 };
 
+export const auth = async (context: SwitcherContext) => {
+  try {
+    const response = await fetch(`${context.url}/criteria/auth`, {
+      client: httpClient,
+      method: 'post',
+      body: JSON.stringify({
+        domain: context.domain,
+        component: context.component,
+        environment: context.environment,
+      }),
+      headers: {
+        'switcher-api-key': util.get(context.apiKey, ''),
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.status == 200) {
+      return response.json() as Promise<AuthResponse>;
+    }
+
+    throw new Error(`[auth] failed with status ${response.status}`);
+  } catch (e) {
+    throw new AuthError(e.errno ? getConnectivityError(e.errno) : e.message);
+  }
+};
+
 export const checkAPIHealth = async (url: string) => {
   try {
     const response = await fetch(`${url}/check`, { client: httpClient, method: 'get' });
@@ -51,7 +79,6 @@ export const checkAPIHealth = async (url: string) => {
 };
 
 export const checkCriteria = async (
-  context: SwitcherContext,
   key?: string,
   input?: string[][],
   showDetail = false,
@@ -59,12 +86,12 @@ export const checkCriteria = async (
   try {
     const entry = getEntry(input);
     const response = await fetch(
-      `${context.url}/criteria?showReason=${showDetail}&key=${key}`,
+      `${Auth.getURL()}/criteria?showReason=${showDetail}&key=${key}`,
       {
         client: httpClient,
         method: 'post',
         body: JSON.stringify({ entry }),
-        headers: getHeader(context.token),
+        headers: getHeader(Auth.getToken()),
       },
     );
 
@@ -80,43 +107,15 @@ export const checkCriteria = async (
   }
 };
 
-export const auth = async (context: SwitcherContext) => {
-  try {
-    const response = await fetch(`${context.url}/criteria/auth`, {
-      client: httpClient,
-      method: 'post',
-      body: JSON.stringify({
-        domain: context.domain,
-        component: context.component,
-        environment: context.environment,
-      }),
-      headers: {
-        'switcher-api-key': context.apiKey || '',
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (response.status == 200) {
-      return response.json() as Promise<AuthResponse>;
-    }
-
-    throw new Error(`[auth] failed with status ${response.status}`);
-  } catch (e) {
-    throw new AuthError(e.errno ? getConnectivityError(e.errno) : e.message);
-  }
-};
-
 export const checkSwitchers = async (
-  url: string,
-  token: string | undefined,
   switcherKeys: string[],
 ) => {
   try {
-    const response = await fetch(`${url}/criteria/switchers_check`, {
+    const response = await fetch(`${Auth.getURL()}/criteria/switchers_check`, {
       client: httpClient,
       method: 'post',
       body: JSON.stringify({ switchers: switcherKeys }),
-      headers: getHeader(token),
+      headers: getHeader(Auth.getToken()),
     });
 
     if (response.status != 200) {
@@ -139,15 +138,13 @@ export const checkSwitchers = async (
 };
 
 export const checkSnapshotVersion = async (
-  url: string,
-  token: string,
   version: number,
 ) => {
   try {
-    const response = await fetch(`${url}/criteria/snapshot_check/${version}`, {
+    const response = await fetch(`${Auth.getURL()}/criteria/snapshot_check/${version}`, {
       client: httpClient,
       method: 'get',
-      headers: getHeader(token),
+      headers: getHeader(Auth.getToken()),
     });
 
     if (response.status == 200) {
@@ -163,8 +160,6 @@ export const checkSnapshotVersion = async (
 };
 
 export const resolveSnapshot = async (
-  url: string,
-  token: string,
   domain: string,
   environment: string,
   component: string,
@@ -185,11 +180,11 @@ export const resolveSnapshot = async (
   };
 
   try {
-    const response = await fetch(`${url}/graphql`, {
+    const response = await fetch(`${Auth.getURL()}/graphql`, {
       client: httpClient,
       method: 'post',
       body: JSON.stringify(data),
-      headers: getHeader(token),
+      headers: getHeader(Auth.getToken()),
     });
 
     if (response.status == 200) {
