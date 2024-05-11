@@ -40,17 +40,15 @@ export const loadDomain = (snapshotLocation: string, environment: string) => {
 };
 
 export const validateSnapshot = async (
-  url: string,
-  token: string,
   domain: string,
   environment: string,
   component: string,
   snapshotVersion: number,
 ) => {
-  const { status } = await checkSnapshotVersion(url, token, snapshotVersion);
+  const { status } = await checkSnapshotVersion(snapshotVersion);
 
   if (!status) {
-    const snapshot = await resolveSnapshot(url, token, domain, environment, component);
+    const snapshot = await resolveSnapshot(domain, environment, component);
     return snapshot;
   }
 

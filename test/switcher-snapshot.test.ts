@@ -1,12 +1,12 @@
 import { describe, it, afterAll, beforeEach, assertRejects, assertFalse, assertExists, assertEquals, delay, existsSync } from './deps.ts';
 import { given, givenError, tearDown, generateAuth, generateStatus, assertTrue, WaitSafe } from './helper/utils.ts';
 
-import { Switcher } from '../mod.ts';
+import { Client } from '../mod.ts';
 import type { SwitcherContext } from '../src/types/index.d.ts';
 
 const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExit: false };
 
-describe('E2E test - Switcher local - Snapshot:', function () {
+describe('E2E test - Client local - Snapshot:', function () {
   const token = '[token]';
   let contextSettings: SwitcherContext;
 
@@ -17,7 +17,7 @@ describe('E2E test - Switcher local - Snapshot:', function () {
   const dataJSONV2 = dataBufferV2.toString();
 
   beforeEach(function() {
-    Switcher.unloadSnapshot();
+    Client.unloadSnapshot();
     
     contextSettings = { 
       url: 'http://localhost:3000',
@@ -27,18 +27,18 @@ describe('E2E test - Switcher local - Snapshot:', function () {
       environment: 'dev'
     };
     
-    Switcher.buildContext(contextSettings, {
+    Client.buildContext(contextSettings, {
       snapshotLocation: './test/snapshot/',
       local: true,
       regexSafe: false
     });
 
-    Switcher.testMode();
+    Client.testMode();
     tearDown();
   });
 
   afterAll(function() {
-    Switcher.unloadSnapshot();
+    Client.unloadSnapshot();
     if (existsSync('generated-snapshots/'))
       Deno.removeSync('generated-snapshots/', { recursive: true });
   });
@@ -49,10 +49,10 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     given('GET@/criteria/snapshot_check/:version', undefined, 429);
     
     //test
-    Switcher.testMode();
-    await Switcher.loadSnapshot();
+    Client.testMode();
+    await Client.loadSnapshot();
     await assertRejects(async () =>
-        await Switcher.checkSnapshot(),
+        await Client.checkSnapshot(),
         Error, 'Something went wrong: [checkSnapshotVersion] failed with status 429');
   });
 
@@ -63,13 +63,13 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     given('POST@/graphql', undefined, 429);
 
     //test
-    Switcher.buildContext(contextSettings, {
+    Client.buildContext(contextSettings, {
       snapshotLocation: 'generated-snapshots/',
       regexSafe: false
     });
 
     await assertRejects(async () =>
-      await Switcher.loadSnapshot(),
+      await Client.loadSnapshot(),
       Error, 'Something went wrong: [resolveSnapshot] failed with status 429');
   });
 
@@ -82,13 +82,13 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     given('POST@/graphql', JSON.parse(dataJSON));
 
     //test
-    Switcher.buildContext(contextSettings, {
+    Client.buildContext(contextSettings, {
       local: true,
       regexSafe: false
     });
     
-    await Switcher.loadSnapshot();
-    assertTrue(await Switcher.checkSnapshot());
+    await Client.loadSnapshot();
+    assertTrue(await Client.checkSnapshot());
   });
 
   it('should update snapshot - store file', testSettings, async function () {
@@ -100,18 +100,40 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     given('POST@/graphql', JSON.parse(dataJSON));
 
     //test
-    Switcher.buildContext(contextSettings, {
+    Client.buildContext(contextSettings, {
       snapshotLocation: 'generated-snapshots/',
       local: true,
       regexSafe: false
     });
     
-    await Switcher.loadSnapshot(true);
-    assertTrue(await Switcher.checkSnapshot());
+    await Client.loadSnapshot(true);
+    assertTrue(await Client.checkSnapshot());
     assertTrue(existsSync(`generated-snapshots/${contextSettings.environment}.json`));
 
     //restore state to avoid process leakage
-    Switcher.unloadSnapshot();
+    Client.unloadSnapshot();
+  });
+
+  it('should update snapshot during load - store file', testSettings, async function () {
+    await delay(2000);
+
+    //given
+    given('POST@/criteria/auth', generateAuth(token, 5));
+    given('GET@/criteria/snapshot_check/:version', generateStatus(false));
+    given('POST@/graphql', JSON.parse(dataJSON));
+
+    //test
+    Client.buildContext(contextSettings, {
+      snapshotLocation: 'generated-snapshots/',
+      local: true,
+      regexSafe: false
+    });
+    
+    await Client.loadSnapshot(true, true);
+    assertTrue(existsSync(`generated-snapshots/${contextSettings.environment}.json`));
+
+    //restore state to avoid process leakage
+    Client.unloadSnapshot();
   });
 
   it('should auto update snapshot every second', testSettings, async function () {
@@ -123,7 +145,7 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     given('POST@/graphql', JSON.parse(dataJSON));
 
     //test
-    Switcher.buildContext(contextSettings, {
+    Client.buildContext(contextSettings, {
       snapshotLocation: 'generated-snapshots/',
       local: true,
       regexSafe: false,
@@ -131,11 +153,11 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     });
 
     let snapshotUpdated = false;
-    Switcher.scheduleSnapshotAutoUpdate(1, (updated) => snapshotUpdated = updated);
+    Client.scheduleSnapshotAutoUpdate(1, (updated) => snapshotUpdated = updated);
     
-    await Switcher.loadSnapshot(false, true);
+    await Client.loadSnapshot(false, true);
     
-    const switcher = Switcher.factory();
+    const switcher = Client.getSwitcher();
     assertFalse(await switcher.isItOn('FF2FOR2030'));
     
     //given new version
@@ -147,7 +169,7 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     assertTrue(snapshotUpdated);
     assertTrue(await switcher.isItOn('FF2FOR2030'));
 
-    Switcher.terminateSnapshotAutoUpdate();
+    Client.terminateSnapshotAutoUpdate();
   });
 
   it('should NOT auto update snapshot ', testSettings, async function () {
@@ -159,16 +181,16 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     given('POST@/graphql', JSON.parse(dataJSON));
 
     //test
-    Switcher.buildContext(contextSettings, {
+    Client.buildContext(contextSettings, {
       snapshotLocation: 'generated-snapshots/',
       local: true,
       regexSafe: false
     });
 
     let error: Error | undefined;
-    Switcher.scheduleSnapshotAutoUpdate(1, undefined, (err: Error) => error = err);
+    Client.scheduleSnapshotAutoUpdate(1, undefined, (err: Error) => error = err);
     
-    await Switcher.loadSnapshot(false, true);
+    await Client.loadSnapshot(false, true);
 
     //next call will fail
     givenError('POST@/graphql', 'ECONNREFUSED');
@@ -180,7 +202,7 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     assertEquals(error.message, 'Something went wrong: Connection has been refused - ECONNREFUSED');
 
     //tearDown
-    Switcher.terminateSnapshotAutoUpdate();
+    Client.terminateSnapshotAutoUpdate();
   });
 
   it('should NOT update snapshot', testSettings, async function () {
@@ -191,8 +213,8 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     given('GET@/criteria/snapshot_check/:version', generateStatus(true)); // No available update
     
     //test
-    await Switcher.loadSnapshot();
-    assertFalse(await Switcher.checkSnapshot());
+    await Client.loadSnapshot();
+    assertFalse(await Client.checkSnapshot());
   });
 
   it('should NOT update snapshot - check Snapshot Error', testSettings, async function () {
@@ -203,10 +225,10 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     givenError('GET@/criteria/snapshot_check/:version', 'ECONNREFUSED');
     
     //test
-    Switcher.testMode();
-    await Switcher.loadSnapshot();
+    Client.testMode();
+    await Client.loadSnapshot();
     await assertRejects(async () =>
-      await Switcher.checkSnapshot(), 
+      await Client.checkSnapshot(), 
       Error, 'Something went wrong: Connection has been refused - ECONNREFUSED');
   });
 
@@ -219,10 +241,10 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     givenError('POST@/graphql', 'ECONNREFUSED');
     
     //test
-    Switcher.testMode();
-    await Switcher.loadSnapshot();
+    Client.testMode();
+    await Client.loadSnapshot();
     await assertRejects(async () =>
-      await Switcher.checkSnapshot(),
+      await Client.checkSnapshot(),
       Error, 'Something went wrong: Connection has been refused - ECONNREFUSED');
   });
 
@@ -232,18 +254,18 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     given('GET@/criteria/snapshot_check/:version', generateStatus(true));
     
     //pre-load snapshot
-    Switcher.testMode(false);
-    await Switcher.loadSnapshot();
-    assertFalse(await Switcher.checkSnapshot());
+    Client.testMode(false);
+    await Client.loadSnapshot();
+    assertFalse(await Client.checkSnapshot());
 
     //unload snapshot
-    Switcher.unloadSnapshot();
+    Client.unloadSnapshot();
     
     //test
     let error: Error | undefined;
-    await Switcher.checkSnapshot().catch((err: Error) => error = err);
+    await Client.checkSnapshot().catch((err: Error) => error = err);
     assertExists(error);
-    assertEquals(error.message, 'Something went wrong: Snapshot is not loaded. Use Switcher.loadSnapshot()');
+    assertEquals(error.message, 'Something went wrong: Snapshot is not loaded. Use Client.loadSnapshot()');
   });
 
   it('should update snapshot', testSettings, async function () {
@@ -255,43 +277,43 @@ describe('E2E test - Switcher local - Snapshot:', function () {
     given('POST@/graphql', JSON.parse(dataJSON));
 
     //test
-    Switcher.buildContext(contextSettings, {
+    Client.buildContext(contextSettings, {
       snapshotLocation: 'generated-snapshots/',
       regexSafe: false
     });
 
-    await Switcher.loadSnapshot();
-    assertExists(Switcher.snapshot);
+    await Client.loadSnapshot();
+    assertExists(Client.snapshot);
   });
 
   it('should not throw when switcher keys provided were configured properly', testSettings, async function () {
     await delay(2000);
     
-    await Switcher.loadSnapshot();
+    await Client.loadSnapshot();
 
     let error: Error | undefined;
-    await Switcher.checkSwitchers(['FF2FOR2030']).catch((err: Error) => error = err);
+    await Client.checkSwitchers(['FF2FOR2030']).catch((err: Error) => error = err);
     assertEquals(error, undefined);
   });
 
   it('should throw when switcher keys provided were not configured properly', testSettings, async function () {
     await delay(2000);
     
-    await Switcher.loadSnapshot();
+    await Client.loadSnapshot();
     await assertRejects(async () =>
-      await Switcher.checkSwitchers(['FEATURE02']),
+      await Client.checkSwitchers(['FEATURE02']),
       Error, 'Something went wrong: [FEATURE02] not found');
   });
 
   it('should be invalid - Load snapshot was not called', testSettings, async function () {
-    Switcher.buildContext(contextSettings, {
+    Client.buildContext(contextSettings, {
       local: true, logger: true, regexSafe: false
     });
     
-    const switcher = Switcher.factory();
+    const switcher = Client.getSwitcher();
     await assertRejects(async () =>
       await switcher.isItOn('FF2FOR2030'),
-      Error, 'Snapshot not loaded. Try to use \'Switcher.loadSnapshot()\'');
+      Error, 'Snapshot not loaded. Try to use \'Client.loadSnapshot()\'');
   });
 
 });
