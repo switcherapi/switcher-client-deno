@@ -114,6 +114,28 @@ describe('E2E test - Client local - Snapshot:', function () {
     Client.unloadSnapshot();
   });
 
+  it('should update snapshot during load - store file', testSettings, async function () {
+    await delay(2000);
+
+    //given
+    given('POST@/criteria/auth', generateAuth(token, 5));
+    given('GET@/criteria/snapshot_check/:version', generateStatus(false));
+    given('POST@/graphql', JSON.parse(dataJSON));
+
+    //test
+    Client.buildContext(contextSettings, {
+      snapshotLocation: 'generated-snapshots/',
+      local: true,
+      regexSafe: false
+    });
+    
+    await Client.loadSnapshot(true, true);
+    assertTrue(existsSync(`generated-snapshots/${contextSettings.environment}.json`));
+
+    //restore state to avoid process leakage
+    Client.unloadSnapshot();
+  });
+
   it('should auto update snapshot every second', testSettings, async function () {
     await delay(3000);
 
