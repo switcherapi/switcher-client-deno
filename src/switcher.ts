@@ -28,7 +28,7 @@ export class Switcher {
   /**
    * Checks API credentials and connectivity
    */
-  async prepare(key: string): Promise<void> {
+  async prepare(key?: string): Promise<void> {
     this._validateArgs(key);
 
     if (!Client.options.local || this._forceRemote) {
@@ -293,6 +293,16 @@ export class Switcher {
     return this._delay == 0 || !ExecutionLogger.getExecution(this._key, this._input);
   }
 
+  /**
+   * Return switcher key
+   */
+  get key(): string {
+    return this._key;
+  }
+
+  /**
+   * Return switcher current strategy input
+   */
   get input(): string[][] | undefined {
     return this._input;
   }
