@@ -41,7 +41,7 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should be valid', async function () {
-      // given API responding properly
+      // given API responses
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', generateResult(true));
 
@@ -53,8 +53,23 @@ describe('Integrated test - Client:', function () {
       assertTrue(await switcher.isItOn());
     });
 
+    it('should NOT throw error when default result is provided using remote', async function () {
+      // given API responses
+      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
+      given('POST@/criteria', { message: 'ERROR' }, 404);
+
+      // test
+      let asyncErrorMessage = null;
+      Client.buildContext(contextSettings);
+      Client.subscribeNotifyError((error) => asyncErrorMessage = error.message);
+      const switcher = Client.getSwitcher().defaultResult(true);
+
+      assertTrue(await switcher.isItOn('UNKNOWN_FEATURE'));
+      assertEquals(asyncErrorMessage, 'Something went wrong: [checkCriteria] failed with status 404');
+    });
+
     it('should NOT be valid - API returned 429 (too many requests)', async function () {
-      // given API responding properly
+      // given API responses
       given('POST@/criteria/auth', undefined, 429);
 
       // test
@@ -67,7 +82,7 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should be valid - throttle', async function () {
-      // given API responding properly
+      // given API responses
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', generateResult(true));
 
@@ -88,7 +103,7 @@ describe('Integrated test - Client:', function () {
     });
     
     it('should be valid - throttle - with details', async function () {
-      // given API responding properly
+      // given API responses
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', generateResult(true));
 
@@ -106,7 +121,7 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should renew token when using throttle', async function () {
-      // given API responding properly
+      // given API responses
       // first API call
       given('POST@/criteria/auth', generateAuth('[auth_token]', 1));
       given('POST@/criteria', generateResult(true)); // before token expires
@@ -149,7 +164,7 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should not crash when async checkCriteria fails', async function () {
-      // given API responding properly
+      // given API responses
       // first API call
       given('POST@/criteria/auth', generateAuth('[auth_token]', 1));
       given('POST@/criteria', generateResult(true)); // before token expires
@@ -199,7 +214,7 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should return false - same switcher return false when remote', async function () {
-      // given API responding properly
+      // given API responses
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', generateResult(false));
 
@@ -215,7 +230,7 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should return true - including reason and metadata', async function () {
-      // given API responding properly
+      // given API responses
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', generateDetailedResult({
         result: true, 
@@ -269,7 +284,7 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should NOT be valid - API returned 429 (too many requests) at checkHealth/auth', async function () {
-      // given API responding properly
+      // given API responses
       given('POST@/criteria/auth', { error: 'Too many requests' }, 429);
 
       // test
@@ -282,7 +297,7 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should NOT be valid - API returned 429 (too many requests) at checkCriteria', async function () {
-      // given API responding properly
+      // given API responses
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', { error: 'Too many requests' }, 429);
 
@@ -305,7 +320,7 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should use silent mode when fail to check criteria', async function () {
-      // given API responding properly
+      // given API responses
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', { error: 'Too many requests' }, 429);
 
@@ -329,7 +344,7 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should be valid', async function () {
-      // given API responding properly
+      // given API responses
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', generateResult(true));
 
@@ -402,7 +417,7 @@ describe('Integrated test - Client:', function () {
     });
     
     it('should renew the token after expiration', async function () {
-      // given API responding properly
+      // given API responses
       given('POST@/criteria/auth', generateAuth('[auth_token]', 1));
 
       Client.buildContext(contextSettings);
@@ -432,7 +447,7 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should be valid - when sending key without calling prepare', async function () {
-      // given API responding properly
+      // given API responses
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', generateResult(true));
 
@@ -446,7 +461,7 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should be valid - when preparing key and sending input strategy afterwards', async function () {
-      // given API responding properly
+      // given API responses
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', generateResult(true));
 

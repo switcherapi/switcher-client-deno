@@ -74,13 +74,17 @@ const _testThrottledAPICall = async () => {
     setupSwitcher(false);
     
     await Client.checkSwitchers([SWITCHER_KEY]);
+    Client.subscribeNotifyError((error) => console.log(error));
 
     switcher = Client.getSwitcher();
     switcher.throttle(1000);
 
     setInterval(async () => {
         const time = Date.now();
-        const result = await switcher.isItOn(SWITCHER_KEY);
+        const result = await switcher
+            .detail()
+            .isItOn(SWITCHER_KEY);
+            
         console.log(`- ${Date.now() - time} ms - ${JSON.stringify(result)}`);
     }, 1000);
 

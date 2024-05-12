@@ -202,7 +202,7 @@ describe('E2E test - Client local:', function () {
     assertEquals(metadata, { value: 'something' });
   });
 
-  it('should be valid assuming unknown key to be true', testSettings, async function () {
+  it('should be valid assuming unknown key to be true and throw error when forgetting', testSettings, async function () {
     await switcher
       .checkValue('Japan')
       .checkNetwork('10.0.0.3')  
@@ -266,6 +266,15 @@ describe('E2E test - Client local:', function () {
     let error: Error | undefined;
     await Client.loadSnapshot(false, false).catch((e) => error = e);
     assertEquals(error?.message, 'Something went wrong: It was not possible to load the file at //somewhere/');
+  });
+
+  it('should not throw error when a default result is provided', testSettings, async function () {
+    Client.buildContext({ url, apiKey, domain, component, environment }, {
+      local: true
+    });
+
+    const switcher = Client.getSwitcher('UNKNOWN_FEATURE').defaultResult(true);
+    assertTrue(await switcher.isItOn());
   });
 
 });
