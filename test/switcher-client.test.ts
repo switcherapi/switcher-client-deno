@@ -268,7 +268,7 @@ describe('E2E test - Client local:', function () {
     assertEquals(error?.message, 'Something went wrong: It was not possible to load the file at //somewhere/');
   });
 
-  it('should not throw error when a default result is provided', async function () {
+  it('should not throw error when a default result is provided', testSettings, async function () {
     Client.buildContext({ url, apiKey, domain, component, environment }, {
       local: true
     });
