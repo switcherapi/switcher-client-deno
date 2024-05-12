@@ -62,7 +62,7 @@ describe('Integrated test - Client:', function () {
       let asyncErrorMessage = null;
       Client.buildContext(contextSettings);
       Client.subscribeNotifyError((error) => asyncErrorMessage = error.message);
-      let switcher = Client.getSwitcher().defaultResult(true);
+      const switcher = Client.getSwitcher().defaultResult(true);
 
       assertTrue(await switcher.isItOn('UNKNOWN_FEATURE'));
       assertEquals(asyncErrorMessage, 'Something went wrong: [checkCriteria] failed with status 404');
