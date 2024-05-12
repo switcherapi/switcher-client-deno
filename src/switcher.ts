@@ -18,6 +18,7 @@ export class Switcher {
   private _nextRun = 0;
   private _input?: string[][];
   private _key = '';
+  private _defaultResult: boolean | undefined;
   private _forceRemote = false;
   private _showDetail = false;
 
@@ -74,27 +75,28 @@ export class Switcher {
       return this._showDetail ? response : response.result;
     }
 
-    // verify if query from snapshot
-    if (Client.options.local && !this._forceRemote) {
-      result = await this._executeLocalCriteria();
-    } else {
-      try {
-        await this.validate();
-        if (Auth.getToken() === 'SILENT') {
-          result = await this._executeLocalCriteria();
-        } else {
-          result = await this._executeRemoteCriteria();
-        }
-      } catch (err) {
-        this._notifyError(err);
-
-        if (Client.options.silentMode) {
-          Auth.updateSilentToken();
-          return this._executeLocalCriteria();
-        }
-
-        throw err;
+    try {
+      // verify if query from snapshot
+      if (Client.options.local && !this._forceRemote) {
+        return await this._executeLocalCriteria();
       }
+
+      // otherwise, execute remote criteria or local snapshot when silent mode is enabled
+      await this.validate();
+      if (Auth.getToken() === 'SILENT') {
+        result = await this._executeLocalCriteria();
+      } else {
+        result = await this._executeRemoteCriteria();
+      }
+    } catch (err) {
+      this._notifyError(err);
+
+      if (Client.options.silentMode) {
+        Auth.updateSilentToken();
+        return this._executeLocalCriteria();
+      }
+
+      throw err;
     }
 
     return result;
@@ -132,6 +134,14 @@ export class Switcher {
    */
   detail(showDetail = true): this {
     this._showDetail = showDetail;
+    return this;
+  }
+
+  /**
+   * Define a default result when the client enters in panic mode
+   */
+  defaultResult(defaultResult: boolean): this {
+    this._defaultResult = defaultResult;
     return this;
   }
 
@@ -203,11 +213,15 @@ export class Switcher {
     let responseCriteria: ResultDetail;
 
     if (this._useSync()) {
-      responseCriteria = await remote.checkCriteria(
-        this._key,
-        this._input,
-        this._showDetail,
-      );
+      try {
+        responseCriteria = await remote.checkCriteria(
+          this._key,
+          this._input,
+          this._showDetail,
+        );
+      } catch (err) {
+        responseCriteria = this.getDefaultResultOrThrow(err);
+      }
 
       if (Client.options.logger && this._key) {
         ExecutionLogger.add(responseCriteria, this._key, this._input);
@@ -260,17 +274,18 @@ export class Switcher {
     }
   }
 
-  async _executeLocalCriteria(): Promise<
-    boolean | {
-      result: boolean;
-      reason: string;
+  async _executeLocalCriteria(): Promise<boolean | ResultDetail> {
+    let response: ResultDetail;
+
+    try {
+      response = await checkCriteriaLocal(
+        Client.snapshot,
+        util.get(this._key, ''),
+        util.get(this._input, []),
+      );
+    } catch (err) {
+      response = this.getDefaultResultOrThrow(err);
     }
-  > {
-    const response = await checkCriteriaLocal(
-      Client.snapshot,
-      util.get(this._key, ''),
-      util.get(this._input, []),
-    );
 
     if (Client.options.logger) {
       ExecutionLogger.add(response, this._key, this._input);
@@ -291,6 +306,20 @@ export class Switcher {
 
   private _useSync() {
     return this._delay == 0 || !ExecutionLogger.getExecution(this._key, this._input);
+  }
+
+  private getDefaultResultOrThrow(err: Error): ResultDetail {
+    if (this._defaultResult === undefined) {
+      throw err;
+    }
+
+    const response = {
+      result: this._defaultResult,
+      reason: 'Default result',
+    };
+
+    this._notifyError(err);
+    return response;
   }
 
   /**
