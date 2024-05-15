@@ -1,5 +1,5 @@
 /**
- * Type definition for Switcher Keys which are used to mock results
+ * Key record used to store key response when bypassing criteria execution
  */
 export default class Key {
   key: string;
