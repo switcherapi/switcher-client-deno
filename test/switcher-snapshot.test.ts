@@ -153,8 +153,10 @@ describe('E2E test - Client local - Snapshot:', function () {
     });
 
     let snapshotUpdated = false;
-    Client.scheduleSnapshotAutoUpdate(1, (updated) => snapshotUpdated = updated);
-    
+    Client.scheduleSnapshotAutoUpdate(1, {
+      success: (updated) => snapshotUpdated = updated
+    });
+
     await Client.loadSnapshot(false, true);
     
     const switcher = Client.getSwitcher();
@@ -188,7 +190,9 @@ describe('E2E test - Client local - Snapshot:', function () {
     });
 
     let error: Error | undefined;
-    Client.scheduleSnapshotAutoUpdate(1, undefined, (err: Error) => error = err);
+    Client.scheduleSnapshotAutoUpdate(1, {
+      reject: (err: Error) => error = err
+    });
     
     await Client.loadSnapshot(false, true);
 

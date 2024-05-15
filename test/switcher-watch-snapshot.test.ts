@@ -55,9 +55,11 @@ describe('E2E test - Client local - Watch Snapshot:', function () {
   
   it('should read from updated snapshot', async function () {
     const switcher = Client.getSwitcher();
-    Client.watchSnapshot(async () => {
-      assertFalse(await switcher.isItOn('FF2FOR2030'));
-      WaitSafe.finish();
+    Client.watchSnapshot({
+      success: async () => {
+        assertFalse(await switcher.isItOn('FF2FOR2030'));
+        WaitSafe.finish();
+      }
     });
 
     switcher.isItOn('FF2FOR2030').then((val) => {
@@ -71,9 +73,11 @@ describe('E2E test - Client local - Watch Snapshot:', function () {
 
   it('should NOT read from updated snapshot - invalid JSON', async function () {
     const switcher = Client.getSwitcher();
-    Client.watchSnapshot(undefined, (err: any) => {
-      assertEquals(err.message, 'Something went wrong: It was not possible to load the file at generated-snapshots/');
-      WaitSafe.finish();
+    Client.watchSnapshot({
+      reject: (err: any) => {
+        assertEquals(err.message, 'Something went wrong: It was not possible to load the file at generated-snapshots/');
+        WaitSafe.finish();
+      }
     });
 
     switcher.isItOn('FF2FOR2030').then((val) => {
@@ -87,9 +91,11 @@ describe('E2E test - Client local - Watch Snapshot:', function () {
 
   it('should NOT allow to watch snapshot - Client test is enabled', async function () {
     Client.testMode();
-    Client.watchSnapshot(undefined, (err: any) => {
-      assertEquals(err.message, 'Watch Snapshot cannot be used in test mode or without a snapshot location');
-      WaitSafe.finish();
+    Client.watchSnapshot({
+      reject: (err: any) => {
+        assertEquals(err.message, 'Watch Snapshot cannot be used in test mode or without a snapshot location');
+        WaitSafe.finish();
+      }
     });
 
     await WaitSafe.wait();

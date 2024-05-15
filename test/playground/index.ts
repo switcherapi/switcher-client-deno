@@ -141,10 +141,11 @@ const _testWatchSnapshot = async () => {
         .catch(() => console.log('Failed to load Snapshot'));
 
     const switcher = Client.getSwitcher();
-
-    Client.watchSnapshot(
-        async () => console.log('In-memory snapshot updated', await switcher.isItOn(SWITCHER_KEY)), 
-        (err: Error) => console.log(err));
+    
+    Client.watchSnapshot({
+        success: async () => console.log('In-memory snapshot updated', await switcher.isItOn(SWITCHER_KEY)),
+        reject: (err: Error) => console.log(err)
+    });
 };
 
 // Requires remote API
@@ -155,9 +156,10 @@ const _testSnapshotAutoUpdate = async () => {
     await Client.loadSnapshot(false, true);
     const switcher = Client.getSwitcher();
 
-    Client.scheduleSnapshotAutoUpdate(3, 
-        (updated) => console.log('In-memory snapshot updated', updated), 
-        (err: Error) => console.log(err));
+    Client.scheduleSnapshotAutoUpdate(3, {
+        success: (updated) => console.log('In-memory snapshot updated', updated),
+        reject: (err: Error) => console.log(err)
+     });
 
     setInterval(async () => {
         const time = Date.now();

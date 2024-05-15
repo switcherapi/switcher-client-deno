@@ -45,7 +45,7 @@ The context properties stores all information regarding connectivity.
 
 > Initialization
 ```ts
-import { Switcher } from "https://deno.land/x/switcher4deno@v[VERSION]/mod.ts";
+import { Client } from "https://deno.land/x/switcher4deno@v[VERSION]/mod.ts";
 
 const url = 'https://api.switcherapi.com';
 const apiKey = '[API_KEY]';
@@ -207,9 +207,10 @@ const version = await Client.loadSnapshot();
 Activate and monitor snapshot changes using this feature. Optionally, you can implement any action based on the callback response.
 
 ```ts
-Client.watchSnapshot(
-    () =>  console.log('In-memory snapshot updated'), 
-    (err: any) => console.log(err));
+Client.watchSnapshot({
+    success: () => console.log('In-memory snapshot updated'),
+    reject: (err: Error) => console.log(err)
+});
 ```
 
 ## Snapshot version check
@@ -224,5 +225,8 @@ You can also schedule a snapshot update using the method below.<br>
 It allows you to run the Client SDK in local mode (zero latency) and still have the snapshot updated automatically.
 
 ```ts
-Client.scheduleSnapshotAutoUpdate(1 * 60 * 60 * 24); // 24 hours
+Client.scheduleSnapshotAutoUpdate(3000, {
+    success: (updated) => console.log('Snapshot updated', updated),
+    reject: (err: Error) => console.log(err)
+});
 ```

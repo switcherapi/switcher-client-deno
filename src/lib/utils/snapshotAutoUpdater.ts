@@ -4,8 +4,8 @@ export default class SnapshotAutoUpdater {
   static schedule(
     interval: number,
     checkSnapshot: () => Promise<boolean>,
-    success: (updated: boolean) => void = () => {},
-    reject: (err: Error) => void = () => {},
+    success: (updated: boolean) => void,
+    reject: (err: Error) => void,
   ) {
     if (this._intervalId) {
       this.terminate();

@@ -25,7 +25,7 @@ import { Auth } from './lib/remote-auth.ts';
  *
  * 1. Use Client.buildContext() to define the arguments to connect to the API.
  * 2. Use Client.getSwitcher() to create a new instance of Switcher.
- * 3. Use the instance created to call isItOn to query the API.
+ * 3. Use the instance created to call isItOn to execute criteria evaluation.
  */
 export class Client {
   private static _testEnabled = DEFAULT_TEST_MODE;
@@ -178,14 +178,16 @@ export class Client {
    * Start watching snapshot files for modifications
    *
    * @param success when snapshot has successfully updated
-   * @param error when any error has thrown when attempting to load snapshot
+   * @param reject when any error has thrown when attempting to load snapshot
    */
-  static async watchSnapshot(
-    success: () => void | Promise<void> = () => {},
-    error: (err: Error) => void = () => {},
-  ): Promise<void> {
+  static async watchSnapshot(callback: {
+    success?: () => void | Promise<void>;
+    reject?: (err: Error) => void;
+  } = {}): Promise<void> {
+    const { success = () => {}, reject = () => {} } = callback;
+
     if (Client._testEnabled || !Client._options.snapshotLocation?.length) {
-      return error(new Error('Watch Snapshot cannot be used in test mode or without a snapshot location'));
+      return reject(new Error('Watch Snapshot cannot be used in test mode or without a snapshot location'));
     }
 
     const snapshotFile = `${Client._options.snapshotLocation}/${Client._context.environment}.json`;
@@ -200,7 +202,7 @@ export class Client {
 
       Client._watchDebounce.set(
         dataString,
-        setTimeout(() => Client._onModifySnapshot(dataString, event, success, error), 20),
+        setTimeout(() => Client._onModifySnapshot(dataString, event, success, reject), 20),
       );
     }
   }
@@ -251,15 +253,24 @@ export class Client {
    */
   static scheduleSnapshotAutoUpdate(
     interval?: number,
-    success?: (updated: boolean) => void,
-    reject?: (err: Error) => void,
+    callback: {
+      success?: (updated: boolean) => void;
+      reject?: (err: Error) => void;
+    } = {},
   ) {
+    const { success = () => {}, reject = () => {} } = callback;
+
     if (interval) {
       Client._options.snapshotAutoUpdateInterval = interval;
     }
 
     if (Client._options.snapshotAutoUpdateInterval && Client._options.snapshotAutoUpdateInterval > 0) {
-      SnapshotAutoUpdater.schedule(Client._options.snapshotAutoUpdateInterval, this.checkSnapshot, success, reject);
+      SnapshotAutoUpdater.schedule(
+        Client._options.snapshotAutoUpdateInterval,
+        this.checkSnapshot,
+        success,
+        reject,
+      );
     }
   }
 
