@@ -10,7 +10,7 @@ import {
   DEFAULT_TEST_MODE,
   SWITCHER_OPTIONS,
 } from './lib/constants.ts';
-import type { Snapshot, SwitcherContext, SwitcherOptions } from './types/index.d.ts';
+import type { LoadSnapshotOptions, Snapshot, SwitcherContext, SwitcherOptions } from './types/index.d.ts';
 import type Key from './lib/bypasser/key.ts';
 import TimedMatch from './lib/utils/timed-match/index.ts';
 import ExecutionLogger from './lib/utils/executionLogger.ts';
@@ -151,10 +151,9 @@ export class Client {
    * @param watchSnapshot when true, it will watch for snapshot file modifications
    * @param fetchRemote when true, it will initialize the snapshot from the API
    */
-  static async loadSnapshot(
-    watchSnapshot = false,
-    fetchRemote = false,
-  ): Promise<number> {
+  static async loadSnapshot(options: LoadSnapshotOptions = {}): Promise<number> {
+    const { fetchRemote = false, watchSnapshot = false } = options;
+
     Client._snapshot = loadDomain(
       util.get(Client._options.snapshotLocation, ''),
       util.get(Client._context.environment, DEFAULT_ENVIRONMENT),
