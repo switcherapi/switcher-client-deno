@@ -241,7 +241,7 @@ describe('E2E test - Client local:', function () {
       snapshotLocation: 'generated-snapshots/'
     });
     
-    const version = await Client.loadSnapshot(false, false);
+    const version = await Client.loadSnapshot();
     assertEquals(version, 0);
     assertExists(Client.snapshot);
   });
@@ -264,7 +264,7 @@ describe('E2E test - Client local:', function () {
 
     //or
     let error: Error | undefined;
-    await Client.loadSnapshot(false, false).catch((e) => error = e);
+    await Client.loadSnapshot().catch((e) => error = e);
     assertEquals(error?.message, 'Something went wrong: It was not possible to load the file at //somewhere/');
   });
 

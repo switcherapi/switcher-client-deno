@@ -106,7 +106,7 @@ describe('E2E test - Client local - Snapshot:', function () {
       regexSafe: false
     });
     
-    await Client.loadSnapshot(true);
+    await Client.loadSnapshot({ watchSnapshot: true });
     assertTrue(await Client.checkSnapshot());
     assertTrue(existsSync(`generated-snapshots/${contextSettings.environment}.json`));
 
@@ -129,7 +129,7 @@ describe('E2E test - Client local - Snapshot:', function () {
       regexSafe: false
     });
     
-    await Client.loadSnapshot(true, true);
+    await Client.loadSnapshot({ watchSnapshot: true, fetchRemote: true });
     assertTrue(existsSync(`generated-snapshots/${contextSettings.environment}.json`));
 
     //restore state to avoid process leakage
@@ -157,7 +157,7 @@ describe('E2E test - Client local - Snapshot:', function () {
       success: (updated) => snapshotUpdated = updated
     });
 
-    await Client.loadSnapshot(false, true);
+    await Client.loadSnapshot({ fetchRemote: true });
     
     const switcher = Client.getSwitcher();
     assertFalse(await switcher.isItOn('FF2FOR2030'));
@@ -194,7 +194,7 @@ describe('E2E test - Client local - Snapshot:', function () {
       reject: (err: Error) => error = err
     });
     
-    await Client.loadSnapshot(false, true);
+    await Client.loadSnapshot({ fetchRemote: true });
 
     //next call will fail
     givenError('POST@/graphql', 'ECONNREFUSED');

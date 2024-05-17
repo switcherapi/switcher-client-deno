@@ -49,6 +49,11 @@ export type RetryOptions = {
   retryDurationIn: string;
 };
 
+export type LoadSnapshotOptions = {
+  watchSnapshot?: boolean;
+  fetchRemote?: boolean;
+};
+
 // Remote API types
 
 export type AuthResponse = {

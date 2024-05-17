@@ -16,7 +16,7 @@ let switcher: Switcher;
  */
 async function setupSwitcher(local: boolean) {
     Client.buildContext({ url, apiKey, domain, component, environment }, { local, logger: true });
-    await Client.loadSnapshot(false, local)
+    await Client.loadSnapshot({ fetchRemote: local })
         .then(version => console.log('Snapshot loaded - version:', version))
         .catch(() => console.log('Failed to load Snapshot'));
 }
@@ -136,7 +136,7 @@ const _testBypasser = async () => {
 // Requires remote API
 const _testWatchSnapshot = async () => {
     Client.buildContext({ url, apiKey, domain, component, environment }, { snapshotLocation, local: true, logger: true });
-    await Client.loadSnapshot(false, true)
+    await Client.loadSnapshot({ fetchRemote: true })
         .then(() => console.log('Snapshot loaded'))
         .catch(() => console.log('Failed to load Snapshot'));
 
@@ -153,7 +153,7 @@ const _testSnapshotAutoUpdate = async () => {
     Client.buildContext({ url, apiKey, domain, component, environment }, 
         { local: true, logger: true });
 
-    await Client.loadSnapshot(false, true);
+    await Client.loadSnapshot({ fetchRemote: true });
     const switcher = Client.getSwitcher();
 
     Client.scheduleSnapshotAutoUpdate(3, {
