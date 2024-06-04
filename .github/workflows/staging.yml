@@ -7,7 +7,7 @@ on:
       deno:
         description: 'Deno version'
         required: true
-        default: 'v1.43.x'
+        default: 'v1.44.x'
       os:
         description: 'Operating System (ubuntu-20.04, ubuntu-latest, windows-latest)'
         required: true
