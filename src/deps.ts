@@ -1,1 +1,1 @@
-export { existsSync } from 'jsr:@std/fs@0.229.1';
+export { existsSync } from 'jsr:@std/fs@1.0.2';
