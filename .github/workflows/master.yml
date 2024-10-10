@@ -63,4 +63,10 @@ jobs:
         with:
           deno-version: ${{ matrix.deno-version }}
 
-      - run: deno task test
+      - name: Run tests (Deno v1)
+        if: "contains(matrix.deno-version, 'v1')"
+        run: deno task test-v1
+
+      - name: Run tests (Deno v2)
+        if: "contains(matrix.deno-version, 'v2')"
+        run: deno task test
