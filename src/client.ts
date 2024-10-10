@@ -31,7 +31,7 @@ export class Client {
   private static _testEnabled = DEFAULT_TEST_MODE;
   private static _watching = false;
   private static _watcher: Deno.FsWatcher;
-  private static _watchDebounce = new Map<string, number>();
+  private static readonly _watchDebounce = new Map<string, number>();
 
   private static _snapshot?: Snapshot;
   private static _context: SwitcherContext;
@@ -222,7 +222,7 @@ export class Client {
 
         success();
       } catch (err) {
-        error(err);
+        error(err as Error);
       }
     }
   }

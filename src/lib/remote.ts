@@ -65,7 +65,8 @@ export const auth = async (context: SwitcherContext) => {
 
     throw new Error(`[auth] failed with status ${response.status}`);
   } catch (e) {
-    throw new AuthError(e.errno ? getConnectivityError(e.errno) : e.message);
+    const error = e as { errno?: string; message: string };
+    throw new AuthError(error.errno ? getConnectivityError(error.errno) : error.message);
   }
 };
 
@@ -101,8 +102,9 @@ export const checkCriteria = async (
 
     throw new Error(`[checkCriteria] failed with status ${response.status}`);
   } catch (e) {
+    const error = e as { errno?: string; message: string };
     throw new CriteriaError(
-      e.errno ? getConnectivityError(e.errno) : e.message,
+      error.errno ? getConnectivityError(error.errno) : error.message,
     );
   }
 };
@@ -131,8 +133,9 @@ export const checkSwitchers = async (
       throw e;
     }
 
+    const error = e as { errno?: string; message: string };
     throw new CriteriaError(
-      e.errno ? getConnectivityError(e.errno) : e.message,
+      error.errno ? getConnectivityError(error.errno) : error.message,
     );
   }
 };
@@ -153,8 +156,9 @@ export const checkSnapshotVersion = async (
 
     throw new Error(`[checkSnapshotVersion] failed with status ${response.status}`);
   } catch (e) {
+    const error = e as { errno?: string; message: string };
     throw new SnapshotServiceError(
-      e.errno ? getConnectivityError(e.errno) : e.message,
+      error.errno ? getConnectivityError(error.errno) : error.message,
     );
   }
 };
@@ -193,8 +197,9 @@ export const resolveSnapshot = async (
 
     throw new Error(`[resolveSnapshot] failed with status ${response.status}`);
   } catch (e) {
+    const error = e as { errno?: string; message: string };
     throw new SnapshotServiceError(
-      e.errno ? getConnectivityError(e.errno) : e.message,
+      error.errno ? getConnectivityError(error.errno) : error.message,
     );
   }
 };

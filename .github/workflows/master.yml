@@ -18,10 +18,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Deno v1.46.3
-        uses: denoland/setup-deno@v1
+      - name: Setup Deno v2.x
+        uses: denoland/setup-deno@v2
         with:
-          deno-version: v1.46.3
+          deno-version: v2.x
 
       - name: Setup LCOV        
         run: sudo apt install -y lcov
@@ -44,24 +44,23 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  # Will be added in the future when Deno v2 is released
-  # test-matrix:
-  #   name: Test Matrix - Deno ${{ matrix.deno-version }} on ${{ matrix.os }}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       deno-version: [v1.4x.x]
-  #       os: [ ubuntu-latest, windows-latest ]
-  #   runs-on: ${{ matrix.os }}
-  #   if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
+  test-matrix:
+    name: Test Matrix - Deno ${{ matrix.deno-version }} on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        deno-version: [v1.46.3, v2.0.0]
+        os: [ ubuntu-latest, windows-latest ]
+    runs-on: ${{ matrix.os }}
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
 
-  #   steps:
-  #     - name: Git checkout
-  #       uses: actions/checkout@v4
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
 
-  #     - name: Setup Deno ${{ matrix.deno-version }}
-  #       uses: denoland/setup-deno@v1
-  #       with:
-  #         deno-version: ${{ matrix.deno-version }}
+      - name: Setup Deno ${{ matrix.deno-version }}
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ matrix.deno-version }}
 
-  #     - run: deno task test
+      - run: deno task test
