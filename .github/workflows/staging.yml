@@ -7,7 +7,7 @@ on:
       deno:
         description: 'Deno version'
         required: true
-        default: 'v1.46.x'
+        default: 'v2.x'
       os:
         description: 'Operating System (ubuntu-20.04, ubuntu-latest, windows-latest)'
         required: true
@@ -29,7 +29,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ github.event.inputs.deno }}
 

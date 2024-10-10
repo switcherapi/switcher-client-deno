@@ -89,7 +89,7 @@ export class Switcher {
         result = await this._executeRemoteCriteria();
       }
     } catch (err) {
-      this._notifyError(err);
+      this._notifyError(err as Error);
 
       if (Client.options.silentMode) {
         Auth.updateSilentToken();
@@ -220,7 +220,7 @@ export class Switcher {
           this._showDetail,
         );
       } catch (err) {
-        responseCriteria = this.getDefaultResultOrThrow(err);
+        responseCriteria = this.getDefaultResultOrThrow(err as Error);
       }
 
       if (Client.options.logger && this._key) {
@@ -284,7 +284,7 @@ export class Switcher {
         util.get(this._input, []),
       );
     } catch (err) {
-      response = this.getDefaultResultOrThrow(err);
+      response = this.getDefaultResultOrThrow(err as Error);
     }
 
     if (Client.options.logger) {

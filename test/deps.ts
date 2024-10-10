@@ -7,7 +7,7 @@ export {
     assertNotEquals, 
     assertArrayIncludes 
 } from 'jsr:@std/assert@1.0.6';;
-export { assertSpyCalls, spy } from 'jsr:@std/testing@1.0.1/mock';
+export { assertSpyCalls, spy } from 'jsr:@std/testing@1.0.3/mock';
 export { 
     describe, 
     it, 
