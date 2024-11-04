@@ -2,7 +2,7 @@ import { Switcher, Client } from '../../mod.ts'
 import { sleep } from "../helper/utils.ts";
 
 const SWITCHER_KEY = 'MY_SWITCHER';
-const apiKey = 'JDJiJDA4JEFweTZjSTR2bE9pUjNJOUYvRy9raC4vRS80Q2tzUnk1d3o1aXFmS2o5eWJmVW11cjR0ODNT';
+const apiKey = '[API_KEY]';
 const domain = 'Playground';
 const component = 'switcher-playground';
 const environment = 'default';
