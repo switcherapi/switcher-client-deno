@@ -9,6 +9,47 @@ import { CheckSwitcherError } from './exceptions/index.ts';
 import { checkSnapshotVersion, resolveSnapshot } from './remote.ts';
 import type { Snapshot } from '../types/index.d.ts';
 
+/**
+ * Strategy types that can be used to validate the switcher
+ */
+type StrategyKeys = 'NETWORK' | 'VALUE' | 'NUMERIC' | 'TIME' | 'DATE' | 'REGEX' | 'PAYLOAD';
+
+export const StrategiesType: Readonly<Record<StrategyKeys, string>> = {
+  NETWORK: 'NETWORK_VALIDATION',
+  VALUE: 'VALUE_VALIDATION',
+  NUMERIC: 'NUMERIC_VALIDATION',
+  TIME: 'TIME_VALIDATION',
+  DATE: 'DATE_VALIDATION',
+  REGEX: 'REGEX_VALIDATION',
+  PAYLOAD: 'PAYLOAD_VALIDATION',
+};
+
+/**
+ * Operations that can be used to validate the switcher
+ */
+type OperationsKeys =
+  | 'EQUAL'
+  | 'NOT_EQUAL'
+  | 'EXIST'
+  | 'NOT_EXIST'
+  | 'GREATER'
+  | 'LOWER'
+  | 'BETWEEN'
+  | 'HAS_ONE'
+  | 'HAS_ALL';
+
+export const OperationsType: Readonly<Record<OperationsKeys, string>> = {
+  EQUAL: 'EQUAL',
+  NOT_EQUAL: 'NOT_EQUAL',
+  EXIST: 'EXIST',
+  NOT_EXIST: 'NOT_EXIST',
+  GREATER: 'GREATER',
+  LOWER: 'LOWER',
+  BETWEEN: 'BETWEEN',
+  HAS_ONE: 'HAS_ONE',
+  HAS_ALL: 'HAS_ALL',
+};
+
 export const loadDomain = (snapshotLocation: string, environment: string) => {
   let dataJSON;
   try {
@@ -80,28 +121,6 @@ export const checkSwitchersLocal = (snapshot: Snapshot, switcherKeys: string[]) 
     throw new CheckSwitcherError(notFound);
   }
 };
-
-export const StrategiesType = Object.freeze({
-  NETWORK: 'NETWORK_VALIDATION',
-  VALUE: 'VALUE_VALIDATION',
-  NUMERIC: 'NUMERIC_VALIDATION',
-  TIME: 'TIME_VALIDATION',
-  DATE: 'DATE_VALIDATION',
-  REGEX: 'REGEX_VALIDATION',
-  PAYLOAD: 'PAYLOAD_VALIDATION',
-});
-
-export const OperationsType = Object.freeze({
-  EQUAL: 'EQUAL',
-  NOT_EQUAL: 'NOT_EQUAL',
-  EXIST: 'EXIST',
-  NOT_EXIST: 'NOT_EXIST',
-  GREATER: 'GREATER',
-  LOWER: 'LOWER',
-  BETWEEN: 'BETWEEN',
-  HAS_ONE: 'HAS_ONE',
-  HAS_ALL: 'HAS_ALL',
-});
 
 export const processOperation = async (
   strategy: string,

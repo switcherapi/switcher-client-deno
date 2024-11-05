@@ -9,15 +9,15 @@ import { Client, type Switcher } from '../mod.ts';
 
 const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExit: false };
 
-describe('E2E test - Client local:', function () {
-  let switcher: Switcher;
-  const apiKey = '[api_key]';
-  const domain = 'Business';
-  const component = 'business-service';
-  const environment = 'default';
-  const url = 'http://localhost:3000';
-  const snapshotLocation = './test/snapshot/';
+let switcher: Switcher;
+const apiKey = '[api_key]';
+const domain = 'Business';
+const component = 'business-service';
+const environment = 'default';
+const url = 'http://localhost:3000';
+const snapshotLocation = './test/snapshot/';
 
+describe('E2E test - Client local:', function () {
   beforeAll(async function() {
     Client.buildContext({ url, apiKey, domain, component, environment }, {
       snapshotLocation, local: true, logger: true, regexMaxBlackList: 1, regexMaxTimeLimit: 500
@@ -171,6 +171,73 @@ describe('E2E test - Client local:', function () {
       'Group disabled');
   });
 
+  it('should be valid - Local mode', testSettings, async function () {
+    await delay(2000);
+    
+    Client.buildContext({ url, apiKey, domain, component, environment }, {
+      local: true,
+      regexSafe: false,
+      snapshotLocation: 'generated-snapshots/'
+    });
+    
+    const version = await Client.loadSnapshot();
+    assertEquals(version, 0);
+    assertExists(Client.snapshot);
+  });
+
+  it('should be invalid - Local mode cannot load snapshot from an invalid path', testSettings, async function () {
+    await delay(2000);
+
+    Client.buildContext({ url, apiKey, domain, component, environment }, {
+      local: true,
+      regexSafe: false,
+      snapshotLocation: '//somewhere/'
+    });
+
+    Client.testMode();
+    
+    //test
+    await assertRejects(async () =>
+      await Client.loadSnapshot(), 
+      Error, 'Something went wrong: It was not possible to load the file at //somewhere/');
+
+    //or
+    let error: Error | undefined;
+    await Client.loadSnapshot().catch((e) => error = e);
+    assertEquals(error?.message, 'Something went wrong: It was not possible to load the file at //somewhere/');
+  });
+
+  it('should not throw error when a default result is provided', testSettings, async function () {
+    Client.buildContext({ url, apiKey, domain, component, environment }, {
+      local: true
+    });
+
+    const switcher = Client.getSwitcher('UNKNOWN_FEATURE').defaultResult(true);
+    assertTrue(await switcher.isItOn());
+  });
+
+});
+
+describe('E2E test - Client testing (assume) feature:', function () {
+  beforeAll(async function() {
+    Client.buildContext({ url, apiKey, domain, component, environment }, {
+      snapshotLocation, local: true, logger: true, regexMaxBlackList: 1, regexMaxTimeLimit: 500
+    });
+
+    await Client.loadSnapshot();
+    switcher = Client.getSwitcher();
+  });
+
+  afterAll(function() {
+    Client.unloadSnapshot();
+    TimedMatch.terminateWorker();
+  });
+
+  beforeEach(function() {
+    Client.clearLogger();
+    switcher = Client.getSwitcher();
+  });
+
   it('should be valid assuming key to be false and then forgetting it', testSettings, async function () {
     await switcher
       .checkValue('Japan')
@@ -232,49 +299,32 @@ describe('E2E test - Client local:', function () {
     assertTrue(await switcher.isItOn('FF2FOR2020'));
   });
 
-  it('should be valid - Local mode', testSettings, async function () {
-    await delay(2000);
+  it('should return true using Client.assume only when Strategy values matches', testSettings, async function () {
+    await switcher
+      .checkValue('Japan')
+      .checkNetwork('10.0.0.3')
+      .prepare('FF2FOR2020');
     
-    Client.buildContext({ url, apiKey, domain, component, environment }, {
-      local: true,
-      regexSafe: false,
-      snapshotLocation: 'generated-snapshots/'
-    });
-    
-    const version = await Client.loadSnapshot();
-    assertEquals(version, 0);
-    assertExists(Client.snapshot);
-  });
-
-  it('should be invalid - Local mode cannot load snapshot from an invalid path', testSettings, async function () {
-    await delay(2000);
-
-    Client.buildContext({ url, apiKey, domain, component, environment }, {
-      local: true,
-      regexSafe: false,
-      snapshotLocation: '//somewhere/'
-    });
-
-    Client.testMode();
-    
-    //test
-    await assertRejects(async () =>
-      await Client.loadSnapshot(), 
-      Error, 'Something went wrong: It was not possible to load the file at //somewhere/');
-
-    //or
-    let error: Error | undefined;
-    await Client.loadSnapshot().catch((e) => error = e);
-    assertEquals(error?.message, 'Something went wrong: It was not possible to load the file at //somewhere/');
-  });
-
-  it('should not throw error when a default result is provided', testSettings, async function () {
-    Client.buildContext({ url, apiKey, domain, component, environment }, {
-      local: true
-    });
-
-    const switcher = Client.getSwitcher('UNKNOWN_FEATURE').defaultResult(true);
     assertTrue(await switcher.isItOn());
+    Client.assume('FF2FOR2020').true()
+      .when(StrategiesType.VALUE, 'Japan')
+      .and(StrategiesType.NETWORK, '10.0.0.3');
+      
+    assertTrue(await switcher.isItOn());
+  });
+
+  it('should NOT return true using Client.assume when Strategy values matches', testSettings, async function () {
+    await switcher
+      .checkValue('Japan')
+      .checkNetwork('10.0.0.3')
+      .prepare('FF2FOR2020');
+    
+    assertTrue(await switcher.isItOn());
+    Client.assume('FF2FOR2020').true()
+      .when(StrategiesType.VALUE, ['Brazil', 'Japan'])
+      .and(StrategiesType.NETWORK, '10.0.0.4');
+      
+    assertFalse(await switcher.isItOn());
   });
 
 });
