@@ -1,11 +1,14 @@
+import Criteria from './criteria.ts';
+
 /**
  * Key record used to store key response when bypassing criteria execution
  */
 export default class Key {
-  key: string;
-  result: boolean;
-  reaason?: string;
-  metadata?: object;
+  private readonly key: string;
+  private result: boolean;
+  private reaason?: string;
+  private metadata?: object;
+  private criteria?: Criteria;
 
   constructor(key: string) {
     this.key = key;
@@ -39,6 +42,14 @@ export default class Key {
   }
 
   /**
+   * Conditionally set result based on strategy
+   */
+  when(strategy: string, input: string | string[]): Criteria {
+    this.criteria = new Criteria(strategy, input);
+    return this.criteria;
+  }
+
+  /**
    * Return selected switcher name
    */
   getKey(): string {
@@ -48,15 +59,32 @@ export default class Key {
   /**
    * Return current value
    */
-  getResponse(): {
+  getResponse(input?: string[][]): {
     result: boolean;
     reason: string | undefined;
     metadata: object | undefined;
   } {
+    let result = this.result;
+    if (this.criteria && input) {
+      result = this.getResultBasedOnCriteria(this.criteria, input);
+    }
+
     return {
-      result: this.result,
+      result,
       reason: this.reaason,
       metadata: this.metadata,
     };
+  }
+
+  private getResultBasedOnCriteria(criteria: Criteria, input: string[][]): boolean {
+    for (const [strategyWhen, inputWhen] of criteria.getWhen()) {
+      const entry = input.filter((e) => e[0] === strategyWhen);
+      if (entry.length && !inputWhen.includes(entry[0][1])) {
+        this.reaason = `Forced to ${!this.result} when: [${inputWhen}] - input: ${entry[0][1]}`;
+        return !this.result;
+      }
+    }
+
+    return this.result;
   }
 }

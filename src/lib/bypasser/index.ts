@@ -42,7 +42,7 @@ export default class Bypasser {
    */
   static searchBypassed(key: string): Key | undefined {
     for (const bypassed of bypassedKeys) {
-      if (bypassed.key === key) {
+      if (bypassed.getKey() === key) {
         return bypassed;
       }
     }
