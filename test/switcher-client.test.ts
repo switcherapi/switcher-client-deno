@@ -299,7 +299,7 @@ describe('E2E test - Client testing (assume) feature:', function () {
     assertTrue(await switcher.isItOn('FF2FOR2020'));
   });
 
-  it('should return true using Client.assume only when Strategy values matches', testSettings, async function () {
+  it('should return true using Client.assume only when Strategy input values match', testSettings, async function () {
     await switcher
       .checkValue('Japan')
       .checkNetwork('10.0.0.3')
@@ -313,7 +313,7 @@ describe('E2E test - Client testing (assume) feature:', function () {
     assertTrue(await switcher.isItOn());
   });
 
-  it('should NOT return true using Client.assume when Strategy values matches', testSettings, async function () {
+  it('should NOT return true using Client.assume when Strategy input values does not match', testSettings, async function () {
     await switcher
       .checkValue('Japan')
       .checkNetwork('10.0.0.3')
@@ -322,7 +322,7 @@ describe('E2E test - Client testing (assume) feature:', function () {
     assertTrue(await switcher.isItOn());
     Client.assume('FF2FOR2020').true()
       .when(StrategiesType.VALUE, ['Brazil', 'Japan'])
-      .and(StrategiesType.NETWORK, '10.0.0.4');
+      .and(StrategiesType.NETWORK, ['10.0.0.4', '192.168.0.1']);
       
     assertFalse(await switcher.isItOn());
   });
