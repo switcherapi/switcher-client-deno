@@ -235,6 +235,7 @@ describe('E2E test - Client testing (assume) feature:', function () {
 
   beforeEach(function() {
     Client.clearLogger();
+    Client.forget('FF2FOR2020');
     switcher = Client.getSwitcher();
   });
 
@@ -284,30 +285,15 @@ describe('E2E test - Client testing (assume) feature:', function () {
       Error, 'Something went wrong: {"error":"Unable to load a key UNKNOWN"}');
   });
 
-  it('should enable test mode which will prevent a snapshot to be watchable', testSettings, async function () {
-    //given
-    Client.buildContext({ url, apiKey, domain, component, environment }, {
-      local: true, logger: true, regexSafe: false
-    });
-
-    switcher = Client.getSwitcher();
-    
-    //test
-    Client.assume('FF2FOR2020').false();
-    assertFalse(await switcher.isItOn('FF2FOR2020'));
-    Client.assume('FF2FOR2020').true();
-    assertTrue(await switcher.isItOn('FF2FOR2020'));
-  });
-
   it('should return true using Client.assume only when Strategy input values match', testSettings, async function () {
     await switcher
-      .checkValue('Japan')
+      .checkValue('Canada') // result to be false
       .checkNetwork('10.0.0.3')
       .prepare('FF2FOR2020');
     
-    assertTrue(await switcher.isItOn());
+    assertFalse(await switcher.isItOn());
     Client.assume('FF2FOR2020').true()
-      .when(StrategiesType.VALUE, 'Japan')
+      .when(StrategiesType.VALUE, 'Canada') // manipulate the condition to result to true
       .and(StrategiesType.NETWORK, '10.0.0.3');
       
     assertTrue(await switcher.isItOn());
