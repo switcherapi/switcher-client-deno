@@ -35,12 +35,10 @@ jobs:
       - name: Run tests and coverage
         run: deno task cover
 
-      - name: Fix LCOV output for SonarCloud        
-        run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' coverage/report.lcov
-
       - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
+        uses: sonarsource/sonarqube-scan-action@v4.1.0
         env:
+          RUNNER_DEBUG: 1
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
