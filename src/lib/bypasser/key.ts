@@ -6,7 +6,7 @@ import Criteria from './criteria.ts';
 export default class Key {
   private readonly key: string;
   private result: boolean;
-  private reaason?: string;
+  private reason?: string;
   private metadata?: object;
   private criteria?: Criteria;
 
@@ -20,7 +20,7 @@ export default class Key {
    */
   true(): this {
     this.result = true;
-    this.reaason = 'Forced to true';
+    this.reason = 'Forced to true';
     return this;
   }
 
@@ -29,7 +29,7 @@ export default class Key {
    */
   false(): this {
     this.result = false;
-    this.reaason = 'Forced to false';
+    this.reason = 'Forced to false';
     return this;
   }
 
@@ -57,7 +57,7 @@ export default class Key {
   }
 
   /**
-   * Return current value
+   * Return key response
    */
   getResponse(input?: string[][]): {
     result: boolean;
@@ -71,7 +71,7 @@ export default class Key {
 
     return {
       result,
-      reason: this.reaason,
+      reason: this.reason,
       metadata: this.metadata,
     };
   }
@@ -80,7 +80,7 @@ export default class Key {
     for (const [strategyWhen, inputWhen] of criteria.getWhen()) {
       const entry = input.filter((e) => e[0] === strategyWhen);
       if (entry.length && !inputWhen.includes(entry[0][1])) {
-        this.reaason = `Forced to ${!this.result} when: [${inputWhen}] - input: ${entry[0][1]}`;
+        this.reason = `Forced to ${!this.result} when: [${inputWhen}] - input: ${entry[0][1]}`;
         return !this.result;
       }
     }

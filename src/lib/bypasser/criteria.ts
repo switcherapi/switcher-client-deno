@@ -1,5 +1,8 @@
 import { StrategiesType } from '../snapshot.ts';
 
+/**
+ * Criteria defines a set of conditions (when) that are used to evaluate the bypasser strategies
+ */
 export default class Criteria {
   private readonly when: Map<string, string[]>;
 
