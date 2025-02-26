@@ -15,7 +15,7 @@ const domain = 'Business';
 const component = 'business-service';
 const environment = 'default';
 const url = 'http://localhost:3000';
-const snapshotLocation = './test/snapshot/';
+const snapshotLocation = './tests/snapshot/';
 
 describe('E2E test - Client local:', function () {
   beforeAll(async function() {

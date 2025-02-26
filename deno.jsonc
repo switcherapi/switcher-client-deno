@@ -11,14 +11,14 @@
     "lcov": "deno coverage coverage --lcov --output=coverage/report.lcov",
     "clean": "rm -rf ./npm ./coverage ./generated-snapshots",
     "cover": "deno task clean && deno task test && deno task lcov && genhtml -o coverage/html coverage/report.lcov",
-    "play": "deno run -A test/playground/index.ts"
+    "play": "deno run -A tests/playground/index.ts"
   },
   "exports": "./mod.ts",
   "publish": {
     "exclude": [
       ".github",
       ".vscode",
-      "test",
+      "tests",
       "sonar-project.properties",
       ".snyk"
     ]
@@ -31,7 +31,7 @@
   "lock": false,
   "test": {
     "include": [
-      "test/**/*.ts"
+      "tests/**/*.ts"
     ]
   }
 }

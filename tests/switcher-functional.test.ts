@@ -197,7 +197,7 @@ describe('Integrated test - Client:', function () {
     
     const forceRemoteOptions = { 
       local: true, 
-      snapshotLocation: './test/snapshot/',
+      snapshotLocation: './tests/snapshot/',
       regexSafe: false
     };
 
@@ -311,7 +311,7 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should use silent mode when fail to check switchers', async function() {
-      Client.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './test/snapshot/' });
+      Client.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './tests/snapshot/' });
       await assertRejects(async () =>
         await Client.checkSwitchers(['FEATURE01', 'FEATURE02']),
         Error, 'Something went wrong: [FEATURE01,FEATURE02] not found');
@@ -326,7 +326,7 @@ describe('Integrated test - Client:', function () {
 
       // test
       let asyncErrorMessage = null;
-      Client.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './test/snapshot/' });
+      Client.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './tests/snapshot/' });
       Client.subscribeNotifyError((error) => asyncErrorMessage = error.message);
 
       const switcher = Client.getSwitcher();
@@ -570,7 +570,7 @@ describe('Integrated test - Client:', function () {
     it('should run in silent mode', async function () {
       // setup context to read the snapshot in case the API does not respond
       Client.buildContext(contextSettings, {
-        snapshotLocation: './test/snapshot/',
+        snapshotLocation: './tests/snapshot/',
         regexSafe: false,
         silentMode: '2s',
       });
@@ -616,7 +616,7 @@ describe('Integrated test - Client:', function () {
 
     it('should run in silent mode when API is unavailable', async function () {
       Client.buildContext(contextSettings, {
-        snapshotLocation: './test/snapshot/',
+        snapshotLocation: './tests/snapshot/',
         regexSafe: false,
         silentMode: '5m'
       });
