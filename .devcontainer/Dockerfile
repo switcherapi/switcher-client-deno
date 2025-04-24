@@ -1,6 +1,6 @@
-FROM denoland/deno
+FROM denoland/deno:2.2.11
 
-# Install git
+# Install tools
 RUN apt-get update && \
     apt-get install -y git && \
     rm -rf /var/lib/apt/lists/*
@@ -9,11 +9,11 @@ RUN apt-get update && \
 ARG USERNAME=developer
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && mkdir -p /home/$USERNAME/.deno \
-    && chown -R $USERNAME:$USERNAME /home/$USERNAME \
-    && chown -R $USERNAME:$USERNAME /deno-dir
+RUN groupadd --gid "$USER_GID" "$USERNAME" \
+    && useradd -s /bin/bash --uid "$USER_UID" --gid "$USER_GID" -m "$USERNAME" \
+    && mkdir -p /home/"$USERNAME"/.deno \
+    && chown -R "$USERNAME":"$USERNAME" /home/"$USERNAME" \
+    && chown -R "$USERNAME":"$USERNAME" /deno-dir
 
 # Switch to the non-root user
 USER $USERNAME
