@@ -36,7 +36,7 @@ jobs:
         run: deno task cover
 
       - name: SonarCloud Scan
-        uses: sonarsource/sonarqube-scan-action@v5.0.0
+        uses: sonarsource/sonarqube-scan-action@v5.1.0
         env:
           RUNNER_DEBUG: 1
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
