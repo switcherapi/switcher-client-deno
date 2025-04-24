@@ -1,0 +1,16 @@
+{
+    "name": "Switcher Client Deno Dev Container",
+    "dockerComposeFile": [
+        "docker-compose.yml"
+    ],
+    "service": "switcherclientdeno",
+    "workspaceFolder": "/workspace",
+	"customizations":{
+		"vscode": {
+			"extensions": ["denoland.vscode-deno"],
+			"settings": {
+				"terminal.integrated.shell.linux": "/bin/bash"
+			}
+		}
+	}
+}
