@@ -6,6 +6,7 @@ import type { ResultDetail } from "../src/types/index.d.ts";
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 import { StrategiesType } from '../src/lib/snapshot.ts';
 import { Client, type Switcher } from '../mod.ts';
+import { GlobalSnapshot } from "../src/lib/globals/globalSnapshot.ts";
 
 const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExit: false };
 
@@ -182,7 +183,7 @@ describe('E2E test - Client local:', function () {
     
     const version = await Client.loadSnapshot();
     assertEquals(version, 0);
-    assertExists(Client.snapshot);
+    assertExists(GlobalSnapshot.snapshot);
   });
 
   it('should be invalid - Local mode cannot load snapshot from an invalid path', testSettings, async function () {

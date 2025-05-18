@@ -1,6 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 export function payloadReader(payload: any): string[] {
-  const payloadRead = payload + '' === payload || payload || 0;
+  const payloadRead = payload + '' === payload || payload;
+
   if (Array.isArray(payloadRead)) {
     return payloadRead.flatMap((p) => payloadReader(p));
   }
@@ -23,7 +24,7 @@ export function payloadReader(payload: any): string[] {
 export function parseJSON(str: string) {
   try {
     return JSON.parse(str);
-  } catch (_e) {
+  } catch {
     return undefined;
   }
 }

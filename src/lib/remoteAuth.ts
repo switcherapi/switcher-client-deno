@@ -1,4 +1,5 @@
 import type { RetryOptions, SwitcherContext } from '../types/index.d.ts';
+import { GlobalAuth } from './globals/globalAuth.ts';
 import { auth, checkAPIHealth } from './remote.ts';
 import DateMoment from './utils/datemoment.ts';
 import * as util from './utils/index.ts';
@@ -9,13 +10,10 @@ import * as util from './utils/index.ts';
 export class Auth {
   private static context: SwitcherContext;
   private static retryOptions: RetryOptions;
-  private static token?: string;
-  private static exp?: number;
 
   static init(context: SwitcherContext) {
     this.context = context;
-    this.token = undefined;
-    this.exp = undefined;
+    GlobalAuth.init(context.url);
   }
 
   static setRetryOptions(silentMode: string) {
@@ -27,18 +25,18 @@ export class Auth {
 
   static async auth() {
     const response = await auth(this.context);
-    this.token = response.token;
-    this.exp = response.exp;
+    GlobalAuth.token = response.token;
+    GlobalAuth.exp = response.exp;
   }
 
   static checkHealth() {
-    if (this.token !== 'SILENT') {
+    if (GlobalAuth.token !== 'SILENT') {
       return;
     }
 
     if (this.isTokenExpired()) {
       this.updateSilentToken();
-      checkAPIHealth(util.get(this.getURL(), ''))
+      checkAPIHealth(util.get(GlobalAuth.url, ''))
         .then((isAlive) => {
           if (isAlive) {
             this.auth();
@@ -51,12 +49,12 @@ export class Auth {
     const expirationTime = new DateMoment(new Date())
       .add(this.retryOptions.retryTime, this.retryOptions.retryDurationIn).getDate();
 
-    this.token = 'SILENT';
-    this.exp = Math.round(expirationTime.getTime() / 1000);
+    GlobalAuth.token = 'SILENT';
+    GlobalAuth.exp = Math.round(expirationTime.getTime() / 1000);
   }
 
   static isTokenExpired() {
-    return !this.exp || Date.now() > (this.exp * 1000);
+    return !GlobalAuth.exp || Date.now() > (GlobalAuth.exp * 1000);
   }
 
   static isValid() {
@@ -79,13 +77,5 @@ export class Auth {
     }
 
     return true;
-  }
-
-  static getToken() {
-    return this.token;
-  }
-
-  static getURL() {
-    return this.context.url;
   }
 }
