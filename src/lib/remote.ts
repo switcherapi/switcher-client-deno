@@ -6,8 +6,8 @@ import type {
   ResultDetail,
   SwitcherContext,
 } from '../types/index.d.ts';
-import { Auth } from './remote-auth.ts';
 import * as util from './utils/index.ts';
+import { GlobalAuth } from './globals/globalAuth.ts';
 
 let httpClient: Deno.HttpClient;
 
@@ -74,7 +74,7 @@ export const checkAPIHealth = async (url: string) => {
   try {
     const response = await fetch(`${url}/check`, { client: httpClient, method: 'get' });
     return response.status == 200;
-  } catch (_e) {
+  } catch {
     return false;
   }
 };
@@ -87,12 +87,12 @@ export const checkCriteria = async (
   try {
     const entry = getEntry(input);
     const response = await fetch(
-      `${Auth.getURL()}/criteria?showReason=${showDetail}&key=${key}`,
+      `${GlobalAuth.url}/criteria?showReason=${showDetail}&key=${key}`,
       {
         client: httpClient,
         method: 'post',
         body: JSON.stringify({ entry }),
-        headers: getHeader(Auth.getToken()),
+        headers: getHeader(GlobalAuth.token),
       },
     );
 
@@ -113,11 +113,11 @@ export const checkSwitchers = async (
   switcherKeys: string[],
 ) => {
   try {
-    const response = await fetch(`${Auth.getURL()}/criteria/switchers_check`, {
+    const response = await fetch(`${GlobalAuth.url}/criteria/switchers_check`, {
       client: httpClient,
       method: 'post',
       body: JSON.stringify({ switchers: switcherKeys }),
-      headers: getHeader(Auth.getToken()),
+      headers: getHeader(GlobalAuth.token),
     });
 
     if (response.status != 200) {
@@ -144,10 +144,10 @@ export const checkSnapshotVersion = async (
   version: number,
 ) => {
   try {
-    const response = await fetch(`${Auth.getURL()}/criteria/snapshot_check/${version}`, {
+    const response = await fetch(`${GlobalAuth.url}/criteria/snapshot_check/${version}`, {
       client: httpClient,
       method: 'get',
-      headers: getHeader(Auth.getToken()),
+      headers: getHeader(GlobalAuth.token),
     });
 
     if (response.status == 200) {
@@ -184,11 +184,11 @@ export const resolveSnapshot = async (
   };
 
   try {
-    const response = await fetch(`${Auth.getURL()}/graphql`, {
+    const response = await fetch(`${GlobalAuth.url}/graphql`, {
       client: httpClient,
       method: 'post',
       body: JSON.stringify(data),
-      headers: getHeader(Auth.getToken()),
+      headers: getHeader(GlobalAuth.token),
     });
 
     if (response.status == 200) {

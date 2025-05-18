@@ -8,9 +8,10 @@
     "fmt:fix": "deno fmt mod.ts src/ --options-single-quote --options-line-width=120",
     "test": "deno test --allow-read --allow-net --allow-write --allow-import --coverage=coverage",
     "test-v1": "deno test --allow-read --allow-net --allow-write --coverage=coverage",
-    "lcov": "deno coverage coverage --lcov --output=coverage/report.lcov",
     "clean": "rm -rf ./npm ./coverage ./generated-snapshots",
+    "lcov": "deno coverage coverage --lcov --output=coverage/report.lcov",
     "cover": "deno task clean && deno task test && deno task lcov && genhtml -o coverage/html coverage/report.lcov",
+    "cover:html": "deno task cover && deno coverage --html",
     "play": "deno run -A tests/playground/index.ts"
   },
   "exports": "./mod.ts",

@@ -2,6 +2,7 @@ import { describe, it, afterAll, beforeEach, assertRejects, assertFalse, assertE
 import { given, givenError, tearDown, generateAuth, generateStatus, assertTrue, WaitSafe } from './helper/utils.ts';
 
 import { Client } from '../mod.ts';
+import { GlobalSnapshot } from "../src/lib/globals/globalSnapshot.ts";
 import type { SwitcherContext } from '../src/types/index.d.ts';
 
 const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExit: false };
@@ -287,7 +288,7 @@ describe('E2E test - Client local - Snapshot:', function () {
     });
 
     await Client.loadSnapshot();
-    assertExists(Client.snapshot);
+    assertExists(GlobalSnapshot.snapshot);
   });
 
   it('should not throw when switcher keys provided were configured properly', testSettings, async function () {
