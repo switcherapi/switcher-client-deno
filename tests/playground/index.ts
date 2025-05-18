@@ -1,10 +1,13 @@
+import { load } from '../deps.ts';
 import { Switcher, Client } from '../../mod.ts'
 import { sleep } from "../helper/utils.ts";
 
-const SWITCHER_KEY = 'MY_SWITCHER';
-const apiKey = '[API_KEY]';
-const domain = 'Playground';
-const component = 'switcher-playground';
+await load({ export: true, envPath: '.env' });
+
+const SWITCHER_KEY = 'CLIENT_DENO_FEATURE';
+const apiKey = Deno.env.get('SWITCHER_API_KEY') ?? '';
+const domain = 'Switcher API';
+const component = 'switcher4deno';
 const environment = 'default';
 const url = 'https://api.switcherapi.com';
 const snapshotLocation = './tests/playground/snapshot/';
@@ -55,6 +58,11 @@ const _testLocal = async () => {
 // Requires remote API
 const _testSimpleAPICall = async (local: boolean) => {
     await setupSwitcher(local);
+
+    Client.scheduleSnapshotAutoUpdate(3, {
+        success: (updated) => console.log('In-memory snapshot updated', updated),
+        reject: (err: Error) => console.log(err)
+    });
     
     await Client.checkSwitchers([SWITCHER_KEY])
         .then(() => console.log('Switcher checked'))
@@ -169,4 +177,4 @@ const _testSnapshotAutoUpdate = async () => {
     }, 2000);
 };
 
-_testSimpleAPICall(false);
+_testLocal();

@@ -21,7 +21,8 @@
       ".vscode",
       "tests",
       "sonar-project.properties",
-      ".snyk"
+      ".snyk",
+      ".env.template"
     ]
   },
   "fmt": {
@@ -33,6 +34,9 @@
   "test": {
     "include": [
       "tests/**/*.ts"
+    ],
+    "exclude": [
+      "tests/playground/**/*.ts"
     ]
   }
 }

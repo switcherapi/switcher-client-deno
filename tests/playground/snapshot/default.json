@@ -1,16 +1,16 @@
 {
     "data": {
         "domain": {
-            "name": "Playground",
+            "name": "Switcher API",
             "version": 1,
             "activated": true,
             "group": [
                 {
-                    "name": "Release 1",
+                    "name": "Test Project",
                     "activated": true,
                     "config": [
                         {
-                            "key": "MY_SWITCHER",
+                            "key": "CLIENT_DENO_FEATURE",
                             "activated": true,
                             "strategies": [
                                 {
@@ -23,15 +23,7 @@
                                 }
                             ],
                             "components": [
-                                "switcher-playground"
-                            ]
-                        },
-                        {
-                            "key": "MY_SWITCHER2",
-                            "activated": true,
-                            "strategies": [],
-                            "components": [
-                                "switcher-playground"
+                                "switcher4deno"
                             ]
                         }
                     ]
