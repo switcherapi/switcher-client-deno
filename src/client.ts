@@ -64,17 +64,29 @@ export class Client {
   }
 
   private static buildOptions(options: SwitcherOptions) {
-    if (SWITCHER_OPTIONS.CERT_PATH in options && options.certPath) {
-      remote.setCerts(options.certPath);
-    }
+    const optionsHandler: Record<string, () => void> = {
+      [SWITCHER_OPTIONS.CERT_PATH]: () => {
+        if (options.certPath) remote.setCerts(options.certPath);
+      },
+      [SWITCHER_OPTIONS.SILENT_MODE]: () => {
+        if (options.silentMode) this._initSilentMode(options.silentMode);
+      },
+      [SWITCHER_OPTIONS.SNAPSHOT_AUTO_UPDATE_INTERVAL]: () => {
+        GlobalOptions.updateOptions({ snapshotAutoUpdateInterval: options.snapshotAutoUpdateInterval });
+        this.scheduleSnapshotAutoUpdate();
+      },
+      [SWITCHER_OPTIONS.SNAPSHOT_WATCHER]: () => {
+        if (options.snapshotWatcher) {
+          GlobalOptions.updateOptions({ snapshotWatcher: true });
+          this.watchSnapshot();
+        }
+      },
+    };
 
-    if (SWITCHER_OPTIONS.SILENT_MODE in options && options.silentMode) {
-      this._initSilentMode(options.silentMode);
-    }
-
-    if (SWITCHER_OPTIONS.SNAPSHOT_AUTO_UPDATE_INTERVAL in options) {
-      GlobalOptions.updateOptions({ snapshotAutoUpdateInterval: options.snapshotAutoUpdateInterval });
-      this.scheduleSnapshotAutoUpdate();
+    for (const key in optionsHandler) {
+      if (key in options) {
+        optionsHandler[key]();
+      }
     }
 
     this._initTimedMatch(options);
