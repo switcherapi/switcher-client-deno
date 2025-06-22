@@ -110,6 +110,7 @@ const _testSnapshotUpdate = async () => {
     Client.unloadSnapshot();
 };
 
+// Does not require remote API
 const _testAsyncCall = async () => {
     setupSwitcher(true);
     switcher = Client.getSwitcher();
@@ -123,6 +124,7 @@ const _testAsyncCall = async () => {
     Client.unloadSnapshot();
 };
 
+// Does not require remote API
 const _testBypasser = async () => {
     setupSwitcher(true);
     switcher = Client.getSwitcher();
@@ -154,6 +156,29 @@ const _testWatchSnapshot = async () => {
         success: async () => console.log('In-memory snapshot updated', await switcher.isItOn(SWITCHER_KEY)),
         reject: (err: Error) => console.log(err)
     });
+};
+
+// Does not require remote API
+const _testWatchSnapshotContextOptions = async () => {
+    Client.buildContext({ domain, environment }, { 
+        snapshotLocation,
+        snapshotWatcher: true,
+        local: true, 
+        logger: true 
+    });
+
+    await Client.loadSnapshot();
+
+    const switcher = Client.getSwitcher();
+    
+    setInterval(async () => {
+        const time = Date.now();
+        const result = await switcher
+            .detail()
+            .isItOn(SWITCHER_KEY);
+            
+        console.log(`- ${Date.now() - time} ms - ${JSON.stringify(result)}`);
+    }, 1000);
 };
 
 // Requires remote API

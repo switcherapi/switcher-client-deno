@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import { describe, it, afterAll, beforeEach, assertEquals, assertFalse, existsSync } from './deps.ts';
+import { describe, it, afterAll, beforeEach, assertEquals, assertFalse, existsSync, delay } from './deps.ts';
 import { assertTrue, WaitSafe } from './helper/utils.ts';
 
 import { Client } from '../mod.ts';
@@ -19,7 +19,7 @@ const invalidateJSON = () => {
   Deno.writeTextFileSync('generated-snapshots/watch.json', '[INVALID]');
 };
 
-describe('E2E test - Client local - Watch Snapshot:', function () {
+describe('E2E test - Client local - Watch Snapshot (watchSnapshot):', function () {
   const domain = 'Business';
   const component = 'business-service';
   const environment = 'watch';
@@ -103,4 +103,38 @@ describe('E2E test - Client local - Watch Snapshot:', function () {
     Client.testMode(false);
   });
 
+});
+
+describe('E2E test - Client local - Watch Snapshot (context):', function () {
+  const domain = 'Business';
+  const component = 'business-service';
+  const environment = 'watch';
+
+  beforeEach(async function() {
+    updateSwitcher(true);
+    Client.buildContext({ domain, component, environment }, {
+      snapshotLocation: 'generated-snapshots/',
+      snapshotWatcher: true,
+      local: true,
+      regexSafe: false
+    });
+
+    await Client.loadSnapshot();
+  });
+  
+  afterAll(function() {
+    Client.unloadSnapshot();
+    if (existsSync('generated-snapshots/'))
+      Deno.removeSync('generated-snapshots/', { recursive: true });
+  });
+  
+  it('should read from updated snapshot', async function () {
+    const switcher = Client.getSwitcher();
+    assertTrue(await switcher.isItOn('FF2FOR2030'));
+    updateSwitcher(false);
+
+    await delay(2000); // Wait for the snapshot to be updated
+    assertFalse(await switcher.isItOn('FF2FOR2030'));
+    Client.unloadSnapshot();
+  });
 });

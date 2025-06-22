@@ -70,11 +70,12 @@ const local = true;
 const logger = true;
 const snapshotLocation = './snapshot/';
 const snapshotAutoUpdateInterval = 3;
+const snapshotWatcher = true;
 const silentMode = '5m';
 const certPath = './certs/ca.pem';
 
 Client.buildContext({ url, apiKey, domain, component, environment }, {
-    local, logger, snapshotLocation, snapshotAutoUpdateInterval, silentMode, certPath
+    local, logger, snapshotLocation, snapshotAutoUpdateInterval, snapshotWatcher, silentMode, certPath
 });
 
 const switcher = Client.getSwitcher();
@@ -84,6 +85,7 @@ const switcher = Client.getSwitcher();
 - **logger**: If activated, it is possible to retrieve the last results from a given Switcher key using Client.getLogger('KEY')
 - **snapshotLocation**: Location of snapshot files.
 - **snapshotAutoUpdateInterval**: Enable Snapshot Auto Update given an interval in seconds (default: 0 disabled).
+- **snapshotWatcher**: Enable Snapshot Watcher to monitor changes in the snapshot file (default: false).
 - **silentMode**: Enable contigency given the time for the client to retry - e.g. 5s (s: seconds - m: minutes - h: hours)
 - **regexSafe**: Enable REGEX Safe mode - Prevent agaist reDOS attack (default: true).
 - **regexMaxBlackList**: Number of entries cached when REGEX Strategy fails to perform (reDOS safe) - default: 50
@@ -220,6 +222,18 @@ Client.watchSnapshot({
     reject: (err: Error) => console.log(err)
 });
 ```
+
+Alternatively, you can also use the client context configuration to monitor changes in the snapshot file.<br>
+
+```ts
+Client.buildContext({ domain, component, environment }, {
+    local: true,
+    snapshotLocation: './snapshot/',
+    snapshotWatcher: true
+});
+```
+
+```ts
 
 ## Snapshot version check
 For convenience, an implementation of a domain version checker is available if you have external processes that manage snapshot files.

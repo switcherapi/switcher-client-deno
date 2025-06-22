@@ -6,6 +6,7 @@
     "jsr:@std/fs@1.0.15": "1.0.15",
     "jsr:@std/fs@1.0.16": "1.0.16",
     "jsr:@std/fs@1.0.17": "1.0.17",
+    "jsr:@std/fs@1.0.18": "1.0.18",
     "jsr:@std/fs@1.0.2": "1.0.2",
     "jsr:@std/fs@1.0.4": "1.0.4",
     "jsr:@std/fs@1.0.5": "1.0.5",
@@ -14,7 +15,8 @@
     "jsr:@std/path@^1.0.6": "1.0.6",
     "jsr:@std/path@^1.0.7": "1.0.8",
     "jsr:@std/path@^1.0.8": "1.0.8",
-    "jsr:@std/path@^1.0.9": "1.0.9"
+    "jsr:@std/path@^1.0.9": "1.0.9",
+    "jsr:@std/path@^1.1.0": "1.1.0"
   },
   "jsr": {
     "@std/fs@1.0.2": {
@@ -71,6 +73,12 @@
         "jsr:@std/path@^1.0.9"
       ]
     },
+    "@std/fs@1.0.18": {
+      "integrity": "24bcad99eab1af4fde75e05da6e9ed0e0dce5edb71b7e34baacf86ffe3969f3a",
+      "dependencies": [
+        "jsr:@std/path@^1.1.0"
+      ]
+    },
     "@std/path@1.0.3": {
       "integrity": "cd89d014ce7eb3742f2147b990f6753ee51d95276bfc211bc50c860c1bc7df6f"
     },
@@ -82,6 +90,9 @@
     },
     "@std/path@1.0.9": {
       "integrity": "260a49f11edd3db93dd38350bf9cd1b4d1366afa98e81b86167b4e3dd750129e"
+    },
+    "@std/path@1.1.0": {
+      "integrity": "ddc94f8e3c275627281cbc23341df6b8bcc874d70374f75fec2533521e3d6886"
     }
   }
 }
