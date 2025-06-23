@@ -4,6 +4,10 @@ import { assertTrue, WaitSafe } from './helper/utils.ts';
 
 import { Client } from '../mod.ts';
 
+const domain = 'Business';
+const component = 'business-service';
+const environment = 'watch';
+
 const updateSwitcher = (status: boolean) => {
   const dataBuffer = Deno.readTextFileSync('./tests/snapshot/dev.json');
   const dataJSON = JSON.parse(dataBuffer.toString());
@@ -20,10 +24,6 @@ const invalidateJSON = () => {
 };
 
 describe('E2E test - Client local - Watch Snapshot (watchSnapshot):', function () {
-  const domain = 'Business';
-  const component = 'business-service';
-  const environment = 'watch';
-
   beforeEach(async function() {
     updateSwitcher(true);
     Client.buildContext({ domain, component, environment }, {
@@ -106,10 +106,6 @@ describe('E2E test - Client local - Watch Snapshot (watchSnapshot):', function (
 });
 
 describe('E2E test - Client local - Watch Snapshot (context):', function () {
-  const domain = 'Business';
-  const component = 'business-service';
-  const environment = 'watch';
-
   beforeEach(async function() {
     updateSwitcher(true);
     Client.buildContext({ domain, component, environment }, {

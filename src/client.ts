@@ -76,10 +76,8 @@ export class Client {
         this.scheduleSnapshotAutoUpdate();
       },
       [SWITCHER_OPTIONS.SNAPSHOT_WATCHER]: () => {
-        if (options.snapshotWatcher) {
-          GlobalOptions.updateOptions({ snapshotWatcher: true });
-          this.watchSnapshot();
-        }
+        GlobalOptions.updateOptions({ snapshotWatcher: options.snapshotWatcher });
+        this.watchSnapshot();
       },
     };
 
