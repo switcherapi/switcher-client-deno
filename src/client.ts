@@ -71,6 +71,9 @@ export class Client {
       [SWITCHER_OPTIONS.SILENT_MODE]: () => {
         if (options.silentMode) this._initSilentMode(options.silentMode);
       },
+      [SWITCHER_OPTIONS.RESTRICT_RELAY]: () => {
+        GlobalOptions.updateOptions({ restrictRelay: options.restrictRelay });
+      },
       [SWITCHER_OPTIONS.SNAPSHOT_AUTO_UPDATE_INTERVAL]: () => {
         GlobalOptions.updateOptions({ snapshotAutoUpdateInterval: options.snapshotAutoUpdateInterval });
         this.scheduleSnapshotAutoUpdate();
@@ -116,7 +119,8 @@ export class Client {
    * Creates a new instance of Switcher
    */
   static getSwitcher(key?: string): Switcher {
-    return new Switcher(util.get(key, ''));
+    return new Switcher(util.get(key, ''))
+      .restrictRelay(GlobalOptions.restrictRelay);
   }
 
   /**

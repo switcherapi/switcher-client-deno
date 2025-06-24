@@ -315,3 +315,56 @@ describe('E2E test - Client testing (assume) feature:', function () {
   });
 
 });
+
+describe('E2E test - Restrict Relay:', function () {
+  beforeAll(async function() {
+    Client.buildContext({ url, apiKey, domain, component, environment }, {
+      snapshotLocation, local: true, logger: true, regexMaxBlackList: 1, regexMaxTimeLimit: 500
+    });
+
+    await Client.loadSnapshot();
+  });
+
+  afterAll(function() {
+    Client.unloadSnapshot();
+    TimedMatch.terminateWorker();
+  });
+
+  beforeEach(function() {
+    Client.clearLogger();
+  });
+
+  it('should return false when Relay is enabled (restrict default: true)', testSettings, async function () {
+    Client.buildContext({ domain, component, environment }, {
+      snapshotLocation, local: true, logger: true
+    });
+
+    await Client.loadSnapshot();
+
+    switcher = Client.getSwitcher();
+    assertFalse(await switcher.isItOn('USECASE103'));
+  });
+
+  it('should return true when Relay is enabled (restrict: false)', testSettings, async function () {
+    Client.buildContext({ domain, component, environment }, {
+      snapshotLocation, local: true, logger: true, restrictRelay: false
+    });
+
+    await Client.loadSnapshot();
+
+    switcher = Client.getSwitcher();
+    assertTrue(await switcher.isItOn('USECASE103'));
+  });
+
+  it('should return true when Relay is disabled (restrict: true)', testSettings, async function () {
+    Client.buildContext({ domain, component, environment }, {
+      snapshotLocation, local: true, logger: true, restrictRelay: true
+    });
+
+    await Client.loadSnapshot();
+
+    switcher = Client.getSwitcher();
+    assertTrue(await switcher.isItOn('USECASE104'));
+  });
+
+});

@@ -176,6 +176,7 @@ export const resolveSnapshot = async (
           group { name activated
             config { key activated
               strategies { strategy activated operation values }
+              relay { type activated }
               components
             }
           }

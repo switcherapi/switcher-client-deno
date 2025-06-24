@@ -1,11 +1,12 @@
 import { processOperation } from './snapshot.ts';
 import { getEntry } from '../lib/remote.ts';
+import * as util from '../lib/utils/index.ts';
 import type { Config, Entry, Group, Snapshot, SnapshotData, Strategy } from '../types/index.d.ts';
+import type { Switcher } from '../switcher.ts';
 
 async function resolveCriteria(
   data: SnapshotData,
-  key: string,
-  input?: string[][],
+  switcher: Switcher,
 ) {
   let result = true, reason = '';
 
@@ -15,9 +16,9 @@ async function resolveCriteria(
     }
 
     const { group } = data.domain;
-    if (!(await checkGroup(group, key, input))) {
+    if (!(await checkGroup(group, switcher))) {
       throw new Error(
-        `Something went wrong: {"error":"Unable to load a key ${key}"}`,
+        `Something went wrong: {"error":"Unable to load a key ${switcher.key}"}`,
       );
     }
 
@@ -39,22 +40,22 @@ async function resolveCriteria(
 
 /**
  * @param {*} groups from a specific Domain
- * @param {*} key to be filtered
- * @param {*} input strategy if exists
+ * @param {*} switcher Switcher to check
  * @return true if Switcher found
  */
 async function checkGroup(
   groups: Group[],
-  key: string,
-  input?: string[][],
+  switcher: Switcher,
 ) {
+  const key = util.get(switcher.key, '');
+
   if (groups) {
     for (const group of groups) {
       const { config } = group;
       const configFound = config.filter((c: { key: string }) => c.key === key);
 
       // Switcher Configs are always supplied as the snapshot is loaded from components linked to the Switcher.
-      if (await checkConfig(group, configFound[0], input)) {
+      if (await checkConfig(group, configFound[0], switcher)) {
         return true;
       }
     }
@@ -65,10 +66,10 @@ async function checkGroup(
 /**
  * @param {*} group in which Switcher has been found
  * @param {*} config Switcher found
- * @param {*} input Strategy input if exists
+ * @param {*} switcher Switcher to check
  * @return true if Switcher found
  */
-async function checkConfig(group: Group, config: Config, input?: string[][]) {
+async function checkConfig(group: Group, config: Config, switcher: Switcher) {
   if (!config) {
     return false;
   }
@@ -81,8 +82,12 @@ async function checkConfig(group: Group, config: Config, input?: string[][]) {
     throw new CriteriaFailed('Config disabled');
   }
 
+  if (hasRelayEnabled(config) && switcher.isRelayRestricted) {
+    throw new CriteriaFailed('Config has Relay enabled');
+  }
+
   if (config.strategies) {
-    return await checkStrategy(config, input);
+    return await checkStrategy(config, util.get(switcher.input, []));
   }
 
   return true;
@@ -126,10 +131,13 @@ async function checkStrategyInput(strategyInput: Strategy, entry?: Entry[]) {
   }
 }
 
+function hasRelayEnabled(config: Config): boolean {
+  return config.relay?.activated;
+}
+
 export default async function checkCriteriaLocal(
   snapshot: Snapshot | undefined,
-  key: string,
-  input?: string[][],
+  switcher: Switcher,
 ) {
   if (!snapshot) {
     throw new Error(
@@ -138,7 +146,7 @@ export default async function checkCriteriaLocal(
   }
 
   const { data } = snapshot;
-  return await resolveCriteria(data, key, input);
+  return await resolveCriteria(data, switcher);
 }
 
 class CriteriaFailed extends Error {

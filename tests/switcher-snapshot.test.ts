@@ -291,7 +291,7 @@ describe('E2E test - Client local - Snapshot:', function () {
     assertExists(GlobalSnapshot.snapshot);
   });
 
-  it('should not throw when switcher keys provided were configured properly', testSettings, async function () {
+  it('should NOT throw when switcher keys provided were configured properly', testSettings, async function () {
     await delay(2000);
     
     await Client.loadSnapshot();
