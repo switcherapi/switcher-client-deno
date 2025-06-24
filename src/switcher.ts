@@ -1,31 +1,24 @@
 import Bypasser from './lib/bypasser/index.ts';
 import ExecutionLogger from './lib/utils/executionLogger.ts';
 import checkCriteriaLocal from './lib/resolver.ts';
-import { StrategiesType } from './lib/snapshot.ts';
 import type { ResultDetail } from './types/index.d.ts';
+import type { SwitcherRequest } from './switcherRequest.ts';
 import * as remote from './lib/remote.ts';
 import * as util from './lib/utils/index.ts';
 import { Auth } from './lib/remoteAuth.ts';
 import { GlobalOptions } from './lib/globals/globalOptions.ts';
 import { GlobalSnapshot } from './lib/globals/globalSnapshot.ts';
 import { GlobalAuth } from './lib/globals/globalAuth.ts';
+import { SwitcherBuilder } from './switcherBuilder.ts';
 
 /**
  * Switcher handles criteria execution and validations.
  *
  * Create a intance of Switcher using Client.getSwitcher()
  */
-export class Switcher {
-  private _delay = 0;
-  private _nextRun = 0;
-  private _input?: string[][];
-  private _key = '';
-  private _defaultResult: boolean | undefined;
-  private _forceRemote = false;
-  private _showDetail = false;
-  private _restrictRelay = true;
-
+export class Switcher extends SwitcherBuilder implements SwitcherRequest {
   constructor(key: string) {
+    super(key);
     this._validateArgs(key);
   }
 
@@ -103,118 +96,6 @@ export class Switcher {
     }
 
     return result;
-  }
-
-  /**
-   * Define a delay (ms) for the next async execution.
-   *
-   * Activating this option will enable logger by default
-   */
-  throttle(delay: number): this {
-    this._delay = delay;
-
-    if (delay > 0) {
-      GlobalOptions.updateOptions({ logger: true });
-    }
-
-    return this;
-  }
-
-  /**
-   * Force the use of the remote API when local is enabled
-   */
-  remote(forceRemote = true): this {
-    if (!GlobalOptions.local) {
-      throw new Error('Local mode is not enabled');
-    }
-
-    this._forceRemote = forceRemote;
-    return this;
-  }
-
-  /**
-   * When enabled, isItOn will return a ResultDetail object
-   */
-  detail(showDetail = true): this {
-    this._showDetail = showDetail;
-    return this;
-  }
-
-  /**
-   * Define a default result when the client enters in panic mode
-   */
-  defaultResult(defaultResult: boolean): this {
-    this._defaultResult = defaultResult;
-    return this;
-  }
-
-  /**
-   * Allow local snapshots to ignore or require Relay verification.
-   */
-  restrictRelay(restrict = true): this {
-    this._restrictRelay = restrict;
-    return this;
-  }
-
-  /**
-   * Adds a strategy for validation
-   */
-  check(startegyType: string, input: string): this {
-    if (!this._input) {
-      this._input = [];
-    }
-
-    this._input.push([startegyType, input]);
-    return this;
-  }
-
-  /**
-   * Adds VALUE_VALIDATION input for strategy validation
-   */
-  checkValue(input: string): this {
-    return this.check(StrategiesType.VALUE, input);
-  }
-
-  /**
-   * Adds NUMERIC_VALIDATION input for strategy validation
-   */
-  checkNumeric(input: string): this {
-    return this.check(StrategiesType.NUMERIC, input);
-  }
-
-  /**
-   * Adds NETWORK_VALIDATION input for strategy validation
-   */
-  checkNetwork(input: string): this {
-    return this.check(StrategiesType.NETWORK, input);
-  }
-
-  /**
-   * Adds DATE_VALIDATION input for strategy validation
-   */
-  checkDate(input: string): this {
-    return this.check(StrategiesType.DATE, input);
-  }
-
-  /**
-   * Adds TIME_VALIDATION input for strategy validation
-   */
-  checkTime(input: string): this {
-    return this.check(StrategiesType.TIME, input);
-  }
-
-  /**
-   * Adds REGEX_VALIDATION input for strategy validation
-   */
-  checkRegex(input: string): this {
-    return this.check(StrategiesType.REGEX, input);
-  }
-
-  /**
-   * Adds PAYLOAD_VALIDATION input for strategy validation
-   */
-  checkPayload(input: string): this {
-    return this.check(StrategiesType.PAYLOAD, input);
   }
 
   /**
@@ -329,23 +210,14 @@ export class Switcher {
     return response;
   }
 
-  /**
-   * Return switcher key
-   */
   get key(): string {
     return this._key;
   }
 
-  /**
-   * Return switcher current strategy input
-   */
   get input(): string[][] | undefined {
     return this._input;
   }
 
-  /**
-   * Return Relay restriction value
-   */
   get isRelayRestricted(): boolean {
     return this._restrictRelay;
   }

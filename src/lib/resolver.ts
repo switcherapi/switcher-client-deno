@@ -2,11 +2,11 @@ import { processOperation } from './snapshot.ts';
 import { getEntry } from '../lib/remote.ts';
 import * as util from '../lib/utils/index.ts';
 import type { Config, Entry, Group, Snapshot, SnapshotData, Strategy } from '../types/index.d.ts';
-import type { Switcher } from '../switcher.ts';
+import type { SwitcherRequest } from '../switcherRequest.ts';
 
 async function resolveCriteria(
   data: SnapshotData,
-  switcher: Switcher,
+  switcher: SwitcherRequest,
 ) {
   let result = true, reason = '';
 
@@ -45,7 +45,7 @@ async function resolveCriteria(
  */
 async function checkGroup(
   groups: Group[],
-  switcher: Switcher,
+  switcher: SwitcherRequest,
 ) {
   const key = util.get(switcher.key, '');
 
@@ -69,7 +69,7 @@ async function checkGroup(
  * @param {*} switcher Switcher to check
  * @return true if Switcher found
  */
-async function checkConfig(group: Group, config: Config, switcher: Switcher) {
+async function checkConfig(group: Group, config: Config, switcher: SwitcherRequest) {
   if (!config) {
     return false;
   }
@@ -137,7 +137,7 @@ function hasRelayEnabled(config: Config): boolean {
 
 export default async function checkCriteriaLocal(
   snapshot: Snapshot | undefined,
-  switcher: Switcher,
+  switcher: SwitcherRequest,
 ) {
   if (!snapshot) {
     throw new Error(

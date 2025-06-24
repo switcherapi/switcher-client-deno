@@ -68,7 +68,7 @@ const _testSimpleAPICall = async (local: boolean) => {
         .then(() => console.log('Switcher checked'))
         .catch(error => console.log(error));
 
-    switcher = new Switcher(SWITCHER_KEY);
+    switcher = Client.getSwitcher();
 
     setInterval(async () => {
         const time = Date.now();
