@@ -1,5 +1,5 @@
 import { load } from '../deps.ts';
-import { Switcher, Client } from '../../mod.ts'
+import { type Switcher, Client } from '../../mod.ts'
 import { sleep } from "../helper/utils.ts";
 
 await load({ export: true, envPath: '.env' });
