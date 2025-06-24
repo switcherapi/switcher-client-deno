@@ -1,5 +1,5 @@
 import { load } from '../deps.ts';
-import { Switcher, Client } from '../../mod.ts'
+import { type Switcher, Client } from '../../mod.ts'
 import { sleep } from "../helper/utils.ts";
 
 await load({ export: true, envPath: '.env' });
@@ -68,7 +68,7 @@ const _testSimpleAPICall = async (local: boolean) => {
         .then(() => console.log('Switcher checked'))
         .catch(error => console.log(error));
 
-    switcher = new Switcher(SWITCHER_KEY);
+    switcher = Client.getSwitcher();
 
     setInterval(async () => {
         const time = Date.now();
