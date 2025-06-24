@@ -23,6 +23,7 @@ export class Switcher {
   private _defaultResult: boolean | undefined;
   private _forceRemote = false;
   private _showDetail = false;
+  private _restrictRelay = true;
 
   constructor(key: string) {
     this._validateArgs(key);
@@ -144,6 +145,14 @@ export class Switcher {
    */
   defaultResult(defaultResult: boolean): this {
     this._defaultResult = defaultResult;
+    return this;
+  }
+
+  /**
+   * Allow local snapshots to ignore or require Relay verification.
+   */
+  restrictRelay(restrict = true): this {
+    this._restrictRelay = restrict;
     return this;
   }
 
@@ -280,11 +289,7 @@ export class Switcher {
     let response: ResultDetail;
 
     try {
-      response = await checkCriteriaLocal(
-        GlobalSnapshot.snapshot,
-        util.get(this._key, ''),
-        util.get(this._input, []),
-      );
+      response = await checkCriteriaLocal(GlobalSnapshot.snapshot, this);
     } catch (err) {
       response = this.getDefaultResultOrThrow(err as Error);
     }
@@ -336,5 +341,12 @@ export class Switcher {
    */
   get input(): string[][] | undefined {
     return this._input;
+  }
+
+  /**
+   * Return Relay restriction value
+   */
+  get isRelayRestricted(): boolean {
+    return this._restrictRelay;
   }
 }
