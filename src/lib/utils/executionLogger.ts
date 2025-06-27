@@ -1,4 +1,4 @@
-import type { ResultDetail } from '../../types/index.d.ts';
+import { SwitcherResult } from '../result.ts';
 
 const logger: ExecutionLogger[] = [];
 
@@ -10,13 +10,13 @@ export default class ExecutionLogger {
 
   key?: string;
   input?: string[][];
-  response: ResultDetail = { result: false };
+  response: SwitcherResult = SwitcherResult.create();
 
   /**
    * Add new execution result
    */
   static add(
-    response: ResultDetail,
+    response: SwitcherResult,
     key: string,
     input?: string[][],
   ): void {

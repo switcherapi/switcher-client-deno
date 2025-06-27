@@ -1,4 +1,4 @@
-import { StrategiesType } from '@switcherapi/switcher-client-deno';
+import { StrategiesType } from './lib/snapshot.ts';
 import { GlobalOptions } from './lib/globals/globalOptions.ts';
 
 export class SwitcherBuilder {
@@ -43,7 +43,7 @@ export class SwitcherBuilder {
   }
 
   /**
-   * When enabled, isItOn will return a ResultDetail object
+   * When enabled, isItOn will return a SwitcherResult object
    */
   detail(showDetail = true): this {
     this._showDetail = showDetail;

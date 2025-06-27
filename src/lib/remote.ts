@@ -1,17 +1,10 @@
-import { AuthError, CheckSwitcherError, CriteriaError, SnapshotServiceError } from './exceptions/index.ts';
-import type {
-  AuthResponse,
-  CheckSnapshotVersionResponse,
-  Entry,
-  ResultDetail,
-  SwitcherContext,
-} from '../types/index.d.ts';
+import { CheckSwitcherError, ClientError, RemoteError } from './exceptions/index.ts';
+import type { AuthResponse, CheckSnapshotVersionResponse, Entry, SwitcherContext } from '../types/index.d.ts';
+import type { SwitcherResult } from './result.ts';
 import * as util from './utils/index.ts';
 import { GlobalAuth } from './globals/globalAuth.ts';
 
 let httpClient: Deno.HttpClient;
-
-const getConnectivityError = (code: string) => `Connection has been refused - ${code}`;
 
 const getHeader = (token: string | undefined) => {
   return {
@@ -63,10 +56,9 @@ export const auth = async (context: SwitcherContext) => {
       return response.json() as Promise<AuthResponse>;
     }
 
-    throw new Error(`[auth] failed with status ${response.status}`);
+    throw new RemoteError(`[auth] failed with status ${response.status}`);
   } catch (e) {
-    const error = e as { errno?: string; message: string };
-    throw new AuthError(error.errno ? getConnectivityError(error.errno) : error.message);
+    throw errorHandler(e);
   }
 };
 
@@ -97,15 +89,12 @@ export const checkCriteria = async (
     );
 
     if (response.status == 200) {
-      return response.json() as Promise<ResultDetail>;
+      return response.json() as Promise<SwitcherResult>;
     }
 
-    throw new Error(`[checkCriteria] failed with status ${response.status}`);
+    throw new RemoteError(`[checkCriteria] failed with status ${response.status}`);
   } catch (e) {
-    const error = e as { errno?: string; message: string };
-    throw new CriteriaError(
-      error.errno ? getConnectivityError(error.errno) : error.message,
-    );
+    throw errorHandler(e);
   }
 };
 
@@ -121,7 +110,7 @@ export const checkSwitchers = async (
     });
 
     if (response.status != 200) {
-      throw new Error(`[checkSwitchers] failed with status ${response.status}`);
+      throw new RemoteError(`[checkSwitchers] failed with status ${response.status}`);
     }
 
     const json = await response.json();
@@ -129,14 +118,7 @@ export const checkSwitchers = async (
       throw new CheckSwitcherError(json.not_found);
     }
   } catch (e) {
-    if (e instanceof CheckSwitcherError) {
-      throw e;
-    }
-
-    const error = e as { errno?: string; message: string };
-    throw new CriteriaError(
-      error.errno ? getConnectivityError(error.errno) : error.message,
-    );
+    throw errorHandler(e);
   }
 };
 
@@ -154,12 +136,9 @@ export const checkSnapshotVersion = async (
       return response.json() as Promise<CheckSnapshotVersionResponse>;
     }
 
-    throw new Error(`[checkSnapshotVersion] failed with status ${response.status}`);
+    throw new RemoteError(`[checkSnapshotVersion] failed with status ${response.status}`);
   } catch (e) {
-    const error = e as { errno?: string; message: string };
-    throw new SnapshotServiceError(
-      error.errno ? getConnectivityError(error.errno) : error.message,
-    );
+    throw errorHandler(e);
   }
 };
 
@@ -196,11 +175,17 @@ export const resolveSnapshot = async (
       return JSON.stringify(await response.json(), null, 4);
     }
 
-    throw new Error(`[resolveSnapshot] failed with status ${response.status}`);
+    throw new RemoteError(`[resolveSnapshot] failed with status ${response.status}`);
   } catch (e) {
-    const error = e as { errno?: string; message: string };
-    throw new SnapshotServiceError(
-      error.errno ? getConnectivityError(error.errno) : error.message,
-    );
+    throw errorHandler(e);
   }
 };
+
+function errorHandler(error: unknown) {
+  if (!(error instanceof ClientError)) {
+    const e = error as { errno?: string; message: string };
+    throw new RemoteError(e.errno ? `Connection has been refused - ${e.errno}` : e.message);
+  }
+
+  throw error;
+}

@@ -16,38 +16,52 @@ describe('Strategy [VALUE] tests:', function () {
     'USER_2',
   ];
 
+  const givenStrategyConfig = (operation: string, values: string[]) => ({
+    strategy: StrategiesType.VALUE,
+    operation: operation,
+    values: values,
+    activated: true,
+  });
+
   it('should agree when input EXIST', async function () {
-    const result = await processOperation(StrategiesType.VALUE, OperationsType.EXIST, 'USER_1', mock_values1);
+    const strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values1);
+    const result = await processOperation(strategyConfig, 'USER_1');
     assertTrue(result);
   });
 
   it('should NOT agree when input DOES NOT EXIST', async function () {
-    const result = await processOperation(StrategiesType.VALUE, OperationsType.EXIST, 'USER_123', mock_values1);
+    const strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values1);
+    const result = await processOperation(strategyConfig, 'USER_123');
     assertFalse(result);
   });
 
   it('should agree when input DOES NOT EXIST', async function () {
-    const result = await processOperation(StrategiesType.VALUE, OperationsType.NOT_EXIST, 'USER_123', mock_values1);
+    const strategyConfig = givenStrategyConfig(OperationsType.NOT_EXIST, mock_values1);
+    const result = await processOperation(strategyConfig, 'USER_123');
     assertTrue(result);
   });
 
   it('should agree when input is EQUAL', async function () {
-    const result = await processOperation(StrategiesType.VALUE, OperationsType.EQUAL, 'USER_1', mock_values1);
+    const strategyConfig = givenStrategyConfig(OperationsType.EQUAL, mock_values1);
+    const result = await processOperation(strategyConfig, 'USER_1');
     assertTrue(result);
   });
 
   it('should NOT agree when input is NOT EQUAL', async function () {
-    const result = await processOperation(StrategiesType.VALUE, OperationsType.EQUAL, 'USER_2', mock_values1);
+    const strategyConfig = givenStrategyConfig(OperationsType.EQUAL, mock_values1);
+    const result = await processOperation(strategyConfig, 'USER_2');
     assertFalse(result);
   });
 
   it('should agree when input is NOT EQUAL', async function () {
-    const result = await processOperation(StrategiesType.VALUE, OperationsType.NOT_EQUAL, 'USER_123', mock_values2);
+    const strategyConfig = givenStrategyConfig(OperationsType.NOT_EQUAL, mock_values2);
+    const result = await processOperation(strategyConfig, 'USER_123');
     assertTrue(result);
   });
 
   it('should NOT agree when input is NOT EQUAL', async function () {
-    const result = await processOperation(StrategiesType.VALUE, OperationsType.NOT_EQUAL, 'USER_2', mock_values2);
+    const strategyConfig = givenStrategyConfig(OperationsType.NOT_EQUAL, mock_values2);
+    const result = await processOperation(strategyConfig, 'USER_2');
     assertFalse(result);
   });
 

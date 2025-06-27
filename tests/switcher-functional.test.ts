@@ -3,10 +3,9 @@ import { describe, it, afterAll, afterEach, beforeEach,
   assertSpyCalls, spy } from './deps.ts';
 import { given, givenError, tearDown, assertTrue, generateAuth, generateResult, generateDetailedResult, sleep } from './helper/utils.ts'
 
-import { Client } from '../mod.ts';
-import type { ResultDetail, SwitcherContext } from '../src/types/index.d.ts';
+import { Client, type SwitcherResult, type SwitcherContext } from '../mod.ts';
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
-import ExecutionLogger from "../src/lib/utils/executionLogger.ts";
+import ExecutionLogger from '../src/lib/utils/executionLogger.ts';
 
 describe('Integrated test - Client:', function () {
 
@@ -116,7 +115,7 @@ describe('Integrated test - Client:', function () {
       await switcher.isItOn('FLAG_2');
 
       // first async API call
-      const response = await switcher.detail().isItOn('FLAG_2') as ResultDetail;
+      const response = await switcher.detail().isItOn('FLAG_2') as SwitcherResult;
       assertTrue(response.result);
     });
 
@@ -244,7 +243,7 @@ describe('Integrated test - Client:', function () {
       Client.buildContext(contextSettings);
 
       const switcher = Client.getSwitcher();
-      const detailedResult = await switcher.detail().isItOn('FF2FOR2030') as ResultDetail;
+      const detailedResult = await switcher.detail().isItOn('FF2FOR2030') as SwitcherResult;
       assertTrue(detailedResult.result);
       assertEquals(detailedResult.reason, 'Success');
       assertEquals(detailedResult.metadata, { user: 'user1' });
@@ -283,7 +282,7 @@ describe('Integrated test - Client:', function () {
       };
     });
 
-    it('should NOT be valid - API returned 429 (too many requests) at checkHealth/auth', async function () {
+    it('should NOT be valid - API returned 429 (too many requests) at auth', async function () {
       // given API responses
       given('POST@/criteria/auth', { error: 'Too many requests' }, 429);
 
@@ -323,16 +322,22 @@ describe('Integrated test - Client:', function () {
       // given API responses
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', { error: 'Too many requests' }, 429);
+      givenError('GET@/check', 'ECONNREFUSED'); // used in the 2nd isItOn call
 
       // test
       let asyncErrorMessage = null;
-      Client.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './tests/snapshot/' });
+      Client.buildContext(contextSettings, { silentMode: '1s', regexSafe: false, snapshotLocation: './tests/snapshot/' });
       Client.subscribeNotifyError((error) => asyncErrorMessage = error.message);
 
       const switcher = Client.getSwitcher();
       
+      // assert silent mode being used while registering the error
       assertTrue(await switcher.isItOn('FF2FOR2022'));
       assertEquals(asyncErrorMessage, 'Something went wrong: [checkCriteria] failed with status 429');
+
+      // assert silent mode being used in the next call
+      await sleep(1500);
+      assertTrue(await switcher.isItOn('FF2FOR2022'));
     });
 
   });
