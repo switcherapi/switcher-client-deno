@@ -1,4 +1,3 @@
-// deno-lint-ignore-file
 import { existsSync } from '../deps.ts';
 
 import DateMoment from './utils/datemoment.ts';
@@ -7,13 +6,28 @@ import TimedMatch from './utils/timed-match/index.ts';
 import { parseJSON, payloadReader } from './utils/payloadReader.ts';
 import { CheckSwitcherError } from './exceptions/index.ts';
 import { checkSnapshotVersion, resolveSnapshot } from './remote.ts';
-import type { Snapshot } from '../types/index.d.ts';
+import type { Snapshot, Strategy } from '../types/index.d.ts';
 
 /**
  * Strategy types that can be used to validate the switcher
  */
 type StrategyKeys = 'NETWORK' | 'VALUE' | 'NUMERIC' | 'TIME' | 'DATE' | 'REGEX' | 'PAYLOAD';
 
+/**
+ * StrategiesType is a mapping of strategy keys to their string representations.
+ * This is used to identify the type of validation strategy being applied.
+ *
+ * Each strategy corresponds to a specific validation method that can be applied to the switcher.
+ * For example:
+ *
+ * - 'NETWORK_VALIDATION' is used for network-related validations,
+ * - 'VALUE_VALIDATION' for simple value checks,
+ * - 'NUMERIC_VALIDATION' for numeric comparisons,
+ * - 'TIME_VALIDATION' for time-based checks,
+ * - 'DATE_VALIDATION' for date comparisons,
+ * - 'REGEX_VALIDATION' for regular expression matching,
+ * - 'PAYLOAD_VALIDATION' for payload structure validations.
+ */
 export const StrategiesType: Readonly<Record<StrategyKeys, string>> = {
   NETWORK: 'NETWORK_VALIDATION',
   VALUE: 'VALUE_VALIDATION',
@@ -123,11 +137,11 @@ export const checkSwitchersLocal = (snapshot: Snapshot, switcherKeys: string[]) 
 };
 
 export const processOperation = async (
-  strategy: string,
-  operation: string,
+  strategyConfig: Strategy,
   input: string,
-  values: string[],
 ): Promise<boolean | undefined> => {
+  const { strategy, operation, values } = strategyConfig;
+
   switch (strategy) {
     case StrategiesType.NETWORK:
       return processNETWORK(operation, input, values);
@@ -140,7 +154,7 @@ export const processOperation = async (
     case StrategiesType.DATE:
       return processDATE(operation, input, values);
     case StrategiesType.REGEX:
-      return processREGEX(operation, input, values);
+      return await processREGEX(operation, input, values);
     case StrategiesType.PAYLOAD:
       return processPAYLOAD(operation, input, values);
   }

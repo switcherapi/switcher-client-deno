@@ -20,64 +20,82 @@ const mock_values3 = [
   'USER_[0-9]{1,2}',
 ];
 
+const givenStrategyConfig = (operation: string, values: string[]) => ({
+  strategy: StrategiesType.REGEX,
+  operation: operation,
+  values: values,
+  activated: true,
+});
+
 describe('Strategy [REGEX Safe] tests:', function () {
   beforeAll(() => TimedMatch.initializeWorker());
   afterAll(() => TimedMatch.terminateWorker());
 
   it('should agree when expect to exist using EXIST operation', async function () {
-    let result = await processOperation(StrategiesType.REGEX, OperationsType.EXIST, 'USER_1', mock_values1);
+    let strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values1);
+    let result = await processOperation(strategyConfig, 'USER_1');
     assertTrue(result);
 
-    result = await processOperation(StrategiesType.REGEX, OperationsType.EXIST, 'user-01', mock_values2);
+    strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values2);
+    result = await processOperation(strategyConfig, 'user-01');
     assertTrue(result);
   });
 
   it('should NOT agree when expect to exist using EXIST operation', async function () {
-    let result = await processOperation(StrategiesType.REGEX, OperationsType.EXIST, 'USER_123', mock_values1);
+    let strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values1);
+    let result = await processOperation(strategyConfig, 'USER_123');
     assertFalse(result);
 
     //mock_values3 does not require exact match
-    result = await processOperation(StrategiesType.REGEX, OperationsType.EXIST, 'USER_123', mock_values3);
+    strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values3);
+    result = await processOperation(strategyConfig, 'USER_123');
     assertTrue(result);
   });
 
   it('should agree when expect to not exist using NOT_EXIST operation', async function () {
-    let result = await processOperation(StrategiesType.REGEX, OperationsType.NOT_EXIST, 'USER_123', mock_values1);
+    let strategyConfig = givenStrategyConfig(OperationsType.NOT_EXIST, mock_values1);
+    let result = await processOperation(strategyConfig, 'USER_123');
     assertTrue(result);
 
-    result = await processOperation(StrategiesType.REGEX, OperationsType.NOT_EXIST, 'user-123', mock_values2);
+    strategyConfig = givenStrategyConfig(OperationsType.NOT_EXIST, mock_values2);
+    result = await processOperation(strategyConfig, 'user-123');
     assertTrue(result);
   });
 
   it('should NOT agree when expect to not exist using NOT_EXIST operation', async function () {
-    const result = await processOperation(StrategiesType.REGEX, OperationsType.NOT_EXIST, 'USER_12', mock_values1);
+    const strategyConfig = givenStrategyConfig(OperationsType.NOT_EXIST, mock_values1);
+    const result = await processOperation(strategyConfig, 'USER_12');
     assertFalse(result);
   });
 
   it('should agree when expect to be equal using EQUAL operation', async function () {
-    const result = await processOperation(StrategiesType.REGEX, OperationsType.EQUAL, 'USER_11', mock_values3);
+    const strategyConfig = givenStrategyConfig(OperationsType.EQUAL, mock_values3);
+    const result = await processOperation(strategyConfig, 'USER_11');
     assertTrue(result);
   });
 
   it('should NOT agree when expect to be equal using EQUAL operation', async function () {
-    const result = await processOperation(StrategiesType.REGEX, OperationsType.EQUAL, 'user-11', mock_values3);
+    const strategyConfig = givenStrategyConfig(OperationsType.EQUAL, mock_values3);
+    const result = await processOperation(strategyConfig, 'user-11');
     assertFalse(result);
   });
 
   it('should agree when expect to not be equal using NOT_EQUAL operation', async function () {
-    const result = await processOperation(StrategiesType.REGEX, OperationsType.NOT_EQUAL, 'USER_123', mock_values3);
+    const strategyConfig = givenStrategyConfig(OperationsType.NOT_EQUAL, mock_values3);
+    const result = await processOperation(strategyConfig, 'USER_123');
     assertTrue(result);
   });
 
   it('should NOT agree when expect to not be equal using NOT_EQUAL operation', async function () {
-    const result = await processOperation(StrategiesType.REGEX, OperationsType.NOT_EQUAL, 'USER_1', mock_values3);
+    const strategyConfig = givenStrategyConfig(OperationsType.NOT_EQUAL, mock_values3);
+    const result = await processOperation(strategyConfig, 'USER_1');
     assertFalse(result);
   });
 
   it('should NOT agree when match cannot finish (reDoS attempt)', async function () {
-    const result = await processOperation(
-        StrategiesType.REGEX, OperationsType.EQUAL, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['^(([a-z])+.)+[A-Z]([a-z])+$']);
-        assertFalse(result);
+    const strategyConfig = givenStrategyConfig(OperationsType.EQUAL, ['^(([a-z])+.)+[A-Z]([a-z])+$']);
+    const result = await processOperation(strategyConfig, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+    assertFalse(result);
   });
 });
 
@@ -85,7 +103,8 @@ describe('Strategy [REGEX] tests:', function () {
   beforeAll(() => TimedMatch.terminateWorker());
 
   it('should agree when expect to exist using EXIST operation', async function () {
-    const result = await processOperation(StrategiesType.REGEX, OperationsType.EXIST, 'USER_1', mock_values1);
+    const strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values1);
+    const result = await processOperation(strategyConfig, 'USER_1');
     assertTrue(result);
   });
 });

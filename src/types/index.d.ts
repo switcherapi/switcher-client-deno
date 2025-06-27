@@ -183,12 +183,3 @@ export type Relay = {
   type: string;
   activated: boolean;
 };
-
-/**
- * ResultDetail type is returned when using Switcher:detail() method
- */
-export type ResultDetail = {
-  result: boolean;
-  reason?: string;
-  metadata?: object;
-};

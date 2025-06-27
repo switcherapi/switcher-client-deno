@@ -1,3 +1,4 @@
+import { SwitcherResult } from '../result.ts';
 import Criteria from './criteria.ts';
 
 /**
@@ -59,21 +60,13 @@ export default class Key {
   /**
    * Return key response
    */
-  getResponse(input?: string[][]): {
-    result: boolean;
-    reason: string | undefined;
-    metadata: object | undefined;
-  } {
+  getResponse(input?: string[][]): SwitcherResult {
     let result = this.result;
     if (this.criteria && input) {
       result = this.getResultBasedOnCriteria(this.criteria, input);
     }
 
-    return {
-      result,
-      reason: this.reason,
-      metadata: this.metadata,
-    };
+    return SwitcherResult.create(result, this.reason, this.metadata);
   }
 
   private getResultBasedOnCriteria(criteria: Criteria, input: string[][]): boolean {

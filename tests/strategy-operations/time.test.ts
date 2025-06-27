@@ -16,43 +16,58 @@ describe('Strategy [TIME] tests:', function () {
     '10:00',
   ];
 
+  const givenStrategyConfig = (operation: string, values: string[]) => ({
+    strategy: StrategiesType.TIME,
+    operation: operation,
+    values: values,
+    activated: true,
+  });
+
   it('should agree when input is LOWER', async function () {
-    const result = await processOperation(StrategiesType.TIME, OperationsType.LOWER, '06:00', mock_values1);
+    const strategyConfig = givenStrategyConfig(OperationsType.LOWER, mock_values1);
+    const result = await processOperation(strategyConfig, '06:00');
     assertTrue(result);
   });
 
   it('should agree when input is LOWER or SAME', async function () {
-    const result = await processOperation(StrategiesType.TIME, OperationsType.LOWER, '08:00', mock_values1);
+    const strategyConfig = givenStrategyConfig(OperationsType.LOWER, mock_values1);
+    const result = await processOperation(strategyConfig, '08:00');
     assertTrue(result);
   });
 
   it('should NOT agree when input is NOT LOWER', async function () {
-    const result = await processOperation(StrategiesType.TIME, OperationsType.LOWER, '10:00', mock_values1);
+    const strategyConfig = givenStrategyConfig(OperationsType.LOWER, mock_values1);
+    const result = await processOperation(strategyConfig, '10:00');
     assertFalse(result);
   });
 
   it('should agree when input is GREATER', async function () {
-    const result = await processOperation(StrategiesType.TIME, OperationsType.GREATER, '10:00', mock_values1);
+    const strategyConfig = givenStrategyConfig(OperationsType.GREATER, mock_values1);
+    const result = await processOperation(strategyConfig, '10:00');
     assertTrue(result);
   });
 
   it('should agree when input is GREATER or SAME', async function () {
-    const result = await processOperation(StrategiesType.TIME, OperationsType.GREATER, '08:00', mock_values1);
+    const strategyConfig = givenStrategyConfig(OperationsType.GREATER, mock_values1);
+    const result = await processOperation(strategyConfig, '08:00');
     assertTrue(result);
   });
 
   it('should NOT agree when input is NOT GREATER', async function () {
-    const result = await processOperation(StrategiesType.TIME, OperationsType.GREATER, '06:00', mock_values1);
+    const strategyConfig = givenStrategyConfig(OperationsType.GREATER, mock_values1);
+    const result = await processOperation(strategyConfig, '06:00');
     assertFalse(result);
   });
 
   it('should agree when input is in BETWEEN', async function () {
-    const result = await processOperation(StrategiesType.TIME, OperationsType.BETWEEN, '09:00', mock_values2);
+    const strategyConfig = givenStrategyConfig(OperationsType.BETWEEN, mock_values2);
+    const result = await processOperation(strategyConfig, '09:00');
     assertTrue(result);
   });
 
   it('should NOT agree when input is NOT in BETWEEN', async function () {
-    const result = await processOperation(StrategiesType.TIME, OperationsType.BETWEEN, '07:00', mock_values2);
+    const strategyConfig = givenStrategyConfig(OperationsType.BETWEEN, mock_values2);
+    const result = await processOperation(strategyConfig, '07:00');
     assertFalse(result);
   });
 

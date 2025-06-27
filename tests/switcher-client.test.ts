@@ -2,11 +2,10 @@ import { describe, it, afterAll, beforeEach, beforeAll, delay,
   assertEquals, assertRejects, assertFalse, assertExists } from './deps.ts';
 import { assertTrue } from './helper/utils.ts'
 
-import type { ResultDetail } from "../src/types/index.d.ts";
+import { Client, type Switcher, type SwitcherResult } from '../mod.ts';
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 import { StrategiesType } from '../src/lib/snapshot.ts';
-import { Client, type Switcher } from '../mod.ts';
-import { GlobalSnapshot } from "../src/lib/globals/globalSnapshot.ts";
+import { GlobalSnapshot } from '../src/lib/globals/globalSnapshot.ts';
 
 const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExit: false };
 
@@ -18,7 +17,7 @@ const environment = 'default';
 const url = 'http://localhost:3000';
 const snapshotLocation = './tests/snapshot/';
 
-describe('E2E test - Client local:', function () {
+describe('E2E test - Client local #1:', function () {
   beforeAll(async function() {
     Client.buildContext({ url, apiKey, domain, component, environment }, {
       snapshotLocation, local: true, logger: true, regexMaxBlackList: 1, regexMaxTimeLimit: 500
@@ -68,10 +67,15 @@ describe('E2E test - Client local:', function () {
     const response = await switcher.detail()
       .checkValue('Japan')
       .checkNetwork('10.0.0.3')
-      .isItOn('FF2FOR2020') as ResultDetail;
+      .isItOn('FF2FOR2020') as SwitcherResult;
 
     assertTrue(response.result);
     assertEquals(response.reason, 'Success');
+    assertEquals(response.toJSON(), {
+      result: true,
+      reason: 'Success',
+      metadata: undefined
+    });
   });
 
   it('should be valid - No prepare function needed', testSettings, async function () {
@@ -219,6 +223,29 @@ describe('E2E test - Client local:', function () {
 
 });
 
+describe('E2E test - Client local #2:', function () {
+  beforeAll(async function() {
+    Client.buildContext({ url, apiKey, domain, component, environment: 'default_disabled' }, {
+      snapshotLocation, local: true, logger: true, regexMaxBlackList: 1, regexMaxTimeLimit: 500
+    });
+
+    await Client.loadSnapshot();
+    switcher = Client.getSwitcher();
+  });
+
+  afterAll(function() {
+    Client.unloadSnapshot();
+    TimedMatch.terminateWorker();
+  });
+
+  it('should be invalid - Client domain disabled', testSettings, async function () {
+    assertFalse(await switcher.isItOn('FF2FOR2040'));
+    assertEquals(Client.getLogger('FF2FOR2040')[0].response.reason, 
+      'Domain disabled');
+  });
+  
+});
+
 describe('E2E test - Client testing (assume) feature:', function () {
   beforeAll(async function() {
     Client.buildContext({ url, apiKey, domain, component, environment }, {
@@ -240,6 +267,16 @@ describe('E2E test - Client testing (assume) feature:', function () {
     switcher = Client.getSwitcher();
   });
 
+  it('should replace the result of isItOn with Client.assume', testSettings, async function () {
+    await switcher.prepare('DUMMY');
+
+    Client.assume('DUMMY').true();
+    assertTrue(await switcher.isItOn());
+
+    Client.assume('DUMMY').false();
+    assertFalse(await switcher.isItOn());
+  });
+
   it('should be valid assuming key to be false and then forgetting it', testSettings, async function () {
     await switcher
       .checkValue('Japan')
@@ -256,7 +293,7 @@ describe('E2E test - Client testing (assume) feature:', function () {
 
   it('should be valid assuming key to be false - with details', async function () {
     Client.assume('FF2FOR2020').false();
-    const { result, reason } = await switcher.detail().isItOn('FF2FOR2020') as ResultDetail;
+    const { result, reason } = await switcher.detail().isItOn('FF2FOR2020') as SwitcherResult;
 
     assertFalse(result);
     assertEquals(reason, 'Forced to false');
@@ -264,7 +301,7 @@ describe('E2E test - Client testing (assume) feature:', function () {
 
   it('should be valid assuming key to be false - with metadata', async function () {
     Client.assume('FF2FOR2020').false().withMetadata({ value: 'something' });
-    const { result, reason, metadata } = await switcher.detail(true).isItOn('FF2FOR2020') as ResultDetail;
+    const { result, reason, metadata } = await switcher.detail(true).isItOn('FF2FOR2020') as SwitcherResult;
 
     assertFalse(result);
     assertEquals(reason, 'Forced to false');

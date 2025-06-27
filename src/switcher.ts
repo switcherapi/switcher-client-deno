@@ -1,11 +1,11 @@
 import Bypasser from './lib/bypasser/index.ts';
 import ExecutionLogger from './lib/utils/executionLogger.ts';
 import checkCriteriaLocal from './lib/resolver.ts';
-import type { ResultDetail } from './types/index.d.ts';
 import type { SwitcherRequest } from './switcherRequest.ts';
 import * as remote from './lib/remote.ts';
 import * as util from './lib/utils/index.ts';
 import { Auth } from './lib/remoteAuth.ts';
+import { SwitcherResult } from './lib/result.ts';
 import { GlobalOptions } from './lib/globals/globalOptions.ts';
 import { GlobalSnapshot } from './lib/globals/globalSnapshot.ts';
 import { GlobalAuth } from './lib/globals/globalAuth.ts';
@@ -58,10 +58,10 @@ export class Switcher extends SwitcherBuilder implements SwitcherRequest {
   /**
    * Execute criteria
    *
-   * @returns boolean or ResultDetail when detail() is used
+   * @returns boolean or SwitcherResult when detail() is used
    */
-  async isItOn(key?: string): Promise<boolean | ResultDetail> {
-    let result: boolean | ResultDetail;
+  async isItOn(key?: string): Promise<boolean | SwitcherResult> {
+    let result: boolean | SwitcherResult;
     this._validateArgs(key);
 
     // verify if query from Bypasser
@@ -101,8 +101,8 @@ export class Switcher extends SwitcherBuilder implements SwitcherRequest {
   /**
    * Execute criteria from remote API
    */
-  async _executeRemoteCriteria(): Promise<boolean | ResultDetail> {
-    let responseCriteria: ResultDetail;
+  async _executeRemoteCriteria(): Promise<boolean | SwitcherResult> {
+    let responseCriteria: SwitcherResult;
 
     if (this._useSync()) {
       try {
@@ -128,7 +128,7 @@ export class Switcher extends SwitcherBuilder implements SwitcherRequest {
   /**
    * Execute criteria from remote API asynchronously
    */
-  _executeAsyncRemoteCriteria(): ResultDetail {
+  _executeAsyncRemoteCriteria(): SwitcherResult {
     if (this._nextRun < Date.now()) {
       this._nextRun = Date.now() + this._delay;
 
@@ -166,8 +166,8 @@ export class Switcher extends SwitcherBuilder implements SwitcherRequest {
     }
   }
 
-  async _executeLocalCriteria(): Promise<boolean | ResultDetail> {
-    let response: ResultDetail;
+  async _executeLocalCriteria(): Promise<boolean | SwitcherResult> {
+    let response: SwitcherResult;
 
     try {
       response = await checkCriteriaLocal(GlobalSnapshot.snapshot, this);
@@ -196,15 +196,12 @@ export class Switcher extends SwitcherBuilder implements SwitcherRequest {
     return this._delay == 0 || !ExecutionLogger.getExecution(this._key, this._input);
   }
 
-  private getDefaultResultOrThrow(err: Error): ResultDetail {
+  private getDefaultResultOrThrow(err: Error): SwitcherResult {
     if (this._defaultResult === undefined) {
       throw err;
     }
 
-    const response = {
-      result: this._defaultResult,
-      reason: 'Default result',
-    };
+    const response = SwitcherResult.create(this._defaultResult, 'Default result');
 
     this._notifyError(err);
     return response;

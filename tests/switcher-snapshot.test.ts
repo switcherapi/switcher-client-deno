@@ -1,9 +1,8 @@
 import { describe, it, afterAll, beforeEach, assertRejects, assertFalse, assertExists, assertEquals, delay, existsSync } from './deps.ts';
 import { given, givenError, tearDown, generateAuth, generateStatus, assertTrue, WaitSafe } from './helper/utils.ts';
 
-import { Client } from '../mod.ts';
+import { Client, type SwitcherContext } from '../mod.ts';
 import { GlobalSnapshot } from "../src/lib/globals/globalSnapshot.ts";
-import type { SwitcherContext } from '../src/types/index.d.ts';
 
 const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExit: false };
 

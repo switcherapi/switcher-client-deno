@@ -15,7 +15,7 @@ import type Key from './lib/bypasser/key.ts';
 import TimedMatch from './lib/utils/timed-match/index.ts';
 import ExecutionLogger from './lib/utils/executionLogger.ts';
 import SnapshotAutoUpdater from './lib/utils/snapshotAutoUpdater.ts';
-import { SnapshotNotFoundError } from './lib/exceptions/index.ts';
+import { ClientError } from './lib/exceptions/index.ts';
 import { checkSwitchersLocal, loadDomain, validateSnapshot } from './lib/snapshot.ts';
 import { Switcher } from './switcher.ts';
 import { Auth } from './lib/remoteAuth.ts';
@@ -28,6 +28,19 @@ import { GlobalSnapshot } from './lib/globals/globalSnapshot.ts';
  * 1. Use Client.buildContext() to define the arguments to connect to the API.
  * 2. Use Client.getSwitcher() to create a new instance of Switcher.
  * 3. Use the instance created to call isItOn to execute criteria evaluation.
+ *
+ * @example
+ * ```ts
+ * Client.buildContext({
+ *   url: 'https://api.switcher.com',
+ *   apiKey: '********',
+ *   domain: 'my-domain',
+ *   component: 'my-component',
+ *   environment: 'default'
+ * });
+ *
+ * const switcher = Client.getSwitcher();
+ * ```
  */
 export class Client {
   private static _testEnabled = DEFAULT_TEST_MODE;
@@ -130,7 +143,7 @@ export class Client {
    */
   static async checkSnapshot(): Promise<boolean> {
     if (!GlobalSnapshot.snapshot) {
-      throw new SnapshotNotFoundError('Snapshot is not loaded. Use Client.loadSnapshot()');
+      throw new ClientError('Snapshot is not loaded. Use Client.loadSnapshot()');
     }
 
     if (Auth.isTokenExpired()) {
