@@ -28,7 +28,14 @@ export default class ExecutionLogger {
       }
     }
 
-    logger.push({ key, input, response });
+    logger.push({
+      key,
+      input,
+      response: SwitcherResult.create(response.result, response.reason, {
+        ...response.metadata,
+        cached: true,
+      }),
+    });
   }
 
   /**
@@ -38,8 +45,13 @@ export default class ExecutionLogger {
     key: string,
     input?: string[][],
   ): ExecutionLogger {
-    const result = logger.filter((value) => this.hasExecution(value, key, input));
-    return result[0];
+    for (const log of logger) {
+      if (this.hasExecution(log, key, input)) {
+        return log;
+      }
+    }
+
+    return new ExecutionLogger();
   }
 
   /**
@@ -73,6 +85,17 @@ export default class ExecutionLogger {
   }
 
   private static hasExecution(log: ExecutionLogger, key: string, input: string[][] | undefined) {
-    return log.key === key && JSON.stringify(log.input) === JSON.stringify(input);
+    return log.key === key && this.checkStrategyInputs(log.input, input);
+  }
+
+  private static checkStrategyInputs(loggerInputs: string[][] | undefined, inputs: string[][] | undefined): boolean {
+    for (const [strategy, input] of loggerInputs || []) {
+      const found = inputs?.find((i) => i[0] === strategy && i[1] === input);
+      if (!found) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }

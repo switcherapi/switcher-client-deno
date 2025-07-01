@@ -18,7 +18,7 @@ let switcher: Switcher;
  * Playground environment for showcasing the API
  */
 async function setupSwitcher(local: boolean) {
-    Client.buildContext({ url, apiKey, domain, component, environment }, { local, logger: true });
+    Client.buildContext({ url, apiKey, domain, component, environment }, { snapshotLocation, local, logger: true });
     await Client.loadSnapshot({ fetchRemote: local })
         .then(version => console.log('Snapshot loaded - version:', version))
         .catch(() => console.log('Failed to load Snapshot'));
@@ -49,6 +49,7 @@ const _testLocal = async () => {
         const time = Date.now();
         const result = await switcher
             .detail()
+            .throttle(1000)
             .isItOn(SWITCHER_KEY);
 
         console.log(`- ${Date.now() - time} ms - ${JSON.stringify(result)}`);
@@ -58,11 +59,6 @@ const _testLocal = async () => {
 // Requires remote API
 const _testSimpleAPICall = async (local: boolean) => {
     await setupSwitcher(local);
-
-    Client.scheduleSnapshotAutoUpdate(3, {
-        success: (updated) => console.log('In-memory snapshot updated', updated),
-        reject: (err: Error) => console.log(err)
-    });
     
     await Client.checkSwitchers([SWITCHER_KEY])
         .then(() => console.log('Switcher checked'))
@@ -72,7 +68,7 @@ const _testSimpleAPICall = async (local: boolean) => {
 
     setInterval(async () => {
         const time = Date.now();
-        const result = await switcher.isItOn(SWITCHER_KEY);
+        const result = await switcher.detail().isItOn(SWITCHER_KEY);
         console.log(`- ${Date.now() - time} ms - ${JSON.stringify(result)}`);
     }, 1000);
 };
@@ -104,10 +100,7 @@ const _testSnapshotUpdate = async () => {
     setupSwitcher(false);
     await sleep(2000);
     
-    switcher = Client.getSwitcher();
     console.log('checkSnapshot:', await Client.checkSnapshot());
-
-    Client.unloadSnapshot();
 };
 
 // Does not require remote API
@@ -117,11 +110,9 @@ const _testAsyncCall = async () => {
 
     console.log("Sync:", await switcher.isItOn(SWITCHER_KEY));
 
-    switcher.isItOn(SWITCHER_KEY)
+    (switcher.isItOn(SWITCHER_KEY) as Promise<boolean>)
         .then(res => console.log('Promise result:', res))
         .catch(error => console.log(error));
-
-    Client.unloadSnapshot();
 };
 
 // Does not require remote API
