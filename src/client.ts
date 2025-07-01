@@ -7,6 +7,7 @@ import {
   DEFAULT_LOGGER,
   DEFAULT_REGEX_MAX_BLACKLISTED,
   DEFAULT_REGEX_MAX_TIME_LIMIT,
+  DEFAULT_STATIC,
   DEFAULT_TEST_MODE,
   SWITCHER_OPTIONS,
 } from './lib/constants.ts';
@@ -65,6 +66,7 @@ export class Client {
       snapshotAutoUpdateInterval: 0,
       snapshotLocation: options?.snapshotLocation,
       local: util.get(options?.local, DEFAULT_LOCAL),
+      static: util.get(options?.static, DEFAULT_STATIC),
       logger: util.get(options?.logger, DEFAULT_LOGGER),
     });
 

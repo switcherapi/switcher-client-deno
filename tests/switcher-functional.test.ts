@@ -90,15 +90,13 @@ describe('Integrated test - Client:', function () {
       const switcher = Client.getSwitcher();
       switcher.throttle(1000);
 
-      const spyPrepare = spy(switcher, '_executeAsyncRemoteCriteria');
       const spyExecutionLogger = spy(ExecutionLogger, 'add');
 
       assertTrue(await switcher.isItOn('FLAG_1')); // sync
       assertTrue(await switcher.isItOn('FLAG_1')); // async
       await sleep(100); // wait resolve async Promise
 
-      assertSpyCalls(spyPrepare, 1);
-      assertSpyCalls(spyExecutionLogger, 2); // 1st (sync) + 2nd (async)
+      assertSpyCalls(spyExecutionLogger, 1);
     });
     
     it('should be valid - throttle - with details', async function () {
@@ -128,37 +126,40 @@ describe('Integrated test - Client:', function () {
       // test
       Client.buildContext(contextSettings);
 
-      const switcher = Client.getSwitcher();
-      switcher.throttle(500);
+      const switcher = Client.getSwitcher()
+        .throttle(500)
+        .detail();
 
       const spyPrepare = spy(switcher, 'prepare');
 
-      // first API call - stores result in cache
-      let result = await switcher.isItOn('FLAG_3');
-      assertTrue(result);
+      // 1st - calls remote API and stores result in cache
+      let isItOn = await switcher.isItOn('FLAG_3') as SwitcherResult;
+      assertTrue(isItOn.result);
+      assertEquals(isItOn.metadata, undefined);
       assertSpyCalls(spyPrepare, 1);
 
-      // first async API call
-      result = await switcher.isItOn('FLAG_3');
-      assertTrue(result);
+      // 2nd - uses cached result
+      isItOn = await switcher.isItOn('FLAG_3') as SwitcherResult;
+      assertTrue(isItOn.result);
+      assertTrue((isItOn.metadata as { cached: boolean }).cached);
       assertSpyCalls(spyPrepare, 1);
 
-      // Next call should call the API again - token has expired
+      // should call the remote API - token has expired
       await sleep(2000); // wait resolve async Promise
       
       // given
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria', generateResult(false)); // after token expires
 
-      // test - stores result in cache after token renewal
-      await sleep(500);
-      result = await switcher.isItOn('FLAG_3');
-      assertTrue(result);
+      // 3rd - use cached result, asynchronous renew token and stores new result in cache
+      isItOn = await switcher.isItOn('FLAG_3') as SwitcherResult;
+      assertTrue(isItOn.result);
       assertSpyCalls(spyPrepare, 2);
 
+      // 4th - uses cached result
       await sleep(50);
-      result = await switcher.isItOn('FLAG_3');
-      assertFalse(result);
+      isItOn = await switcher.isItOn('FLAG_3') as SwitcherResult;
+      assertFalse(isItOn.result);
       assertSpyCalls(spyPrepare, 2);
     });
 
@@ -221,7 +222,7 @@ describe('Integrated test - Client:', function () {
       Client.buildContext(contextSettings, forceRemoteOptions);
 
       const switcher = Client.getSwitcher();
-      const executeRemoteCriteria = spy(switcher, '_executeRemoteCriteria');
+      const executeRemoteCriteria = spy(switcher, 'executeRemoteCriteria');
       
       await Client.loadSnapshot();
       assertFalse(await switcher.remote().isItOn('FF2FOR2030'));
@@ -581,7 +582,7 @@ describe('Integrated test - Client:', function () {
       });
       
       const switcher = Client.getSwitcher();
-      const spyRemote = spy(switcher, '_executeRemoteCriteria');
+      const spyRemote = spy(switcher, 'executeRemoteCriteria');
 
       // First attempt to reach the API - Since it's configured to use silent mode, it should return true (according to the snapshot)
       givenError('POST@/criteria/auth', 'ECONNREFUSED');

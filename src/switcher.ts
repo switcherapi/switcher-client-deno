@@ -60,8 +60,7 @@ export class Switcher extends SwitcherBuilder implements SwitcherRequest {
    *
    * @returns boolean or SwitcherResult when detail() is used
    */
-  async isItOn(key?: string): Promise<boolean | SwitcherResult> {
-    let result: boolean | SwitcherResult;
+  isItOn(key?: string): Promise<boolean | SwitcherResult> | boolean | SwitcherResult {
     this._validateArgs(key);
 
     // verify if query from Bypasser
@@ -71,102 +70,53 @@ export class Switcher extends SwitcherBuilder implements SwitcherRequest {
       return this._showDetail ? response : response.result;
     }
 
-    try {
-      // verify if query from snapshot
-      if (GlobalOptions.local && !this._forceRemote) {
-        return await this._executeLocalCriteria();
-      }
-
-      // otherwise, execute remote criteria or local snapshot when silent mode is enabled
-      await this.validate();
-      if (GlobalAuth.token === 'SILENT') {
-        result = await this._executeLocalCriteria();
-      } else {
-        result = await this._executeRemoteCriteria();
-      }
-    } catch (err) {
-      this._notifyError(err as Error);
-
-      if (GlobalOptions.silentMode) {
-        Auth.updateSilentToken();
-        return this._executeLocalCriteria();
-      }
-
-      throw err;
+    // try to get cached result
+    const cachedResult = this._tryCachedResult();
+    if (cachedResult) {
+      return cachedResult;
     }
 
-    return result;
+    return this._submit();
+  }
+
+  /**
+   * Schedules background refresh of the last criteria request
+   */
+  scheduleBackgroundRefresh(): void {
+    const now = Date.now();
+    if (now > this._nextRefreshTime) {
+      this._nextRefreshTime = now + this._delay;
+      queueMicrotask(() => this._submit().catch((err) => this._notifyError(err)));
+    }
   }
 
   /**
    * Execute criteria from remote API
    */
-  async _executeRemoteCriteria(): Promise<boolean | SwitcherResult> {
+  async executeRemoteCriteria(): Promise<boolean | SwitcherResult> {
     let responseCriteria: SwitcherResult;
 
-    if (this._useSync()) {
-      try {
-        responseCriteria = await remote.checkCriteria(
-          this._key,
-          this._input,
-          this._showDetail,
-        );
-      } catch (err) {
-        responseCriteria = this.getDefaultResultOrThrow(err as Error);
-      }
+    try {
+      responseCriteria = await remote.checkCriteria(
+        this._key,
+        this._input,
+        this._showDetail,
+      );
+    } catch (err) {
+      responseCriteria = this.getDefaultResultOrThrow(err as Error);
+    }
 
-      if (GlobalOptions.logger && this._key) {
-        ExecutionLogger.add(responseCriteria, this._key, this._input);
-      }
-    } else {
-      responseCriteria = this._executeAsyncRemoteCriteria();
+    if (GlobalOptions.logger && this._key) {
+      ExecutionLogger.add(responseCriteria, this._key, this._input);
     }
 
     return this._showDetail ? responseCriteria : responseCriteria.result;
   }
 
   /**
-   * Execute criteria from remote API asynchronously
+   * Execute criteria from local snapshot
    */
-  _executeAsyncRemoteCriteria(): SwitcherResult {
-    if (this._nextRun < Date.now()) {
-      this._nextRun = Date.now() + this._delay;
-
-      if (Auth.isTokenExpired()) {
-        this.prepare(this._key)
-          .then(() => this.executeAsyncCheckCriteria())
-          .catch((err) => this._notifyError(err));
-      } else {
-        this.executeAsyncCheckCriteria();
-      }
-    }
-
-    const executionLog = ExecutionLogger.getExecution(this._key, this._input);
-    return executionLog.response;
-  }
-
-  private executeAsyncCheckCriteria() {
-    remote.checkCriteria(this._key, this._input, this._showDetail)
-      .then((response) => ExecutionLogger.add(response, this._key, this._input))
-      .catch((err) => this._notifyError(err));
-  }
-
-  private _notifyError(err: Error) {
-    ExecutionLogger.notifyError(err);
-  }
-
-  private async _executeApiValidation() {
-    if (!this._useSync()) {
-      return;
-    }
-
-    Auth.checkHealth();
-    if (Auth.isTokenExpired()) {
-      await this.prepare(this._key);
-    }
-  }
-
-  async _executeLocalCriteria(): Promise<boolean | SwitcherResult> {
+  async executeLocalCriteria(): Promise<boolean | SwitcherResult> {
     let response: SwitcherResult;
 
     try {
@@ -186,14 +136,69 @@ export class Switcher extends SwitcherBuilder implements SwitcherRequest {
     return response.result;
   }
 
+  /**
+   * Submit criteria for execution (local or remote)
+   */
+  private async _submit() {
+    try {
+      // verify if query from snapshot
+      if (GlobalOptions.local && !this._forceRemote) {
+        return await this.executeLocalCriteria();
+      }
+
+      // otherwise, execute remote criteria or local snapshot when silent mode is enabled
+      await this.validate();
+      if (GlobalAuth.token === 'SILENT') {
+        return await this.executeLocalCriteria();
+      }
+
+      return await this.executeRemoteCriteria();
+    } catch (err) {
+      this._notifyError(err as Error);
+
+      if (GlobalOptions.silentMode) {
+        Auth.updateSilentToken();
+        return this.executeLocalCriteria();
+      }
+
+      throw err;
+    }
+  }
+
+  private _tryCachedResult(): SwitcherResult | boolean | undefined {
+    if (this._hasThrottle()) {
+      if (!GlobalOptions.static) {
+        this.scheduleBackgroundRefresh();
+      }
+
+      const cachedResultLogger = ExecutionLogger.getExecution(this._key, this._input);
+      if (cachedResultLogger.key) {
+        return this._showDetail ? cachedResultLogger.response : cachedResultLogger.response.result;
+      }
+    }
+
+    return undefined;
+  }
+
+  private _notifyError(err: Error) {
+    ExecutionLogger.notifyError(err);
+  }
+
+  private async _executeApiValidation() {
+    Auth.checkHealth();
+    if (Auth.isTokenExpired()) {
+      await this.prepare(this._key);
+    }
+  }
+
   private _validateArgs(key?: string) {
     if (key) {
       this._key = key;
     }
   }
 
-  private _useSync() {
-    return this._delay == 0 || !ExecutionLogger.getExecution(this._key, this._input);
+  private _hasThrottle(): boolean {
+    return this._delay !== 0;
   }
 
   private getDefaultResultOrThrow(err: Error): SwitcherResult {

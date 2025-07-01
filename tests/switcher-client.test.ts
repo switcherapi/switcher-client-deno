@@ -1,5 +1,7 @@
 import { describe, it, afterAll, beforeEach, beforeAll, delay,
-  assertEquals, assertRejects, assertFalse, assertExists } from './deps.ts';
+  assertEquals, assertRejects, assertFalse, assertExists, 
+  spy,
+  assertSpyCalls} from './deps.ts';
 import { assertTrue } from './helper/utils.ts'
 
 import { Client, type Switcher, type SwitcherResult } from '../mod.ts';
@@ -244,6 +246,128 @@ describe('E2E test - Client local #2:', function () {
       'Domain disabled');
   });
   
+});
+
+describe('E2E test - Client local from cache:', function () {
+  beforeAll(async function() {
+    Client.buildContext({ url, apiKey, domain, component, environment }, {
+      snapshotLocation, local: true, regexMaxBlackList: 1, regexMaxTimeLimit: 500
+    });
+
+    await Client.loadSnapshot();
+    switcher = Client.getSwitcher();
+  });
+
+  afterAll(function() {
+    Client.unloadSnapshot();
+    TimedMatch.terminateWorker();
+  });
+
+  beforeEach(function() {
+    Client.clearLogger();
+    switcher = Client.getSwitcher();
+  });
+
+  it('should get response from cache', testSettings, async function () {
+    // 1st call - should not get from cache
+    let result = await switcher
+      .throttle(1000)
+      .detail()
+      .checkValue('Japan')
+      .checkNetwork('10.0.0.3')
+      .isItOn('FF2FOR2020');
+
+    assertTrue((result as SwitcherResult).result);
+    assertEquals((result as SwitcherResult).metadata || {}, {});
+
+    // 2nd call - should get from cache
+    result = await switcher
+      .throttle(1000)
+      .detail()
+      .checkValue('Japan')
+      .checkNetwork('10.0.0.3')
+      .isItOn('FF2FOR2020');
+
+    assertTrue((result as SwitcherResult).result);
+    assertEquals((result as SwitcherResult).metadata || {}, { cached: true });
+  });
+
+  it('should NOT get response from cache - different strategy input', testSettings, async function () {
+    // 1st call - should not get from cache
+    let result = await switcher
+      .throttle(1000)
+      .detail()
+      .checkValue('Japan')
+      .checkNetwork('10.0.0.3')
+      .isItOn('FF2FOR2020');
+
+    assertTrue((result as SwitcherResult).result);
+    assertEquals((result as SwitcherResult).metadata || {}, {});
+
+    // 2nd call - should get from cache
+    result = await switcher
+      .throttle(1000)
+      .detail()
+      .checkValue('USA')
+      .checkNetwork('10.0.0.3')
+      .isItOn('FF2FOR2020');
+
+    assertFalse((result as SwitcherResult).result);
+    assertEquals((result as SwitcherResult).metadata || {}, {});
+  });
+
+  it('should NOT get response from cache - different key', testSettings, async function () {
+    // 1st call - should not get from cache
+    let result = await switcher
+      .throttle(1000)
+      .detail()
+      .isItOn('FF2FOR2021');
+
+    assertTrue((result as SwitcherResult).result);
+    assertEquals((result as SwitcherResult).metadata || {}, {});
+
+    // 2nd call - should get from cache
+    result = await switcher
+      .throttle(1000)
+      .detail()
+      .isItOn('FF2FOR2022');
+
+    assertTrue((result as SwitcherResult).result);
+    assertEquals((result as SwitcherResult).metadata || {}, {});
+  });
+
+  it('should get response from cache when static mode is enabled', testSettings, async function () {
+    // given
+    Client.buildContext({ url, apiKey, domain, component, environment }, {
+      snapshotLocation, local: true, static: true
+    });
+    
+    await Client.loadSnapshot();
+
+    // test
+    switcher = Client.getSwitcher();
+    const spyScheduleBackgroundRefresh = spy(switcher, 'scheduleBackgroundRefresh');
+
+    // 1st call - should not get from cache
+    let result = await switcher
+      .throttle(1000)
+      .detail()
+      .isItOn('FF2FOR2021');
+
+    assertTrue((result as SwitcherResult).result);
+    assertEquals((result as SwitcherResult).metadata || {}, {});
+
+    // 2nd call - should get from cache
+    result = await switcher
+      .throttle(1000)
+      .detail()
+      .isItOn('FF2FOR2021');
+
+    assertTrue((result as SwitcherResult).result);
+    assertEquals((result as SwitcherResult).metadata || {}, { cached: true });
+
+    assertSpyCalls(spyScheduleBackgroundRefresh, 0);
+  });
 });
 
 describe('E2E test - Client testing (assume) feature:', function () {

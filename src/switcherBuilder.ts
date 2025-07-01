@@ -3,7 +3,7 @@ import { GlobalOptions } from './lib/globals/globalOptions.ts';
 
 export class SwitcherBuilder {
   protected _delay = 0;
-  protected _nextRun = 0;
+  protected _nextRefreshTime = 0;
   protected _input?: string[][];
   protected _key = '';
   protected _defaultResult: boolean | undefined;
@@ -22,6 +22,7 @@ export class SwitcherBuilder {
    */
   throttle(delay: number): this {
     this._delay = delay;
+    this._nextRefreshTime = Date.now() + delay;
 
     if (delay > 0) {
       GlobalOptions.updateOptions({ logger: true });
@@ -74,6 +75,8 @@ export class SwitcherBuilder {
       this._input = [];
     }
 
+    // replace existing startegy input
+    this._input = this._input.filter((item) => item[0] !== startegyType);
     this._input.push([startegyType, input]);
     return this;
   }

@@ -43,11 +43,11 @@ describe('E2E test - Client local - Watch Snapshot (watchSnapshot):', function (
 
   it('should read from snapshot - without watching', function () {
     const switcher = Client.getSwitcher();
-    switcher.isItOn('FF2FOR2030').then((val1) => {
+    (switcher.isItOn('FF2FOR2030') as Promise<boolean>).then((val1) => {
       assertTrue(val1);
       updateSwitcher(false);
 
-      switcher.isItOn('FF2FOR2030').then((val2) => {
+      (switcher.isItOn('FF2FOR2030') as Promise<boolean>).then((val2) => {
         assertTrue(val2);
       });
     });
@@ -62,7 +62,7 @@ describe('E2E test - Client local - Watch Snapshot (watchSnapshot):', function (
       }
     });
 
-    switcher.isItOn('FF2FOR2030').then((val) => {
+    (switcher.isItOn('FF2FOR2030') as Promise<boolean>).then((val) => {
       assertTrue(val);
       updateSwitcher(false);
     });
@@ -80,7 +80,7 @@ describe('E2E test - Client local - Watch Snapshot (watchSnapshot):', function (
       }
     });
 
-    switcher.isItOn('FF2FOR2030').then((val) => {
+    (switcher.isItOn('FF2FOR2030') as Promise<boolean>).then((val) => {
       assertTrue(val);
       invalidateJSON();
     });
