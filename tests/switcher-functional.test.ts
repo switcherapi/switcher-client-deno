@@ -382,11 +382,11 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should NOT throw when switcher keys provided were configured properly', async function() {
-      //given
+      // given
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria/switchers_check', { not_found: [] });
 
-      //test
+      // test
       Client.buildContext(contextSettings);
 
       let error: Error | undefined;
@@ -395,11 +395,11 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should throw when switcher keys provided were not configured properly', async function() {
-      //given
+      // given
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria/switchers_check', { not_found: ['FEATURE02'] });
 
-      //test
+      // test
       Client.buildContext(contextSettings);
       await assertRejects(async () =>
         await Client.checkSwitchers(['FEATURE01', 'FEATURE02']),
@@ -407,11 +407,11 @@ describe('Integrated test - Client:', function () {
     });
 
     it('should throw when no switcher keys were provided', async function() {
-      //given
+      // given
       given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
       given('POST@/criteria/switchers_check', undefined, 422);
 
-      //test
+      // test
       Client.buildContext(contextSettings);
       await assertRejects(async () =>
         await Client.checkSwitchers([]),

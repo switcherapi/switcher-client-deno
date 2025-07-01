@@ -390,4 +390,11 @@ export class Client {
   static testMode(testEnabled: boolean = true): void {
     Client._testEnabled = testEnabled;
   }
+
+  /**
+   * Returns the current snapshot version.
+   */
+  static get snapshotVersion(): number {
+    return GlobalSnapshot.snapshot?.data.domain.version || 0;
+  }
 }

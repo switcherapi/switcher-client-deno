@@ -5,8 +5,9 @@ export {
     assertRejects, 
     assertExists, 
     assertNotEquals, 
+    assertGreater,
     assertArrayIncludes 
-} from 'jsr:@std/assert@1.0.13';;
+} from 'jsr:@std/assert@1.0.13';
 export { assertSpyCalls, spy } from 'jsr:@std/testing@1.0.13/mock';
 export { 
     describe, 
