@@ -203,7 +203,7 @@ describe('E2E test - Client local #1:', function () {
 
     Client.testMode();
     
-    //test
+    // test
     await assertRejects(async () =>
       await Client.loadSnapshot(), 
       Error, 'Something went wrong: It was not possible to load the file at //somewhere/');
