@@ -188,10 +188,7 @@ export class Client {
       util.get(Client._context.environment, DEFAULT_ENVIRONMENT),
     ));
 
-    if (
-      GlobalSnapshot.snapshot?.data.domain.version == 0 &&
-      (fetchRemote || !GlobalOptions.local)
-    ) {
+    if (this._isCheckSnapshotAvailable(fetchRemote)) {
       await Client.checkSnapshot();
     }
 
@@ -200,6 +197,17 @@ export class Client {
     }
 
     return GlobalSnapshot.snapshot?.data.domain.version || 0;
+  }
+
+  /**
+   * Checks if the snapshot is available to be checked.
+   *
+   * Snapshots with version 0 are required to be checked if either:
+   * - fetchRemote is true, meaning it will fetch the latest snapshot from the API.
+   * - GlobalOptions.local is false, meaning it will not use the local snapshot.
+   */
+  private static _isCheckSnapshotAvailable(fetchRemote: boolean): boolean {
+    return GlobalSnapshot.snapshot?.data.domain.version == 0 && (fetchRemote || !GlobalOptions.local);
   }
 
   /**
@@ -319,11 +327,11 @@ export class Client {
     if (GlobalOptions.local && GlobalSnapshot.snapshot) {
       checkSwitchersLocal(GlobalSnapshot.snapshot, switcherKeys);
     } else {
-      await Client.checkSwitchersRemote(switcherKeys);
+      await Client._checkSwitchersRemote(switcherKeys);
     }
   }
 
-  private static async checkSwitchersRemote(switcherKeys: string[]) {
+  private static async _checkSwitchersRemote(switcherKeys: string[]) {
     try {
       await Auth.auth();
       await remote.checkSwitchers(switcherKeys);

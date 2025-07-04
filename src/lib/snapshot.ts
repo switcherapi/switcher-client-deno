@@ -136,10 +136,10 @@ export const checkSwitchersLocal = (snapshot: Snapshot, switcherKeys: string[]) 
   }
 };
 
-export const processOperation = async (
+export const processOperation = (
   strategyConfig: Strategy,
   input: string,
-): Promise<boolean | undefined> => {
+): boolean | undefined => {
   const { strategy, operation, values } = strategyConfig;
 
   switch (strategy) {
@@ -154,7 +154,7 @@ export const processOperation = async (
     case StrategiesType.DATE:
       return processDATE(operation, input, values);
     case StrategiesType.REGEX:
-      return await processREGEX(operation, input, values);
+      return processREGEX(operation, input, values);
     case StrategiesType.PAYLOAD:
       return processPAYLOAD(operation, input, values);
   }
@@ -273,20 +273,20 @@ function processDATE(operation: string, input: string, values: string[]) {
   }
 }
 
-async function processREGEX(
+function processREGEX(
   operation: string,
   input: string,
   values: string[],
-): Promise<boolean> {
+): boolean {
   switch (operation) {
     case OperationsType.EXIST:
-      return await TimedMatch.tryMatch(values, input);
+      return TimedMatch.tryMatch(values, input);
     case OperationsType.NOT_EXIST:
-      return !(await processREGEX(OperationsType.EXIST, input, values));
+      return !processREGEX(OperationsType.EXIST, input, values);
     case OperationsType.EQUAL:
-      return await TimedMatch.tryMatch([`\\b${values[0]}\\b`], input);
+      return TimedMatch.tryMatch([`\\b${values[0]}\\b`], input);
     case OperationsType.NOT_EQUAL:
-      return !(await TimedMatch.tryMatch([`\\b${values[0]}\\b`], input));
+      return !TimedMatch.tryMatch([`\\b${values[0]}\\b`], input);
     default:
       return false;
   }

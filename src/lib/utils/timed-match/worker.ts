@@ -9,10 +9,19 @@ declare global {
 
 self.onmessage = (e: MessageEvent<Param>) => {
   const params: Param = e.data;
-  self.postMessage(tryMatch(params.values, params.input));
+  const sharedArray = new Int32Array(params.sharedBuffer);
+  const result = tryMatch(params.values, params.input);
+
+  // Write result to shared memory
+  sharedArray[1] = result ? 1 : 0; // result
+  sharedArray[0] = 1; // mark as completed
+
+  // Notify the waiting thread
+  Atomics.notify(sharedArray, 0);
 };
 
 type Param = {
   values: string[];
   input: string;
+  sharedBuffer: SharedArrayBuffer;
 };
