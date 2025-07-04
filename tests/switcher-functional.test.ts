@@ -588,8 +588,8 @@ describe('Integrated test - Client:', function () {
       givenError('POST@/criteria/auth', 'ECONNREFUSED');
       assertTrue(await switcher.isItOn('FF2FOR2030'));
 
-      await sleep(500);
       // The call below is in silent mode. It is getting the configuration from the local snapshot again
+      await sleep(500);
       assertTrue(await switcher.isItOn());
 
       // As the silent mode was configured to retry after 2 seconds, it's still in time, 
@@ -604,6 +604,9 @@ describe('Integrated test - Client:', function () {
 
       // Auth is async when silent mode is enabled to prevent blocking the execution while the API is not available
       assertTrue(await switcher.isItOn());
+
+      // Now the remote call was invoked, so it should return false
+      await sleep(500);
       assertFalse(await switcher.isItOn());
       assertSpyCalls(spyRemote, 1);
     });

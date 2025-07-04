@@ -22,7 +22,10 @@ export class SwitcherBuilder {
    */
   throttle(delay: number): this {
     this._delay = delay;
-    this._nextRefreshTime = Date.now() + delay;
+
+    if (this._nextRefreshTime === 0) {
+      this._nextRefreshTime = Date.now() + delay;
+    }
 
     if (delay > 0) {
       GlobalOptions.updateOptions({ logger: true });

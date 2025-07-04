@@ -41,16 +41,15 @@ describe('E2E test - Client local - Watch Snapshot (watchSnapshot):', function (
       Deno.removeSync('generated-snapshots/', { recursive: true });
   });
 
-  it('should read from snapshot - without watching', function () {
+  it('should read from snapshot - without watching', async function () {
     const switcher = Client.getSwitcher();
-    (switcher.isItOn('FF2FOR2030') as Promise<boolean>).then((val1) => {
-      assertTrue(val1);
-      updateSwitcher(false);
 
-      (switcher.isItOn('FF2FOR2030') as Promise<boolean>).then((val2) => {
-        assertTrue(val2);
-      });
-    });
+    let result = await switcher.isItOn('FF2FOR2030');
+    assertTrue(result);
+    updateSwitcher(false);
+
+    result = await switcher.isItOn('FF2FOR2030');
+    assertTrue(result);
   });
   
   it('should read from updated snapshot', async function () {
@@ -62,10 +61,9 @@ describe('E2E test - Client local - Watch Snapshot (watchSnapshot):', function (
       }
     });
 
-    (switcher.isItOn('FF2FOR2030') as Promise<boolean>).then((val) => {
-      assertTrue(val);
-      updateSwitcher(false);
-    });
+    const result = await switcher.isItOn('FF2FOR2030');
+    assertTrue(result);
+    updateSwitcher(false);
 
     await WaitSafe.wait();
     Client.unloadSnapshot();
@@ -80,10 +78,9 @@ describe('E2E test - Client local - Watch Snapshot (watchSnapshot):', function (
       }
     });
 
-    (switcher.isItOn('FF2FOR2030') as Promise<boolean>).then((val) => {
-      assertTrue(val);
-      invalidateJSON();
-    });
+    const result = await switcher.isItOn('FF2FOR2030');
+    assertTrue(result);
+    invalidateJSON();
 
     await WaitSafe.wait();
     Client.unloadSnapshot();
@@ -126,11 +123,11 @@ describe('E2E test - Client local - Watch Snapshot (context):', function () {
   
   it('should read from updated snapshot', async function () {
     const switcher = Client.getSwitcher();
-    assertTrue(await switcher.isItOn('FF2FOR2030'));
+    assertTrue(switcher.isItOn('FF2FOR2030'));
     updateSwitcher(false);
 
     await delay(2000); // Wait for the snapshot to be updated
-    assertFalse(await switcher.isItOn('FF2FOR2030'));
+    assertFalse(switcher.isItOn('FF2FOR2030'));
     Client.unloadSnapshot();
   });
 });

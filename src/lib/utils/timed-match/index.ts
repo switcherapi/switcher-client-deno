@@ -2,8 +2,10 @@ import { DEFAULT_REGEX_MAX_BLACKLISTED, DEFAULT_REGEX_MAX_TIME_LIMIT } from '../
 import tryMatch from './match.ts';
 
 /**
- * This class will run a match operation using a child process.
+ * This class will run a match operation using a Worker Thread.
+ *
  * Workers should be killed given a specified (3000 ms default) time limit.
+ *
  * Blacklist caching is available to prevent sequence of matching failures and resource usage.
  */
 export default class TimedMatch {
@@ -17,7 +19,7 @@ export default class TimedMatch {
    * Initialize Worker process for working with Regex process operators
    */
   static initializeWorker() {
-    this.worker = this.createChildProcess();
+    this.worker = this.createWorker();
     this.workerActive = true;
   }
 
@@ -29,64 +31,61 @@ export default class TimedMatch {
     this.workerActive = false;
   }
 
-  static async tryMatch(values: string[], input: string): Promise<boolean> {
+  /**
+   * Executes regex matching operation with timeout protection.
+   *
+   * If a worker is initialized and active, the operation runs in a separate worker thread
+   * with timeout protection to prevent runaway regex operations. Uses SharedArrayBuffer
+   * for synchronous communication between main thread and worker.
+   *
+   * If no worker is available, falls back to direct execution on the main thread.
+   *
+   * Failed operations (timeouts, errors) are automatically added to a blacklist to
+   * prevent repeated attempts with the same problematic patterns.
+   *
+   * @param values Array of regular expression patterns to test against the input
+   * @param input The input string to match against the regex patterns
+   * @returns True if any of the regex patterns match the input, false otherwise
+   */
+  static tryMatch(values: string[], input: string): boolean {
     if (this.worker && this.workerActive) {
       return this.safeMatch(values, input);
     }
 
-    return await Promise.resolve(tryMatch(values, input));
+    return tryMatch(values, input);
   }
 
   /**
-   * Clear entries from failed matching operations
-   */
-  static clearBlackList() {
-    this.blacklisted = [];
-  }
-
-  static setMaxBlackListed(value: number): void {
-    this.maxBlackListed = value;
-  }
-
-  static setMaxTimeLimit(value: number): void {
-    this.maxTimeLimit = value;
-  }
-
-  /**
-   * Run match using child process
+   * Run match using SharedArrayBuffer for true synchronous communication
    *
    * @param {*} values array of regular expression to be evaluated
    * @param {*} input to be matched
    * @returns match result
    */
-  private static async safeMatch(values: string[], input: string): Promise<boolean> {
-    let result = false;
-    let timer: number, resolveListener: (value: unknown) => void;
-
+  private static safeMatch(values: string[], input: string): boolean {
     if (this.isBlackListed(values, input)) {
       return false;
     }
 
-    const matchPromise = new Promise((resolve) => {
-      resolveListener = resolve;
-      this.worker.onmessage = (e) => resolveListener(e.data);
-      this.worker.postMessage({ values, input });
-    });
+    // Create shared buffer for worker communication
+    const sharedBuffer = new SharedArrayBuffer(8);
+    const sharedArray = new Int32Array(sharedBuffer);
 
-    const matchTimer = new Promise((resolve) => {
-      timer = setTimeout(() => {
-        this.resetWorker(values, input);
-        resolve(false);
-      }, this.maxTimeLimit);
-    });
+    // Initialize: [0] = status (0=waiting, 1=done), [1] = result (0=false, 1=true)
+    sharedArray[0] = 0; // status
+    sharedArray[1] = 0; // result
 
-    await Promise.race([matchPromise, matchTimer]).then((value) => {
-      this.worker.removeEventListener('message', resolveListener);
-      clearTimeout(timer);
-      result = Boolean(value);
-    });
+    this.worker.postMessage({ values, input, sharedBuffer });
 
-    return result;
+    // Wait for worker to complete or timeout
+    const result = Atomics.wait(sharedArray, 0, 0, this.maxTimeLimit);
+
+    if (result === 'timed-out') {
+      this.resetWorker(values, input);
+      return false;
+    }
+
+    return sharedArray[1] === 1;
   }
 
   private static isBlackListed(values: string[], input: string): boolean {
@@ -110,7 +109,7 @@ export default class TimedMatch {
    */
   private static resetWorker(values: string[], input: string) {
     this.worker.terminate();
-    this.worker = this.createChildProcess();
+    this.worker = this.createWorker();
 
     if (this.blacklisted.length == this.maxBlackListed) {
       this.blacklisted.splice(0, 1);
@@ -122,11 +121,26 @@ export default class TimedMatch {
     });
   }
 
-  private static createChildProcess(): Worker {
+  private static createWorker(): Worker {
     const workerUrl = new URL('./worker.ts', import.meta.url).href;
     return new Worker(workerUrl, {
       type: 'module',
     });
+  }
+
+  /**
+   * Clear entries from failed matching operations
+   */
+  static clearBlackList() {
+    this.blacklisted = [];
+  }
+
+  static setMaxBlackListed(value: number): void {
+    this.maxBlackListed = value;
+  }
+
+  static setMaxTimeLimit(value: number): void {
+    this.maxTimeLimit = value;
   }
 }
 
