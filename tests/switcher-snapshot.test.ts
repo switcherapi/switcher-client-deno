@@ -87,10 +87,12 @@ describe('E2E test - Client local - Snapshot:', function () {
       regexSafe: false
     });
     
+    assertEquals(Client.snapshotVersion, 0);
     const snapshotVersion = await Client.loadSnapshot();
 
     assertExists(GlobalSnapshot.snapshot);
     assertGreater(snapshotVersion, 0);
+    assertEquals(snapshotVersion, Client.snapshotVersion);
   });
 
   it('should update snapshot - store file', testSettings, async function () {
