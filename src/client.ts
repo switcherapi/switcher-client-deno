@@ -22,6 +22,7 @@ import { Switcher } from './switcher.ts';
 import { Auth } from './lib/remoteAuth.ts';
 import { GlobalOptions } from './lib/globals/globalOptions.ts';
 import { GlobalSnapshot } from './lib/globals/globalSnapshot.ts';
+import { SnapshotWatcher } from './lib/snapshotWatcher.ts';
 
 /**
  * Quick start with the following 3 steps.
@@ -44,20 +45,16 @@ import { GlobalSnapshot } from './lib/globals/globalSnapshot.ts';
  * ```
  */
 export class Client {
-  private static _testEnabled = DEFAULT_TEST_MODE;
-  private static _watching = false;
-  private static _watcher: Deno.FsWatcher;
-  private static readonly _watchDebounce = new Map<string, number>();
-
+  private static readonly _snapshotWatcher = new SnapshotWatcher();
+  private static _testEnabled: boolean;
   private static _context: SwitcherContext;
 
   /**
    * Create client context to be used by Switcher
    */
   static buildContext(context: SwitcherContext, options?: SwitcherOptions) {
-    this._testEnabled = DEFAULT_TEST_MODE;
-
     this._context = context;
+    this._testEnabled = DEFAULT_TEST_MODE;
     this._context.environment = util.get(context.environment, DEFAULT_ENVIRONMENT);
 
     // Default values
@@ -220,48 +217,16 @@ export class Client {
     success?: () => void | Promise<void>;
     reject?: (err: Error) => void;
   } = {}): Promise<void> {
-    const { success = () => {}, reject = () => {} } = callback;
+    const { reject = () => {} } = callback;
 
     if (Client._testEnabled || !GlobalOptions.snapshotLocation?.length) {
       return reject(new Error('Watch Snapshot cannot be used in test mode or without a snapshot location'));
     }
 
-    const snapshotFile = `${GlobalOptions.snapshotLocation}/${Client._context.environment}.json`;
-    Client._watcher = Deno.watchFs(snapshotFile);
-    Client._watching = true;
-    for await (const event of Client._watcher) {
-      const dataString = JSON.stringify(event);
-      if (Client._watchDebounce.has(dataString)) {
-        clearTimeout(Client._watchDebounce.get(dataString));
-        Client._watchDebounce.delete(dataString);
-      }
-
-      Client._watchDebounce.set(
-        dataString,
-        setTimeout(() => Client._onModifySnapshot(dataString, event, success, reject), 20),
-      );
-    }
-  }
-
-  private static _onModifySnapshot(
-    dataString: string,
-    event: Deno.FsEvent,
-    success: () => void | Promise<void>,
-    error: (err: Error) => void,
-  ) {
-    Client._watchDebounce.delete(dataString);
-    if (event.kind === 'modify') {
-      try {
-        GlobalSnapshot.init(loadDomain(
-          util.get(GlobalOptions.snapshotLocation, ''),
-          util.get(Client._context.environment, DEFAULT_ENVIRONMENT),
-        ));
-
-        success();
-      } catch (err) {
-        error(err as Error);
-      }
-    }
+    await Client._snapshotWatcher.watchSnapshot(
+      util.get(Client._context.environment, DEFAULT_ENVIRONMENT),
+      callback,
+    );
   }
 
   /**
@@ -273,10 +238,7 @@ export class Client {
     }
 
     GlobalSnapshot.clear();
-    if (Client._watcher && Client._watching) {
-      Client._watching = false;
-      Client._watcher.close();
-    }
+    Client._snapshotWatcher.stopWatching();
   }
 
   /**
