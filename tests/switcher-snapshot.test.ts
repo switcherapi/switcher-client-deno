@@ -39,8 +39,9 @@ describe('E2E test - Client local - Snapshot:', function () {
 
   afterAll(function() {
     Client.unloadSnapshot();
-    if (existsSync('generated-snapshots/'))
+    if (existsSync('generated-snapshots/')) {
       Deno.removeSync('generated-snapshots/', { recursive: true });
+    }
   });
 
   it('should NOT update snapshot - Too many requests at checkSnapshotVersion', testSettings, async function () {
@@ -73,7 +74,7 @@ describe('E2E test - Client local - Snapshot:', function () {
       Error, 'Something went wrong: [resolveSnapshot] failed with status 429');
   });
 
-  it('should update snapshot', testSettings, async function () {
+  it('should update snapshot when loading from remote', testSettings, async function () {
     await delay(2000);
 
     // given
@@ -83,15 +84,15 @@ describe('E2E test - Client local - Snapshot:', function () {
 
     // test
     Client.buildContext(contextSettings, {
-      local: true,
       regexSafe: false
     });
     
-    await Client.loadSnapshot();
-
     assertEquals(Client.snapshotVersion, 0);
-    assertTrue(await Client.checkSnapshot());
-    assertGreater(Client.snapshotVersion, 0);
+    const snapshotVersion = await Client.loadSnapshot();
+
+    assertExists(GlobalSnapshot.snapshot);
+    assertGreater(snapshotVersion, 0);
+    assertEquals(snapshotVersion, Client.snapshotVersion);
   });
 
   it('should update snapshot - store file', testSettings, async function () {
