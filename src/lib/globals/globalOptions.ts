@@ -20,8 +20,8 @@ export class GlobalOptions {
     return this.options.local;
   }
 
-  static get static() {
-    return this.options.static;
+  static get freeze() {
+    return this.options.freeze;
   }
 
   static get logger() {

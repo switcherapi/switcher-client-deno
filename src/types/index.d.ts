@@ -44,13 +44,11 @@ export type SwitcherOptions = {
   local?: boolean;
 
   /**
-   * When enabled it will always use in-memory cached results
-   *
-   * This option prevents the scheduling of background updates to improve overall performance
+   * This option prevents the execution of background cache update when using throttle
    *
    * Use Client.clearLogger() to reset the in-memory cache if snapshot are renewed
    */
-  static?: boolean;
+  freeze?: boolean;
 
   /**
    * When enabled it allows inspecting the result details with Client.getLogger(key)

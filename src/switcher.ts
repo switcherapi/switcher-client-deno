@@ -252,7 +252,7 @@ export class Switcher extends SwitcherBuilder implements SwitcherRequest {
 
   private _tryCachedResult(): SwitcherResult | boolean | undefined {
     if (this._hasThrottle()) {
-      if (!GlobalOptions.static) {
+      if (!GlobalOptions.freeze) {
         this.scheduleBackgroundRefresh();
       }
 
