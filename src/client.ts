@@ -3,11 +3,11 @@ import * as util from './lib/utils/index.ts';
 import Bypasser from './lib/bypasser/index.ts';
 import {
   DEFAULT_ENVIRONMENT,
+  DEFAULT_FREEZE,
   DEFAULT_LOCAL,
   DEFAULT_LOGGER,
   DEFAULT_REGEX_MAX_BLACKLISTED,
   DEFAULT_REGEX_MAX_TIME_LIMIT,
-  DEFAULT_STATIC,
   DEFAULT_TEST_MODE,
   SWITCHER_OPTIONS,
 } from './lib/constants.ts';
@@ -63,7 +63,7 @@ export class Client {
       snapshotAutoUpdateInterval: 0,
       snapshotLocation: options?.snapshotLocation,
       local: util.get(options?.local, DEFAULT_LOCAL),
-      static: util.get(options?.static, DEFAULT_STATIC),
+      freeze: util.get(options?.freeze, DEFAULT_FREEZE),
       logger: util.get(options?.logger, DEFAULT_LOGGER),
     });
 

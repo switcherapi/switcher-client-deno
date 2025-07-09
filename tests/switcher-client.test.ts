@@ -340,10 +340,10 @@ describe('E2E test - Client local from cache:', function () {
     assertEquals((result as SwitcherResult).metadata || {}, {});
   });
 
-  it('should get response from cache when static mode is enabled', testSettings, async function () {
+  it('should get response from cache when freeze mode is enabled', testSettings, async function () {
     // given
     Client.buildContext({ url, apiKey, domain, component, environment }, {
-      snapshotLocation, local: true, static: true
+      snapshotLocation, local: true, freeze: true
     });
     
     await Client.loadSnapshot();
