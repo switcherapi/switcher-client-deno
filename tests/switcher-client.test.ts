@@ -202,7 +202,7 @@ describe('E2E test - Client local #1:', function () {
     Client.buildContext({ url, apiKey, domain, component, environment }, {
       local: true,
       regexSafe: false,
-      snapshotLocation: '//somewhere/'
+      snapshotLocation: '//<>/'
     });
 
     Client.testMode();
@@ -210,12 +210,12 @@ describe('E2E test - Client local #1:', function () {
     // test
     await assertRejects(async () =>
       await Client.loadSnapshot(), 
-      Error, 'Something went wrong: It was not possible to load the file at //somewhere/');
+      Error, 'Something went wrong: It was not possible to load the file at //<>/');
 
     //or
     let error: Error | undefined;
     await Client.loadSnapshot().catch((e) => error = e);
-    assertEquals(error?.message, 'Something went wrong: It was not possible to load the file at //somewhere/');
+    assertEquals(error?.message, 'Something went wrong: It was not possible to load the file at //<>/');
   });
 
   it('should not throw error when a default result is provided', testSettings, async function () {

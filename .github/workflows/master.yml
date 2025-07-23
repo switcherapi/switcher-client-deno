@@ -17,10 +17,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Deno v2.x
+      - name: Setup Deno v2.4.2
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.x
+          deno-version: v2.4.2
 
       - name: Setup LCOV        
         run: sudo apt install -y lcov
@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        deno-version: [v1.46.3, v2.4.1]
+        deno-version: [v1.46.3, v2.4.2]
         os: [ ubuntu-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
 
