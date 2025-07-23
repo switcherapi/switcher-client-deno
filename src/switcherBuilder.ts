@@ -73,14 +73,14 @@ export class SwitcherBuilder {
   /**
    * Adds a strategy for validation
    */
-  check(startegyType: string, input: string): this {
+  check(strategyType: string, input: string): this {
     if (!this._input) {
       this._input = [];
     }
 
-    // replace existing startegy input
-    this._input = this._input.filter((item) => item[0] !== startegyType);
-    this._input.push([startegyType, input]);
+    // replace existing strategyType input
+    this._input = this._input.filter((item) => item[0] !== strategyType);
+    this._input.push([strategyType, input]);
     return this;
   }
 
