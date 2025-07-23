@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        deno-version: [v1.46.3, v2.x]
+        deno-version: [v1.46.3, v2.4.1]
         os: [ ubuntu-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
 
