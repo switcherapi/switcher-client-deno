@@ -193,7 +193,7 @@ export class Client {
       Client.watchSnapshot();
     }
 
-    return GlobalSnapshot.snapshot?.data.domain.version || 0;
+    return Client.snapshotVersion;
   }
 
   /**
