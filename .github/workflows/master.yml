@@ -13,14 +13,14 @@ jobs:
 
     steps:
       - name: Git checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Setup Deno v2.4.5
+      - name: Setup Deno v2.5.2
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.4.5
+          deno-version: v2.5.2
 
       - name: Setup LCOV        
         run: sudo apt install -y lcov
@@ -35,7 +35,7 @@ jobs:
         run: deno task cover
 
       - name: SonarCloud Scan
-        uses: sonarsource/sonarqube-scan-action@v5.3.1
+        uses: sonarsource/sonarqube-scan-action@v6.0.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         if: env.SONAR_TOKEN != ''
@@ -45,13 +45,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        deno-version: [v1.46.3, v2.4.5]
+        deno-version: [v1.46.3, v2.5.2]
         os: [ ubuntu-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
 
     steps:
       - name: Git checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Deno ${{ matrix.deno-version }}
         uses: denoland/setup-deno@v2
