@@ -120,7 +120,7 @@ export const checkSwitchersLocal = (snapshot: Snapshot, switcherKeys: string[]) 
       found = false;
       const { config } = g;
 
-      if (config.find((c: { key: string }) => c.key === switcher)) {
+      if (config.some((c: { key: string }) => c.key === switcher)) {
         found = true;
         break;
       }
@@ -177,7 +177,7 @@ function processNETWORK_Exist(
   cidrRegex: RegExp,
 ) {
   for (const value of values) {
-    if (RegExp(cidrRegex).exec(value)) {
+    if (cidrRegex.exec(value)) {
       const cidr = new IPCIDR(value);
       if (cidr.isIp4InCidr(input)) {
         return true;
@@ -195,7 +195,7 @@ function processNETWORK_NotExist(
   cidrRegex: RegExp,
 ) {
   const result = values.filter((element) => {
-    if (RegExp(cidrRegex).exec(element)) {
+    if (cidrRegex.exec(element)) {
       const cidr = new IPCIDR(element);
       if (cidr.isIp4InCidr(input)) {
         return true;
@@ -301,7 +301,7 @@ function processPAYLOAD(operation: string, input: string, values: string[]) {
   const keys = payloadReader(inputJson);
   switch (operation) {
     case OperationsType.HAS_ONE:
-      return keys.filter((key) => values.includes(key)).length > 0;
+      return keys.some((key) => values.includes(key));
     case OperationsType.HAS_ALL:
       return values.every((element) => keys.includes(element));
   }

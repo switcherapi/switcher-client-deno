@@ -12,7 +12,7 @@ export function payloadReader(payload: any): string[] {
       ...payloadReader(payload[field])
         .map((nestedField) => `${field}.${nestedField}`),
     ])
-    .filter((field) => isNaN(Number(field)))
+    .filter((field) => Number.isNaN(Number(field)))
     .reduce((acc: string[], curr) => {
       if (!acc.includes(curr)) {
         acc.push(curr);
