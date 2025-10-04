@@ -6,7 +6,7 @@ export default class IPCIDR {
   }
 
   private ip4ToInt(ip: string) {
-    return ip.split('.').reduce((int, oct) => (int << 8) + parseInt(oct, 10), 0) >>> 0;
+    return ip.split('.').reduce((int, oct) => (int << 8) + Number.parseInt(oct, 10), 0) >>> 0;
   }
 
   isIp4InCidr(ip: string) {
