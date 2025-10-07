@@ -73,7 +73,7 @@ export const loadDomain = (snapshotLocation: string, environment: string) => {
       dataBuffer = Deno.readTextFileSync(snapshotFile);
     } else {
       dataBuffer = JSON.stringify(
-        { data: { domain: { version: 0 } } },
+        { domain: { version: 0 } },
         null,
         4,
       );
@@ -111,7 +111,7 @@ export const validateSnapshot = async (
 };
 
 export const checkSwitchersLocal = (snapshot: Snapshot, switcherKeys: string[]) => {
-  const { group } = snapshot.data.domain;
+  const { group } = snapshot.domain;
   const notFound = [];
   let found = false;
 

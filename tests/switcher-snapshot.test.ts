@@ -11,10 +11,10 @@ describe('E2E test - Client local - Snapshot:', function () {
   let contextSettings: SwitcherContext;
 
   const dataBuffer = Deno.readTextFileSync('./tests/snapshot/dev.json');
-  const dataJSON = dataBuffer.toString();
+  const dataJSON = `{ "data": ${dataBuffer.toString()} }`;
 
   const dataBufferV2 = Deno.readTextFileSync('./tests/snapshot/dev_v2.json');
-  const dataJSONV2 = dataBufferV2.toString();
+  const dataJSONV2 = `{ "data": ${dataBufferV2.toString()} }`;
 
   beforeEach(function() {
     Client.unloadSnapshot();

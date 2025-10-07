@@ -153,7 +153,7 @@ export class Client {
       util.get(Client._context.domain, ''),
       util.get(Client._context.environment, DEFAULT_ENVIRONMENT),
       util.get(Client._context.component, ''),
-      GlobalSnapshot.snapshot.data.domain.version,
+      GlobalSnapshot.snapshot.domain.version,
     );
 
     if (snapshot) {
@@ -204,7 +204,7 @@ export class Client {
    * - GlobalOptions.local is false, meaning it will not use the local snapshot.
    */
   private static _isCheckSnapshotAvailable(fetchRemote: boolean): boolean {
-    return GlobalSnapshot.snapshot?.data.domain.version == 0 && (fetchRemote || !GlobalOptions.local);
+    return GlobalSnapshot.snapshot?.domain.version == 0 && (fetchRemote || !GlobalOptions.local);
   }
 
   /**
@@ -365,6 +365,6 @@ export class Client {
    * Returns the current snapshot version.
    */
   static get snapshotVersion(): number {
-    return GlobalSnapshot.snapshot?.data.domain.version || 0;
+    return GlobalSnapshot.snapshot?.domain.version || 0;
   }
 }

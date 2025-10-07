@@ -157,10 +157,6 @@ export type CheckSnapshotVersionResponse = {
 // Switcher API domain types
 
 export type Snapshot = {
-  data: SnapshotData;
-};
-
-export type SnapshotData = {
   domain: Domain;
 };
 

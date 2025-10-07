@@ -1,5 +1,5 @@
 import { CheckSwitcherError, ClientError, RemoteError } from './exceptions/index.ts';
-import type { AuthResponse, CheckSnapshotVersionResponse, Entry, SwitcherContext } from '../types/index.d.ts';
+import type { AuthResponse, CheckSnapshotVersionResponse, Domain, Entry, SwitcherContext } from '../types/index.d.ts';
 import type { SwitcherResult } from './result.ts';
 import * as util from './utils/index.ts';
 import { GlobalAuth } from './globals/globalAuth.ts';
@@ -147,6 +147,12 @@ export const resolveSnapshot = async (
   environment: string,
   component: string,
 ) => {
+  type GraphQLResponse = {
+    data: {
+      domain: Domain;
+    };
+  };
+
   const data = {
     query: `
       query domain {
@@ -172,7 +178,7 @@ export const resolveSnapshot = async (
     });
 
     if (response.status == 200) {
-      return JSON.stringify(await response.json(), null, 4);
+      return JSON.stringify((await response.json() as GraphQLResponse).data, null, 4);
     }
 
     throw new RemoteError(`[resolveSnapshot] failed with status ${response.status}`);

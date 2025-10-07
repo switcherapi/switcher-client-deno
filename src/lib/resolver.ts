@@ -1,26 +1,26 @@
 import { processOperation } from './snapshot.ts';
 import { getEntry } from '../lib/remote.ts';
 import * as util from '../lib/utils/index.ts';
-import type { Config, Entry, Group, Snapshot, SnapshotData, Strategy } from '../types/index.d.ts';
+import type { Config, Domain, Entry, Group, Snapshot, Strategy } from '../types/index.d.ts';
 import type { SwitcherRequest } from '../switcherRequest.ts';
 import { SwitcherResult } from './result.ts';
 
 /**
- * Resolves the criteria for a given switcher request against the snapshot data.
+ * Resolves the criteria for a given switcher request against the snapshot domain.
  *
- * @param {SnapshotData} data - The snapshot data containing domain and group information.
+ * @param {Domain} domain - The domain containing groups and configurations.
  * @param {SwitcherRequest} switcher - The switcher request to be evaluated.
  * @returns {SwitcherResult} - The result of the switcher evaluation.
  */
 function resolveCriteria(
-  data: SnapshotData,
+  domain: Domain,
   switcher: SwitcherRequest,
 ): SwitcherResult {
-  if (!data.domain.activated) {
+  if (!domain.activated) {
     return SwitcherResult.disabled('Domain disabled');
   }
 
-  const { group } = data.domain;
+  const { group } = domain;
   return checkGroup(group, switcher);
 }
 
@@ -138,7 +138,7 @@ function isStrategyFulfilled(strategyEntry: Entry[], strategyConfig: Strategy) {
 /**
  * Checks the criteria for a switcher request against the local snapshot.
  *
- * @param {Snapshot | undefined} snapshot - The snapshot containing the data to check against.
+ * @param {Snapshot | undefined} snapshot - The snapshot containing the domain to check against.
  * @param {SwitcherRequest} switcher - The switcher request to be evaluated.
  * @returns {SwitcherResult} - The result of the switcher evaluation.
  * @throws {Error} - If the snapshot is not loaded.
@@ -153,6 +153,6 @@ export default function checkCriteriaLocal(
     );
   }
 
-  const { data } = snapshot;
-  return resolveCriteria(data, switcher);
+  const { domain } = snapshot;
+  return resolveCriteria(domain, switcher);
 }

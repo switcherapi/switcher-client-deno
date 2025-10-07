@@ -1,25 +1,23 @@
 {
-    "data": {
-        "domain": {
-            "name": "Switcher API",
-            "version": 1,
-            "activated": true,
-            "group": [
-                {
-                    "name": "Test Project",
-                    "activated": true,
-                    "config": [
-                        {
-                            "key": "CLIENT_DENO_FEATURE",
-                            "activated": true,
-                            "strategies": [],
-                            "components": [
-                                "switcher4deno"
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
+    "domain": {
+        "name": "Switcher API",
+        "version": 1,
+        "activated": true,
+        "group": [
+            {
+                "name": "Test Project",
+                "activated": true,
+                "config": [
+                    {
+                        "key": "CLIENT_DENO_FEATURE",
+                        "activated": true,
+                        "strategies": [],
+                        "components": [
+                            "switcher4deno"
+                        ]
+                    }
+                ]
+            }
+        ]
     }
 }
