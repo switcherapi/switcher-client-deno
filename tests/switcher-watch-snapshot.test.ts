@@ -12,7 +12,7 @@ const updateSwitcher = (status: boolean) => {
   const dataBuffer = Deno.readTextFileSync('./tests/snapshot/dev.json');
   const dataJSON = JSON.parse(dataBuffer.toString());
 
-  dataJSON.data.domain.group[0].config[0].activated = status;
+  dataJSON.domain.group[0].config[0].activated = status;
 
   Deno.mkdirSync('generated-snapshots/', { recursive: true });
   Deno.writeTextFileSync('generated-snapshots/watch.json', JSON.stringify(dataJSON, null, 4));
