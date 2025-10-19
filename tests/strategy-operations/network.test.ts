@@ -29,57 +29,57 @@ describe('Strategy [NETWORK] tests:', function () {
     activated: true,
   });
 
-  it('should agree when input range EXIST', async function () {
+  it('should agree when input range EXIST', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values1);
-    const result = await processOperation(strategyConfig, '10.0.0.3');
+    const result = processOperation(strategyConfig, '10.0.0.3');
     assertTrue(result);
   });
 
-  it('should agree when input range EXIST - Irregular CIDR', async function () {
+  it('should agree when input range EXIST - Irregular CIDR', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.EXIST,  ['10.0.0.3/24']);
-    const result = await processOperation(strategyConfig, '10.0.0.3');
+    const result = processOperation(strategyConfig, '10.0.0.3');
     assertTrue(result);
   });
 
-  it('should NOT agree when input range DOES NOT EXIST', async function () {
+  it('should NOT agree when input range DOES NOT EXIST', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values1);
-    const result = await processOperation(strategyConfig, '10.0.0.4');
+    const result = processOperation(strategyConfig, '10.0.0.4');
     assertFalse(result);
   });
 
-  it('should agree when input DOES NOT EXIST', async function () {
+  it('should agree when input DOES NOT EXIST', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.NOT_EXIST, mock_values1);
-    const result = await processOperation(strategyConfig, '10.0.0.4');
+    const result = processOperation(strategyConfig, '10.0.0.4');
     assertTrue(result);
   });
 
-  it('should NOT agree when input EXIST but assumed that it DOES NOT EXIST', async function () {
+  it('should NOT agree when input EXIST but assumed that it DOES NOT EXIST', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.NOT_EXIST, mock_values1);
-    const result = await processOperation(strategyConfig, '10.0.0.3');
+    const result = processOperation(strategyConfig, '10.0.0.3');
     assertFalse(result);
   });
 
-  it('should agree when input IP EXIST', async function () {
+  it('should agree when input IP EXIST', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values3);
-    const result = await processOperation(strategyConfig, '192.168.56.58');
+    const result = processOperation(strategyConfig, '192.168.56.58');
     assertTrue(result);
   });
 
-  it('should agree when input IP DOES NOT EXIST', async function () {
+  it('should agree when input IP DOES NOT EXIST', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.NOT_EXIST, mock_values3);
-    const result = await processOperation(strategyConfig, '192.168.56.50');
+    const result = processOperation(strategyConfig, '192.168.56.50');
     assertTrue(result);
   });
 
-  it('should agree when input range EXIST for multiple ranges', async function () {
+  it('should agree when input range EXIST for multiple ranges', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values2);
-    const result = await processOperation(strategyConfig, '192.168.0.3');
+    const result = processOperation(strategyConfig, '192.168.0.3');
     assertTrue(result);
   });
 
-  it('should NOT agree when input range DOES NOT EXIST for multiple ranges', async function () {
+  it('should NOT agree when input range DOES NOT EXIST for multiple ranges', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.NOT_EXIST, mock_values2);
-    const result = await processOperation(strategyConfig, '127.0.0.0');
+    const result = processOperation(strategyConfig, '127.0.0.0');
     assertTrue(result);
   });
 

@@ -8,12 +8,12 @@ import {
 } from '../../src/lib/snapshot.ts';
 
 const mock_values1 = [
-  '\\bUSER_[0-9]{1,2}\\b',
+  String.raw`\bUSER_[0-9]{1,2}\b`,
 ];
 
 const mock_values2 = [
-  '\\bUSER_[0-9]{1,2}\\b',
-  '\\buser-[0-9]{1,2}\\b',
+  String.raw`\bUSER_[0-9]{1,2}\b`,
+  String.raw`\buser-[0-9]{1,2}\b`,
 ];
 
 const mock_values3 = [
