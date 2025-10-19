@@ -90,33 +90,33 @@ describe('Strategy [PAYLOAD] tests:', function () {
     ]);
   });
 
-  it('should return TRUE when payload has field', async function () {
+  it('should return TRUE when payload has field', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.HAS_ONE, ['login']);
-    assertTrue(await processOperation(strategyConfig, fixture_1));
+    assertTrue(processOperation(strategyConfig, fixture_1));
   });
 
-  it('should return FALSE when payload does not have field', async function () {
+  it('should return FALSE when payload does not have field', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.HAS_ONE, ['user']);
-    assertFalse(await processOperation(strategyConfig, fixture_1));
+    assertFalse(processOperation(strategyConfig, fixture_1));
   });
 
-  it('should return TRUE when payload has nested field', async function () {
+  it('should return TRUE when payload has nested field', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.HAS_ONE, [
         'order.qty', 'order.total'
     ]);
 
-    assertTrue(await processOperation(strategyConfig, fixture_values2));
+    assertTrue(processOperation(strategyConfig, fixture_values2));
   });
 
-  it('should return TRUE when payload has nested field with arrays', async function () {
+  it('should return TRUE when payload has nested field with arrays', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.HAS_ONE, [
         'order.deliver.tracking.status'
     ]);
 
-    assertTrue(await processOperation(strategyConfig, fixture_values2));
+    assertTrue(processOperation(strategyConfig, fixture_values2));
   });
 
-  it('should return TRUE when payload has all', async function () {
+  it('should return TRUE when payload has all', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.HAS_ALL, [
         'product',
         'order',
@@ -128,22 +128,22 @@ describe('Strategy [PAYLOAD] tests:', function () {
         'order.deliver.tracking.status'
     ]);
 
-    assertTrue(await processOperation(strategyConfig, fixture_values2));
+    assertTrue(processOperation(strategyConfig, fixture_values2));
   });
 
-  it('should return FALSE when payload does not have all', async function () {
+  it('should return FALSE when payload does not have all', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.HAS_ALL, [
         'product',
         'order',
         'order.NOT_EXIST_KEY',
     ]);
 
-    assertFalse(await processOperation(strategyConfig, fixture_values2));
+    assertFalse(processOperation(strategyConfig, fixture_values2));
   });
 
-  it('should return FALSE when payload is not a JSON string', async function () {
+  it('should return FALSE when payload is not a JSON string', function () {
     const strategyConfig = givenStrategyConfig(OperationsType.HAS_ALL, []);
-    assertFalse(await processOperation(strategyConfig, 'NOT_JSON'));
+    assertFalse(processOperation(strategyConfig, 'NOT_JSON'));
   });
 
 });

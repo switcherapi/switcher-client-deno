@@ -1,7 +1,7 @@
 import { assertEquals, mf } from '../deps.ts';
 
 export function given(route: string, expect: object | undefined, status = 200) {
-  mf.mock(route, (_req, _match) => {
+  mf.mock(route, (_req: Request, _match: Record<string, string>) => {
     return new Response(JSON.stringify(expect), {
       status,
     });
