@@ -284,9 +284,9 @@ function processREGEX(
     case OperationsType.NOT_EXIST:
       return !processREGEX(OperationsType.EXIST, input, values);
     case OperationsType.EQUAL:
-      return TimedMatch.tryMatch([`\\b${values[0]}\\b`], input);
+      return TimedMatch.tryMatch([String.raw`\b${values[0]}\b`], input);
     case OperationsType.NOT_EQUAL:
-      return !TimedMatch.tryMatch([`\\b${values[0]}\\b`], input);
+      return !TimedMatch.tryMatch([String.raw`\b${values[0]}\b`], input);
     default:
       return false;
   }

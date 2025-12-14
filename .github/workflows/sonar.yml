@@ -28,15 +28,15 @@ jobs:
             core.setOutput('base_ref', pr.data.base.ref);
             core.setOutput('head_sha', pr.data.head.sha);
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ steps.pr.outputs.head_sha }}
           fetch-depth: 0
 
-      - name: Setup Deno v2.5.4
+      - name: Setup Deno v2.6.0
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.5.4
+          deno-version: v2.6.0
 
       - name: Setup LCOV        
         run: sudo apt install -y lcov
