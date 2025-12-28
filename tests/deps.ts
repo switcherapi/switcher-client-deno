@@ -21,6 +21,6 @@ export {
     beforeAll, 
     afterEach 
 } from 'jsr:@std/testing@1.0.16/bdd';
-export { delay } from 'jsr:@std/async@1.0.15/delay';
-export { load } from 'jsr:@std/dotenv@0.225.5';
+export { delay } from 'jsr:@std/async@1.0.16/delay';
+export { load } from 'jsr:@std/dotenv@0.225.6';
 export * as mf from 'https://deno.land/x/mock_fetch@0.3.0/mod.ts';
