@@ -10,7 +10,9 @@ export {
     assertExists, 
     assertNotEquals, 
     assertGreater,
-    assertArrayIncludes 
+    assertArrayIncludes,
+    assertStrictEquals,
+    assertNotStrictEquals
 } from 'jsr:@std/assert@1.0.16';
 export { assertSpyCalls, spy } from 'jsr:@std/testing@1.0.16/mock';
 export { 

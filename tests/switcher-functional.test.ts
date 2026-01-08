@@ -1,6 +1,6 @@
 import { describe, it, afterAll, afterEach, beforeEach, 
   assertEquals, assertRejects, assertThrows, assertFalse, 
-  assertSpyCalls, spy } from './deps.ts';
+  assertSpyCalls, assertStrictEquals, assertNotStrictEquals, spy } from './deps.ts';
 import { given, givenError, tearDown, assertTrue, generateAuth, generateResult, generateDetailedResult, sleep } from './helper/utils.ts'
 
 import { Client, type SwitcherResult, type SwitcherContext } from '../mod.ts';
@@ -50,6 +50,25 @@ describe('Integrated test - Client:', function () {
       
       await switcher.prepare('FLAG_1');
       assertTrue(await switcher.isItOn());
+    });
+
+    it('should be valid - using persisted switcher key', async function () {
+      // given API responses
+      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
+      given('POST@/criteria', generateResult(true));
+
+      // test
+      Client.buildContext(contextSettings);
+      
+      // Get switcher multiple times with the same key
+      const switcher1 = Client.getSwitcher('MY_PERSISTED_SWITCHER_KEY');
+      const switcher2 = Client.getSwitcher('MY_PERSISTED_SWITCHER_KEY');
+      const differentSwitcher = Client.getSwitcher('DIFFERENT_KEY');
+
+      // Verify they are the same instance (persisted)
+      assertStrictEquals(switcher1, switcher2, 'Switcher instances should be the same (persisted)');
+      assertNotStrictEquals(switcher1, differentSwitcher, 'Different keys should create different instances');
+      assertTrue(await switcher1.isItOn());
     });
 
     it('should NOT throw error when default result is provided using remote', async function () {
