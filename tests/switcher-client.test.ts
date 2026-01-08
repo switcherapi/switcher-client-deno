@@ -43,13 +43,14 @@ describe('E2E test - Client local #1:', function () {
     await switcher
       .checkValue('Japan')
       .checkNetwork('10.0.0.3')
-      .prepare();
+      .prepare('FF2FOR2020');
 
-    assertTrue(await switcher.isItOn('FF2FOR2020') === true);
-    assertTrue(switcher.isItOnBool('FF2FOR2020') === true);
-    assertTrue(await switcher.isItOnBool('FF2FOR2020', true) === true);
-    assertTrue(switcher.isItOnDetail('FF2FOR2020').result === true);
-    assertTrue((await switcher.isItOnDetail('FF2FOR2020', true)).result === true);
+    assertTrue(switcher.isItOn() === true);
+    assertTrue(await switcher.isItOn() === true);
+    assertTrue(switcher.isItOnBool() === true);
+    assertTrue(await switcher.isItOnBool(true) === true);
+    assertTrue(switcher.isItOnDetail().result === true);
+    assertTrue((await switcher.isItOnDetail(true)).result === true);
   });
 
   it('should get execution from logger', async function () {

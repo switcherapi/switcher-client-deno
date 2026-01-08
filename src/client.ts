@@ -46,6 +46,7 @@ import { SnapshotWatcher } from './lib/snapshotWatcher.ts';
  */
 export class Client {
   private static readonly _snapshotWatcher = new SnapshotWatcher();
+  private static readonly _switchers = new Map<string, Switcher>();
   private static _testEnabled: boolean;
   private static _context: SwitcherContext;
 
@@ -131,8 +132,21 @@ export class Client {
    * Creates a new instance of Switcher
    */
   static getSwitcher(key?: string): Switcher {
-    return new Switcher(util.get(key, ''))
+    const keyValue = util.get(key, '');
+    const persistedSwitcher = Client._switchers.get(keyValue);
+
+    if (persistedSwitcher) {
+      return persistedSwitcher;
+    }
+
+    const switcher = new Switcher(keyValue)
       .restrictRelay(GlobalOptions.restrictRelay);
+
+    if (keyValue) {
+      Client._switchers.set(keyValue, switcher);
+    }
+
+    return switcher;
   }
 
   /**

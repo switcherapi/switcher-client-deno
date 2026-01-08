@@ -1,7 +1,5 @@
-# Switcher4Deno
-
 <div align="center">
-<b>Switcher4Deno</b><br>
+<b>Switcher Client Deno SDK</b><br>
 A Deno SDK for Switcher API
 </div>
 
@@ -22,37 +20,37 @@ A Deno SDK for Switcher API
 
 ## 📋 Table of Contents
 
-- [🎯 About](#-about)
-  - [✨ Key Features](#-key-features)
-- [🚀 Quick Start](#-quick-start)
+- [About](#-about)
+  - [Key Features](#-key-features)
+- [Quick Start](#-quick-start)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Basic Setup](#basic-setup)
-- [⚙️ Configuration](#️-configuration)
+- [Configuration](#️-configuration)
   - [Context Parameters](#context-parameters)
   - [Advanced Options](#advanced-options)
   - [Options Reference](#options-reference)
-- [💡 Usage Examples](#-usage-examples)
+- [Usage Examples](#-usage-examples)
   - [1. Basic Feature Flag Check](#1-basic-feature-flag-check)
   - [2. Strategy Validation with Input Preparation](#2-strategy-validation-with-input-preparation)
   - [3. All-in-One Execution](#3-all-in-one-execution)
   - [4. Performance Optimization with Throttling](#4-performance-optimization-with-throttling)
   - [5. Hybrid Mode - Force Remote Resolution](#5-hybrid-mode---force-remote-resolution)
-- [🧪 Testing & Development](#-testing--development)
+- [Testing & Development](#-testing--development)
   - [Built-in Stub Feature](#built-in-stub-feature)
   - [Test Mode](#test-mode)
   - [Smoke Testing](#smoke-testing)
-- [📸 Snapshot Management](#-snapshot-management)
+- [Snapshot Management](#-snapshot-management)
   - [Loading Snapshots](#loading-snapshots)
   - [Real-time Snapshot Monitoring](#real-time-snapshot-monitoring)
   - [Snapshot Version Checking](#snapshot-version-checking)
   - [Automatic Snapshot Updates](#automatic-snapshot-updates)
 
-## 🎯 About
+## About
 
-**Switcher4Deno** is a feature-rich SDK for integrating [Switcher API](https://github.com/switcherapi/switcher-api) into your Deno applications. It provides robust feature flag management with enterprise-grade capabilities.
+**Switcher Client Deno** (former Switcher4Deno) is a feature-rich SDK for integrating [Switcher API](https://github.com/switcherapi/switcher-api) into your Deno applications. It provides robust feature flag management with enterprise-grade capabilities.
 
-### ✨ Key Features
+### Key Features
 
 - 🚀 **Zero Latency**: Local mode with snapshot files or in-memory for instant feature flag resolution
 - 🔄 **Hybrid Configuration**: Silent mode with automatic fallback handling
@@ -60,11 +58,11 @@ A Deno SDK for Switcher API
 - ⚡ **Performance Optimized**: Throttling optimizes remote API calls to reduce bottlenecks in critical code paths
 - 🛠️ **Developer Tools**: Runtime snapshot updates without app restart and automatic sync with remote API
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
-- **Deno**: Version 1.4x or higher
+- **Deno**: Version 1.4x or above
 - **Required Permissions**: 
   ```bash
   --allow-read --allow-write --allow-net
@@ -85,7 +83,7 @@ import { Client } from 'https://deno.land/x/switcher4deno@v[VERSION]/mod.ts';
 ```ts
 import { Client } from "@switcherapi/switcher-client-deno";
 
-// Initialize the client context
+// 1. Initialize the client
 Client.buildContext({
   url: 'https://api.switcherapi.com',
   apiKey: '[YOUR_API_KEY]',
@@ -94,15 +92,15 @@ Client.buildContext({
   environment: 'default'
 });
 
-// Get a switcher instance
-const switcher = Client.getSwitcher();
+// 2. Get a switcher instance
+const switcher = Client.getSwitcher('FEATURE01');
 
-// Check if a feature is enabled
-const isEnabled = await switcher.isItOn('FEATURE01');
+// 3. Check if a feature is enabled
+const isEnabled = await switcher.isItOn();
 console.log('Feature enabled:', isEnabled);
 ```
 
-## ⚙️ Configuration
+## Configuration
 ### Context Parameters
 
 | Parameter | Type | Required | Description |
@@ -153,31 +151,29 @@ Client.buildContext({
 
 > **⚠️ Note on regexSafe**: This feature protects against reDOS attacks but uses Web Workers, which are incompatible with compiled executables.
 
-## 💡 Usage Examples
+## Usage Examples
 
 ### 1. Basic Feature Flag Check
 
 Simple on/off checks for feature flags:
 
 ```ts
+// Non-persisted switcher instance
 const switcher = Client.getSwitcher();
+// Persisted switcher instance
+const switcher = Client.getSwitcher('FEATURE01');
 
-// Synchronous (local mode only)
-const isEnabled = switcher.isItOn('FEATURE01') as boolean; 
-const isEnabledBool = switcher.isItOnBool('FEATURE01');
-// Returns: true or false
+// 🚀 Synchronous (local mode only)
+const isEnabled = switcher.isItOn();              // Returns: boolean
+const isEnabledBool = switcher.isItOnBool();      // Returns: boolean
+const detailResult = switcher.detail().isItOn();  // Returns: { result, reason, metadata }
+const detailDirect = switcher.isItOnDetail();     // Returns: { result, reason, metadata }
 
-// With detailed response
-const response = switcher.detail().isItOn('FEATURE01') as SwitcherResult;
-const detailedResponse = switcher.isItOnDetail('FEATURE01');
-// Returns: { result: true, reason: 'Success', metadata: {} }
-
-// Asynchronous (remote/hybrid mode)
-const isEnabledAsync = await switcher.isItOn('FEATURE01');
-const isEnabledBoolAsync = await switcher.isItOnBool('FEATURE01', true);
-const responseAsync = await switcher.detail().isItOn('FEATURE01');
-const detailedResponseAsync = await switcher.isItOnDetail('FEATURE01', true);
-// Returns: Promise<boolean> or Promise<SwitcherResult>
+// 🌐 Asynchronous (remote/hybrid mode)
+const isEnabledAsync = await switcher.isItOn();               // Returns: Promise<boolean>
+const isEnabledBoolAsync = await switcher.isItOnBool(true);   // Returns: Promise<boolean>
+const detailResultAsync = await switcher.detail().isItOn();   // Returns: Promise<SwitcherResult>
+const detailDirectAsync = await switcher.isItOnDetail(true);  // Returns: Promise<SwitcherResult>
 ```
 
 ### 2. Strategy Validation with Input Preparation
@@ -243,7 +239,7 @@ This is useful for:
 - Critical features that must be resolved remotely
 - Real-time configuration updates
 
-## 🧪 Testing & Development
+## Testing & Development
 
 ### Built-in Stub Feature
 
@@ -301,7 +297,7 @@ try {
 }
 ```
 
-## 📸 Snapshot Management
+## Snapshot Management
 
 Snapshots enable zero-latency local mode by caching your feature flag configuration.
 
