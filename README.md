@@ -18,7 +18,7 @@ A Deno SDK for Switcher API
   <img src="https://github.com/switcherapi/switcherapi-assets/blob/master/logo/switcherapi_denoclient_transparency_1280.png" alt="Switcher API: Deno Client" />
 </div>
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [About](#-about)
   - [Key Features](#-key-features)
