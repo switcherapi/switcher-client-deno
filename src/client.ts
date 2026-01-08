@@ -130,7 +130,7 @@ export class Client {
 
   /**
    * Creates a new instance of Switcher.
-   * 
+   *
    * Provide a key if you want to persist the instance.
    */
   static getSwitcher(key?: string): Switcher {
