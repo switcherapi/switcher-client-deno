@@ -100,14 +100,14 @@ const _testSnapshotUpdate = async () => {
     console.log('checkSnapshot:', await Client.checkSnapshot());
 };
 
-// Requires remote API
+// Does not require remote API
 const _testAsyncCall = async () => {
-    setupSwitcher(false);
+    setupSwitcher(true);
     switcher = Client.getSwitcher(SWITCHER_KEY);
 
-    console.log("Sync:", await switcher.isItOn());
+    console.log("Sync:", await switcher.isItOnBool(true));
 
-    (switcher.isItOn() as Promise<boolean>)
+    switcher.isItOnBool(true)
         .then(res => console.log('Promise result:', res))
         .catch(error => console.log(error));
 };
