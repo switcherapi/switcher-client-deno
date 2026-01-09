@@ -239,6 +239,15 @@ This is useful for:
 - Critical features that must be resolved remotely
 - Real-time configuration updates
 
+### 6. Flush cached executions for a switcher
+
+When using throttling, you can clear cached results for a specific switcher:
+
+```ts
+// Clear cached results for a specific switcher
+Client.getSwitcher('FEATURE01').flushExecutions();
+```
+
 ## Testing & Development
 
 ### Built-in Stub Feature

@@ -86,7 +86,7 @@ export class Switcher extends SwitcherBuilder implements SwitcherRequest {
     }
 
     if (arg2) {
-      return this.isItOn(arg1) as Promise<boolean>;
+      return Promise.resolve(this.isItOn(arg1)) as Promise<boolean>;
     }
 
     return this.isItOn(arg1) as boolean;
@@ -127,7 +127,7 @@ export class Switcher extends SwitcherBuilder implements SwitcherRequest {
   /**
    * Execute criteria with detail information
    *
-   * @param arg1 - switcher key
+   * @param arg1 - switcher key or forceAsync boolean
    * @param arg2 - when true, forces async execution
    * @returns SwitcherResult or Promise<SwitcherResult> based on execution mode
    */
@@ -258,6 +258,13 @@ export class Switcher extends SwitcherBuilder implements SwitcherRequest {
     if (errors.length) {
       throw new Error(`Something went wrong: ${errors.join(', ')}`);
     }
+  }
+
+  /**
+   * Flush cached executions for the current switcher key
+   */
+  flushExecutions(): void {
+    ExecutionLogger.clearByKey(this._key);
   }
 
   /**

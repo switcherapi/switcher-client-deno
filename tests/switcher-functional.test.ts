@@ -182,6 +182,25 @@ describe('Integrated test - Client:', function () {
       assertSpyCalls(spyPrepare, 2);
     });
 
+    it('should flush executions from a specific switcher key', async function () {
+      // given API responses
+      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
+      given('POST@/criteria', generateResult(true));
+
+      Client.buildContext(contextSettings);
+      const switcher = Client.getSwitcher('FLAG_1').throttle(1000);
+      
+      // when
+      assertTrue(await switcher.isItOn());
+      let switcherExecutions = ExecutionLogger.getByKey('FLAG_1');
+      assertEquals(switcherExecutions.length, 1);
+
+      // test
+      switcher.flushExecutions();
+      switcherExecutions = ExecutionLogger.getByKey('FLAG_1');
+      assertEquals(switcherExecutions.length, 0);
+    });
+
     it('should not crash when async checkCriteria fails', async function () {
       // given API responses
       // first API call
