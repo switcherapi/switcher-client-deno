@@ -183,6 +183,22 @@ describe('E2E test - Client local #1:', function () {
       'Group disabled');
   });
 
+  it('should clear strategy inputs', testSettings, async function () {
+    // when
+    await switcher
+      .checkValue('Japan')
+      .checkNetwork('10.0.0.2')  
+      .prepare('FF2FOR2020');
+
+    assertExists(switcher.input);
+    assertTrue(await switcher.isItOn());
+
+    // test
+    switcher.resetInputs();
+    assertEquals(switcher.input, undefined);
+    assertFalse(await switcher.isItOn());  
+  });
+
   it('should be valid - Local mode', testSettings, async function () {
     await delay(2000);
     
