@@ -71,6 +71,14 @@ export class SwitcherBuilder {
   }
 
   /**
+   * Resets all strategy inputs
+   */
+  resetInputs(): this {
+    this._input = undefined;
+    return this;
+  }
+
+  /**
    * Adds a strategy for validation
    */
   check(strategyType: string, input: string): this {
