@@ -20,6 +20,12 @@ export const setCerts = (certPath: string) => {
   });
 };
 
+export const destroyHttpClient = () => {
+  if (httpClient) {
+    httpClient.close();
+  }
+};
+
 export const getEntry = (input?: string[][]) => {
   if (!input) {
     return undefined;
