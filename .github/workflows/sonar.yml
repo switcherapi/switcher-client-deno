@@ -33,10 +33,10 @@ jobs:
           ref: ${{ steps.pr.outputs.head_sha }}
           fetch-depth: 0
 
-      - name: Setup Deno v2.6.4
+      - name: Setup Deno v2.7.7
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.6.4
+          deno-version: v2.7.7
 
       - name: Setup LCOV        
         run: sudo apt install -y lcov
