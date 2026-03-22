@@ -67,6 +67,7 @@ A Deno SDK for Switcher API
   ```bash
   --allow-read --allow-write --allow-net
   ```
+  (*) add `--unstable-http` when using Deno v1.4x with custom certificates
 
 ### Installation
 

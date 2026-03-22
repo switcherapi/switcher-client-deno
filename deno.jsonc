@@ -7,7 +7,7 @@
     "fmt": "deno fmt mod.ts src/ --options-single-quote --options-line-width=120 --check",
     "fmt:fix": "deno fmt mod.ts src/ --options-single-quote --options-line-width=120",
     "test": "deno test --allow-read --allow-net --allow-write --allow-env --allow-import --coverage=coverage",
-    "test-v1": "deno test --allow-read --allow-net --allow-write --allow-env --coverage=coverage",
+    "test-v1": "deno test --allow-read --allow-net --allow-write --allow-env --unstable-http --coverage=coverage",
     "clean": "rm -rf ./npm ./coverage ./generated-snapshots",
     "lcov": "deno coverage coverage --lcov --output=coverage/report.lcov",
     "cover": "deno task clean && deno task test && deno task lcov && genhtml -o coverage/html coverage/report.lcov",
