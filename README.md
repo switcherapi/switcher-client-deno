@@ -133,7 +133,8 @@ Client.buildContext({
   silentMode: '5m',                     // Fallback timeout
   restrictRelay: true,                  // Relay restrictions in local mode
   regexSafe: true,                      // Prevent reDOS attacks
-  certPath: './certs/ca.pem'            // SSL certificate path
+  certPath: './certs/ca.pem',           // SSL certificate path
+  remoteTimeout: 2000                   // Remote Criteria API timeout (milliseconds)
 });
 ```
 
@@ -153,6 +154,7 @@ Client.buildContext({
 | `regexMaxBlackList` | number | Max cached regex failures |
 | `regexMaxTimeLimit` | number | Regex timeout in milliseconds |
 | `certPath` | string | Path to SSL certificate file |
+| `remoteTimeout` | number | Remote Criteria API timeout in milliseconds |
 
 > **⚠️ Note on regexSafe**: This feature protects against reDOS attacks but uses Web Workers, which are incompatible with compiled executables.
 

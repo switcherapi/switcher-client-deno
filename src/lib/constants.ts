@@ -16,4 +16,5 @@ export enum SWITCHER_OPTIONS {
   REGEX_MAX_BLACK_LIST = 'regexMaxBlackList',
   REGEX_MAX_TIME_LIMIT = 'regexMaxTimeLimit',
   CERT_PATH = 'certPath',
+  REMOTE_TIMEOUT = 'remoteTimeout',
 }

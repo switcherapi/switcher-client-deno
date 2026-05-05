@@ -68,12 +68,12 @@ export class Client {
       logger: util.get(options?.logger, DEFAULT_LOGGER),
     });
 
+    // Initialize Auth
+    Auth.init(this._context);
+
     if (options) {
       Client.buildOptions(options);
     }
-
-    // Initialize Auth
-    Auth.init(this._context);
   }
 
   private static buildOptions(options: SwitcherOptions) {
@@ -83,6 +83,9 @@ export class Client {
       },
       [SWITCHER_OPTIONS.SILENT_MODE]: () => {
         if (options.silentMode) this._initSilentMode(options.silentMode);
+      },
+      [SWITCHER_OPTIONS.REMOTE_TIMEOUT]: () => {
+        if (options.remoteTimeout) remote.setRemoteTimeout(options.remoteTimeout);
       },
       [SWITCHER_OPTIONS.RESTRICT_RELAY]: () => {
         GlobalOptions.updateOptions({ restrictRelay: options.restrictRelay });
@@ -371,7 +374,7 @@ export class Client {
   /**
    * Enable/Disable test mode.
    *
-   * It prevents from watching Snapshots that may hold process
+   * It prevents subprocess to run during tests such as snapshot watcher
    */
   static testMode(testEnabled: boolean = true): void {
     Client._testEnabled = testEnabled;

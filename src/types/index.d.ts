@@ -115,6 +115,13 @@ export type SwitcherOptions = {
    * If not set, it will use the default certificate
    */
   certPath?: string;
+
+  /**
+   * The remote timeout in milliseconds for crieteria evaluation API calls
+   *
+   * If not set, it will use the default value (2000 ms)
+   */
+  remoteTimeout?: number;
 };
 
 export type RetryOptions = {
