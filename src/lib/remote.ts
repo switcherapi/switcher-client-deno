@@ -5,6 +5,7 @@ import * as util from './utils/index.ts';
 import { GlobalAuth } from './globals/globalAuth.ts';
 
 let httpClient: Deno.HttpClient;
+let remoteTimeout: number = 2 * 1000;
 
 const getHeader = (token: string | undefined) => {
   return {
@@ -18,6 +19,10 @@ export const setCerts = (certPath: string) => {
     caCerts: [Deno.readTextFileSync(certPath)],
     http2: true,
   });
+};
+
+export const setRemoteTimeout = (timeout: number) => {
+  remoteTimeout = timeout;
 };
 
 export const destroyHttpClient = () => {
@@ -89,6 +94,7 @@ export const checkCriteria = async (
       {
         client: httpClient,
         method: 'post',
+        signal: AbortSignal.timeout(remoteTimeout),
         body: JSON.stringify({ entry }),
         headers: getHeader(GlobalAuth.token),
       },

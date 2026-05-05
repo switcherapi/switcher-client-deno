@@ -49,6 +49,11 @@ describe('Switcher Context:', function () {
       Error, 'Something went wrong: URL is required');
   });
 
+  it('should NOT throw when remoteTimeout is set', function() {
+    Client.buildContext(contextSettings, { remoteTimeout: 5000 });
+    assertTrue(true);
+  });
+
   it('should be invalid - Missing API Key field', async function () {
     // given
     given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
