@@ -360,8 +360,8 @@ console.log('Snapshot is up to date:', isLatest);
 Schedule periodic updates for local mode with automatic refresh:
 
 ```ts
-// Update every 3 seconds (3000 milliseconds)
-Client.scheduleSnapshotAutoUpdate(3000, {
+// Update every 3 seconds
+Client.scheduleSnapshotAutoUpdate(3, {
     success: (updated) => console.log('Snapshot updated', updated),
     reject: (err: Error) => console.log(err)
 });
