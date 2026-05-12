@@ -65,7 +65,7 @@ export type SwitcherOptions = {
   snapshotLocation?: string;
 
   /**
-   * The interval in milliseconds to auto-update the snapshot
+   * The interval in seconds to auto-update the snapshot
    *
    * If not set, it will not auto-update the snapshot
    */

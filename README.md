@@ -31,11 +31,13 @@ A Deno SDK for Switcher API
   - [Advanced Options](#advanced-options)
   - [Options Reference](#options-reference)
 - [Usage Examples](#-usage-examples)
-  - [1. Basic Feature Flag Check](#1-basic-feature-flag-check)
-  - [2. Strategy Validation with Input Preparation](#2-strategy-validation-with-input-preparation)
-  - [3. All-in-One Execution](#3-all-in-one-execution)
-  - [4. Performance Optimization with Throttling](#4-performance-optimization-with-throttling)
-  - [5. Hybrid Mode - Force Remote Resolution](#5-hybrid-mode---force-remote-resolution)
+  - [Basic Feature Flag Check](#basic-feature-flag-check)
+  - [Strategy Validation with Input Preparation](#strategy-validation-with-input-preparation)
+  - [All-in-One Execution](#all-in-one-execution)
+  - [Performance Optimization with Throttling](#performance-optimization-with-throttling)
+  - [Hybrid Mode - Force Remote Resolution](#hybrid-mode---force-remote-resolution)
+  - [Flush Cached Executions for a Switcher](#flush-cached-executions-for-a-switcher)
+  - [Circuit Breaker](#circuit-breaker-silent-mode)
 - [Testing & Development](#-testing--development)
   - [Built-in Stub Feature](#built-in-stub-feature)
   - [Test Mode](#test-mode)
@@ -128,7 +130,7 @@ Client.buildContext({
   freeze: false,                        // Prevent background updates
   logger: true,                         // Enable request logging
   snapshotLocation: './snapshot/',      // Snapshot files directory
-  snapshotAutoUpdateInterval: 300,      // Auto-update interval (seconds)
+  snapshotAutoUpdateInterval: 30,       // Auto-update interval (seconds)
   snapshotWatcher: true,                // Monitor snapshot changes
   silentMode: '5m',                     // Fallback timeout
   restrictRelay: true,                  // Relay restrictions in local mode
@@ -160,7 +162,7 @@ Client.buildContext({
 
 ## Usage Examples
 
-### 1. Basic Feature Flag Check
+### Basic Feature Flag Check
 
 Simple on/off checks for feature flags:
 
@@ -183,7 +185,7 @@ const detailResultAsync = await switcher.detail().isItOn();   // Returns: Promis
 const detailDirectAsync = await switcher.isItOnDetail(true);  // Returns: Promise<SwitcherResult>
 ```
 
-### 2. Strategy Validation with Input Preparation
+### Strategy Validation with Input Preparation
 
 Prepare context data before evaluation:
 
@@ -199,7 +201,7 @@ await switcher
   .prepare('ADVANCED_FEATURE');
 ```
 
-### 3. All-in-One Execution
+### All-in-One Execution
 
 Complex feature flag evaluation with multiple strategies:
 
@@ -212,7 +214,7 @@ const result = await switcher
   .isItOn('FEATURE01');
 ```
 
-### 4. Performance Optimization with Throttling
+### Performance Optimization with Throttling
 
 Reduce API calls for high-frequency checks:
 
@@ -230,7 +232,7 @@ Client.subscribeNotifyError((error) => {
 });
 ```
 
-### 5. Hybrid Mode - Force Remote Resolution
+### Hybrid Mode - Force Remote Resolution
 
 Override local mode for specific switchers:
 
@@ -246,13 +248,32 @@ This is useful for:
 - Critical features that must be resolved remotely
 - Real-time configuration updates
 
-### 6. Flush cached executions for a switcher
+### Flush Cached Executions for a Switcher
 
 When using throttling, you can clear cached results for a specific switcher:
 
 ```ts
 // Clear cached results for a specific switcher
 Client.getSwitcher('FEATURE01').flushExecutions();
+```
+
+### Circuit Breaker: Silent Mode
+
+This feature allows you to specify how long the client SDK should attempt to restore connectivity in case of remote API failures.
+
+When the API is unavailable, the SDK will automatically operate in silent mode, evaluating Switchers using a local snapshot. It is important to note that any Switcher Key configured must be able to resolve without external dependencies (e.g., Switcher Relay).
+
+Make sure to configure the scheduled snapshot auto-update to keep the local snapshot up to date with the remote API. 
+
+Here is an example - in-memory snapshot with auto-update every 30 seconds:
+
+```ts
+Client.buildContext({ 
+  url, apiKey, domain, component, environment 
+}, {
+  snapshotAutoUpdateInterval: 30,
+  silentMode: '5m',
+});
 ```
 
 ## Testing & Development
