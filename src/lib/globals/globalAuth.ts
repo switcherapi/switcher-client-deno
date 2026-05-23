@@ -1,19 +1,19 @@
 export class GlobalAuth {
-  private static _token?: string;
-  private static _exp?: number;
   private static _url?: string;
+  private static _token: string;
+  private static _exp: number;
 
   static init(url: string | undefined) {
     this._url = url;
-    this._token = undefined;
-    this._exp = undefined;
+    this._token = '';
+    this._exp = 0;
   }
 
   static get token() {
     return this._token;
   }
 
-  static set token(value: string | undefined) {
+  static set token(value: string) {
     this._token = value;
   }
 
@@ -21,7 +21,7 @@ export class GlobalAuth {
     return this._exp;
   }
 
-  static set exp(value: number | undefined) {
+  static set exp(value: number) {
     this._exp = value;
   }
 

@@ -1,5 +1,5 @@
 export default class SnapshotAutoUpdater {
-  private static _intervalId: number | undefined;
+  private static _intervalId: NodeJS.Timeout | undefined;
 
   static schedule(
     interval: number,
@@ -23,5 +23,6 @@ export default class SnapshotAutoUpdater {
 
   static terminate() {
     clearInterval(this._intervalId);
+    this._intervalId = undefined;
   }
 }

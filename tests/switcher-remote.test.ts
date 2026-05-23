@@ -4,6 +4,8 @@ import { describe, it, afterAll, afterEach, beforeEach,
 import { given, tearDown, assertTrue, generateAuth, generateResult, generateDetailedResult, sleep } from './helper/utils.ts'
 
 import { Client, type SwitcherResult, type SwitcherContext } from '../mod.ts';
+import { Auth } from "../src/lib/remoteAuth.ts";
+import { GlobalAuth } from "../src/lib/globals/globalAuth.ts";
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 import ExecutionLogger from '../src/lib/utils/executionLogger.ts';
 
@@ -337,6 +339,64 @@ describe('Switcher Remote:', function () {
         Error, 'Something went wrong: [checkCriteria] failed with status 429');
     });
 
+  });
+
+  describe('auto refresh token:', function () {
+
+    afterEach(function() {
+      Auth.terminateAutoRefresh();
+    });
+
+    it('should refresh the token before it expires in the background', async function () {
+      // given API responses - 1st auth call
+      given('POST@/criteria/auth', generateAuth('[auth_token_1]', 5));
+      
+      // test
+      Client.buildContext(contextSettings, { autoRefreshToken: true });
+      await Client.getSwitcher('FLAG_1').prepare();
+
+      // given API responses - 2nd auth call (after token expiration)
+      given('POST@/criteria/auth', generateAuth('[auth_token_2]', 5));
+
+      assertEquals(GlobalAuth.token, '[auth_token_1]');
+      await sleep(1000);
+      assertEquals(GlobalAuth.token, '[auth_token_2]');
+    });
+
+    it('should not refresh the token if autoRefreshToken is false', async function () {
+      // given API responses - 1st auth call
+      given('POST@/criteria/auth', generateAuth('[auth_token_1]', 1));
+      
+      // test
+      Client.buildContext(contextSettings, { autoRefreshToken: false });
+      await Client.getSwitcher('FLAG_1').prepare();
+
+      // given API responses - 2nd auth call (after token expiration)
+      given('POST@/criteria/auth', generateAuth('[auth_token_2]', 5));
+
+      assertEquals(GlobalAuth.token, '[auth_token_1]');
+      await sleep(1500);
+      assertEquals(GlobalAuth.token, '[auth_token_1]', 'Token should not have been refreshed');
+    });
+
+    it('should handle token refresh failure gracefully', async function () {
+      const spyTerminate = spy(Auth, 'terminateAutoRefresh');
+
+      // given API responses - 1st auth call
+      given('POST@/criteria/auth', generateAuth('[auth_token_1]', 1));
+      
+      // test
+      Client.buildContext(contextSettings, { autoRefreshToken: true });
+      await Client.getSwitcher('FLAG_1').prepare();
+
+      // given API responses - 2nd auth call (after token expiration) fails
+      given('POST@/criteria/auth', undefined, 500);
+
+      assertEquals(GlobalAuth.token, '[auth_token_1]');
+      await sleep(1500);
+      assertEquals(GlobalAuth.token, '[auth_token_1]', 'Token should not have been refreshed');
+      assertSpyCalls(spyTerminate, 1);
+    });
   });
 
 });

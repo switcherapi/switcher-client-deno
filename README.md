@@ -7,6 +7,7 @@ A Deno SDK for Switcher API
 
 [![Master CI](https://github.com/switcherapi/switcher-client-deno/actions/workflows/master.yml/badge.svg)](https://github.com/switcherapi/switcher-client-deno/actions/workflows/master.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=switcherapi_switcher-client-deno&metric=alert_status)](https://sonarcloud.io/dashboard?id=switcherapi_switcher-client-deno)
+![Known Vulnerabilities](https://snyk.io/test/github/switcherapi/switcher-client-deno/badge.svg)
 [![deno.land/x/switcher4deno](https://shield.deno.dev/x/switcher4deno)](https://deno.land/x/switcher4deno)
 [![JSR](https://jsr.io/badges/@switcherapi/switcher-client-deno)](https://jsr.io/@switcherapi/switcher-client-deno)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -14,9 +15,10 @@ A Deno SDK for Switcher API
 
 </div>
 
-<div align="center">
-  <img src="https://github.com/switcherapi/switcherapi-assets/blob/master/logo/switcherapi_denoclient_transparency_1280.png" alt="Switcher API: Deno Client" />
-</div>
+***
+
+![Switcher API: Deno Client: Cloud-based Feature Flag API](https://github.com/switcherapi/switcherapi-assets/blob/master/logo/switcherapi_deno_client.png)
+
 
 ## Table of Contents
 
@@ -64,7 +66,7 @@ A Deno SDK for Switcher API
 
 ### Prerequisites
 
-- **Deno**: Version 1.4x, 2.x or above
+- **Deno**: Version 2.x or above
 - **Permissions**:
 
 | Permission | Required For |
@@ -73,7 +75,6 @@ A Deno SDK for Switcher API
 | `--allow-write` | Writing snapshot files (if enabled) |
 | `--allow-net` | Communicating with the Switcher API |
 | `--allow-env` | Accessing environment variables for configuration |
-| `--unstable-http` | Required for custom SSL certificates in Deno v1.4x (see [Advanced Options](#advanced-options)) |
 
 ### Installation
 
@@ -136,7 +137,8 @@ Client.buildContext({
   restrictRelay: true,                  // Relay restrictions in local mode
   regexSafe: true,                      // Prevent reDOS attacks
   certPath: './certs/ca.pem',           // SSL certificate path
-  remoteTimeout: 2000                   // Remote Criteria API timeout (milliseconds)
+  remoteTimeout: 2000,                  // Remote Criteria API timeout (milliseconds)
+  autoRefreshToken: true,               // Automatically refresh auth token before expiration
 });
 ```
 
@@ -157,6 +159,7 @@ Client.buildContext({
 | `regexMaxTimeLimit` | number | Regex timeout in milliseconds |
 | `certPath` | string | Path to SSL certificate file |
 | `remoteTimeout` | number | Remote Criteria API timeout in milliseconds |
+| `autoRefreshToken` | boolean | Automatically refresh auth token before expiration |
 
 > **⚠️ Note on regexSafe**: This feature protects against reDOS attacks but uses Web Workers, which are incompatible with compiled executables.
 

@@ -1,5 +1,6 @@
 import type { RetryOptions, SwitcherContext } from '../types/index.d.ts';
 import { GlobalAuth } from './globals/globalAuth.ts';
+import { GlobalOptions } from './globals/globalOptions.ts';
 import { auth, checkAPIHealth } from './remote.ts';
 import DateMoment from './utils/datemoment.ts';
 import * as util from './utils/index.ts';
@@ -10,10 +11,30 @@ import * as util from './utils/index.ts';
 export class Auth {
   private static context: SwitcherContext;
   private static retryOptions: RetryOptions;
+  private static refreshTimer: NodeJS.Timeout | undefined;
 
   static init(context: SwitcherContext) {
     this.context = context;
     GlobalAuth.init(context.url);
+  }
+
+  private static scheduleNextAuth() {
+    const msUntilExpiry = (GlobalAuth.exp * 1000) - Date.now();
+    const refreshAt = Math.max(msUntilExpiry - 5000, 0); // 5s before expiry
+
+    this.refreshTimer = setTimeout(() => {
+      this.authUpdate().then(() => {
+        this.scheduleNextAuth();
+      }).catch(() => {
+        this.terminateAutoRefresh();
+      });
+    }, refreshAt);
+  }
+
+  private static async authUpdate() {
+    const response = await auth(this.context);
+    GlobalAuth.token = response.token;
+    GlobalAuth.exp = response.exp;
   }
 
   static setRetryOptions(silentMode: string) {
@@ -23,10 +44,19 @@ export class Auth {
     };
   }
 
+  static terminateAutoRefresh() {
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer);
+      this.refreshTimer = undefined;
+    }
+  }
+
   static async auth() {
-    const response = await auth(this.context);
-    GlobalAuth.token = response.token;
-    GlobalAuth.exp = response.exp;
+    await this.authUpdate();
+
+    if (GlobalOptions.autoRefreshToken && !this.refreshTimer) {
+      this.scheduleNextAuth();
+    }
   }
 
   static checkHealth() {

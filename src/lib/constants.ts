@@ -3,6 +3,7 @@ export const DEFAULT_LOCAL = false;
 export const DEFAULT_FREEZE = false;
 export const DEFAULT_LOGGER = false;
 export const DEFAULT_TEST_MODE = false;
+export const DEFAULT_AUTO_REFRESH_TOKEN = false;
 export const DEFAULT_REGEX_MAX_BLACKLISTED = 50;
 export const DEFAULT_REGEX_MAX_TIME_LIMIT = 3000;
 
@@ -17,4 +18,5 @@ export enum SWITCHER_OPTIONS {
   REGEX_MAX_TIME_LIMIT = 'regexMaxTimeLimit',
   CERT_PATH = 'certPath',
   REMOTE_TIMEOUT = 'remoteTimeout',
+  AUTO_REFRESH_TOKEN = 'autoRefreshToken',
 }
