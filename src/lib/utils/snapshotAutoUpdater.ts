@@ -1,5 +1,5 @@
 export default class SnapshotAutoUpdater {
-  private static _intervalId: NodeJS.Timeout | undefined;
+  private static _intervalId: ReturnType<typeof setInterval> | undefined;
 
   static schedule(
     interval: number,

@@ -66,7 +66,7 @@ A Deno SDK for Switcher API
 
 ### Prerequisites
 
-- **Deno**: Version 2.x or above
+- **Deno**: Version 1.4x, 2.x or later
 - **Permissions**:
 
 | Permission | Required For |
@@ -75,6 +75,7 @@ A Deno SDK for Switcher API
 | `--allow-write` | Writing snapshot files (if enabled) |
 | `--allow-net` | Communicating with the Switcher API |
 | `--allow-env` | Accessing environment variables for configuration |
+| `--unstable-http` | Required for custom SSL certificates in Deno v1.4x (see [Advanced Options](#advanced-options)) |
 
 ### Installation
 
