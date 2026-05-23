@@ -2,6 +2,7 @@ import * as remote from './lib/remote.ts';
 import * as util from './lib/utils/index.ts';
 import Bypasser from './lib/bypasser/index.ts';
 import {
+  DEFAULT_AUTO_REFRESH_TOKEN,
   DEFAULT_ENVIRONMENT,
   DEFAULT_FREEZE,
   DEFAULT_LOCAL,
@@ -66,6 +67,7 @@ export class Client {
       local: util.get(options?.local, DEFAULT_LOCAL),
       freeze: util.get(options?.freeze, DEFAULT_FREEZE),
       logger: util.get(options?.logger, DEFAULT_LOGGER),
+      autoRefreshToken: util.get(options?.autoRefreshToken, DEFAULT_AUTO_REFRESH_TOKEN),
     });
 
     // Initialize Auth
@@ -97,6 +99,9 @@ export class Client {
       [SWITCHER_OPTIONS.SNAPSHOT_WATCHER]: () => {
         GlobalOptions.updateOptions({ snapshotWatcher: options.snapshotWatcher });
         this.watchSnapshot();
+      },
+      [SWITCHER_OPTIONS.AUTO_REFRESH_TOKEN]: () => {
+        GlobalOptions.updateOptions({ autoRefreshToken: options.autoRefreshToken });
       },
     };
 

@@ -1,5 +1,4 @@
 import { describe, it, assertExists, assertGreater, load } from './deps.ts';
-import { assertTrue } from "./helper/utils.ts";
 
 import { Client } from '../mod.ts';
 
@@ -47,7 +46,7 @@ describe('Switcher integrated test', () => {
         assertGreater(Client.snapshotVersion, 0);
     });
 
-    it('should check Switcher availability', async function () {
+    it('should check Switcher availability', function () {
         if (!Deno.env.get('SWITCHER_API_KEY')) {
             return;
         }
@@ -56,9 +55,7 @@ describe('Switcher integrated test', () => {
         Client.buildContext(contextSettings);
 
         // test
-        await Client.checkSwitchers(['CLIENT_DENO_FEATURE']);
-        
-        assertTrue(true);
+        return Client.checkSwitchers(['CLIENT_DENO_FEATURE']);
     });
 
 });

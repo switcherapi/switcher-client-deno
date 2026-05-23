@@ -122,6 +122,13 @@ export type SwitcherOptions = {
    * If not set, it will use the default value (2000 ms)
    */
   remoteTimeout?: number;
+
+  /**
+   * When enabled it will automatically refresh the token before it expires
+   *
+   * If not set, it will not refresh the token automatically
+   */
+  autoRefreshToken?: boolean;
 };
 
 export type RetryOptions = {

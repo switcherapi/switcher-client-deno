@@ -10,7 +10,7 @@ import * as util from './utils/index.ts';
  */
 export class SnapshotWatcher {
   private _watcher: Deno.FsWatcher | undefined;
-  private readonly _watchDebounce = new Map<string, number>();
+  private readonly _watchDebounce = new Map<string, NodeJS.Timeout>();
 
   async watchSnapshot(environment: string, callback: {
     success?: () => void | Promise<void>;
