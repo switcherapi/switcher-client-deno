@@ -11,7 +11,7 @@ import * as util from './utils/index.ts';
 export class Auth {
   private static context: SwitcherContext;
   private static retryOptions: RetryOptions;
-  private static refreshTimer: NodeJS.Timeout | undefined;
+  private static refreshTimer: ReturnType<typeof setInterval> | undefined;
 
   static init(context: SwitcherContext) {
     this.context = context;

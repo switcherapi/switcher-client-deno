@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        deno-version: [v2.8.0]
+        deno-version: [v1.46.3, v2.8.0]
         os: [ ubuntu-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
 
@@ -58,5 +58,10 @@ jobs:
         with:
           deno-version: ${{ matrix.deno-version }}
 
-      - name: Run tests
+      - name: Run tests (Deno v1)
+        if: "contains(matrix.deno-version, 'v1')"
+        run: deno task test-v1
+
+      - name: Run tests (Deno v2)
+        if: "contains(matrix.deno-version, 'v2')"
         run: deno task test
