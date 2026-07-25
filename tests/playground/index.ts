@@ -25,7 +25,7 @@ async function setupSwitcher(local: boolean) {
 }
 
 /**
- * This code snippet is a minimal example of how to configure and use switcher-client-deno (former: Switcher4Deno) locally.
+ * This code snippet is a minimal example of how to configure and use switcher-client-deno locally.
  * No remote API account is required.
  * 
  * Snapshot is loaded from file at tests/playground/snapshot/local.json

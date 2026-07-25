@@ -8,7 +8,6 @@ A Deno SDK for Switcher API
 [![Master CI](https://github.com/switcherapi/switcher-client-deno/actions/workflows/master.yml/badge.svg)](https://github.com/switcherapi/switcher-client-deno/actions/workflows/master.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=switcherapi_switcher-client-deno&metric=alert_status)](https://sonarcloud.io/dashboard?id=switcherapi_switcher-client-deno)
 ![Known Vulnerabilities](https://snyk.io/test/github/switcherapi/switcher-client-deno/badge.svg)
-[![deno.land/x/switcher4deno](https://shield.deno.dev/x/switcher4deno)](https://deno.land/x/switcher4deno)
 [![JSR](https://jsr.io/badges/@switcherapi/switcher-client-deno)](https://jsr.io/@switcherapi/switcher-client-deno)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Slack: Switcher-HQ](https://img.shields.io/badge/slack-@switcher/hq-blue.svg?logo=slack)](https://switcher-hq.slack.com/)
@@ -52,7 +51,7 @@ A Deno SDK for Switcher API
 
 ## About
 
-**Switcher Client Deno** (former Switcher4Deno) is a feature-rich SDK for integrating [Switcher API](https://github.com/switcherapi/switcher-api) into your Deno applications. It provides robust feature flag management with enterprise-grade capabilities.
+**Switcher Client Deno** is a feature-rich SDK for integrating [Switcher API](https://github.com/switcherapi/switcher-api) into your Deno applications. It provides robust feature flag management with enterprise-grade capabilities.
 
 ### Key Features
 
@@ -83,7 +82,7 @@ A Deno SDK for Switcher API
 // Via JSR (Recommended)
 import { Client } from "@switcherapi/switcher-client-deno@[VERSION]";
 
-// Via deno.land
+// Via deno.land (deprecated)
 import { Client } from 'https://deno.land/x/switcher4deno@v[VERSION]/mod.ts';
 ```
 
