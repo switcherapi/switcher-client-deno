@@ -23,6 +23,6 @@ export {
     beforeAll, 
     afterEach 
 } from 'jsr:@std/testing@1.0.19/bdd';
-export { delay } from 'jsr:@std/async@1.4.0/delay';
+export { delay } from 'jsr:@std/async@1.5.0/delay';
 export { load } from 'jsr:@std/dotenv@0.225.7';
 export * as mf from 'https://deno.land/x/mock_fetch@0.3.0/mod.ts';
