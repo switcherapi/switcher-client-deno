@@ -1,4 +1,4 @@
-import { describe, it, afterAll, beforeEach, assertRejects, assertFalse, assertExists, assertEquals, assertGreater, delay, existsSync } from './deps.ts';
+import { describe, it, afterAll, beforeEach, assertRejects, assertFalse, assertExists, assertEquals, assertGreater, delay, existsSync, mf, afterEach } from './deps.ts';
 import { given, givenError, tearDown, generateAuth, generateStatus, assertTrue, WaitSafe } from './helper/utils.ts';
 
 import { Client, type SwitcherContext } from '../mod.ts';
@@ -9,6 +9,7 @@ const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExi
 describe('E2E test - Client local - Snapshot:', function () {
   const token = '[token]';
   let contextSettings: SwitcherContext;
+  let mockFetch: mf.MockInstallation;
 
   const dataBuffer = Deno.readTextFileSync('./tests/snapshot/dev.json');
   const dataJSON = `{ "data": ${dataBuffer.toString()} }`;
@@ -34,7 +35,11 @@ describe('E2E test - Client local - Snapshot:', function () {
     });
 
     Client.testMode();
-    tearDown();
+    mockFetch = mf.install();
+  });
+
+  afterEach(function() {
+    tearDown(mockFetch.restore);
   });
 
   afterAll(function() {
@@ -46,8 +51,8 @@ describe('E2E test - Client local - Snapshot:', function () {
 
   it('should NOT update snapshot - Too many requests at checkSnapshotVersion', testSettings, async function () {
     // given
-    given('POST@/criteria/auth', generateAuth(token, 5));
-    given('GET@/criteria/snapshot_check/:version', undefined, 429);
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth(token, 5));
+    given(mockFetch.instance, 'GET /criteria/snapshot_check/:version', undefined, 429);
     
     // test
     Client.testMode();
@@ -59,9 +64,9 @@ describe('E2E test - Client local - Snapshot:', function () {
 
   it('should NOT update snapshot - Too many requests at resolveSnapshot', testSettings, async function () {
     // given
-    given('POST@/criteria/auth', generateAuth(token, 5));
-    given('GET@/criteria/snapshot_check/:version', generateStatus(false)); // Snapshot outdated
-    given('POST@/graphql', undefined, 429);
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth(token, 5));
+    given(mockFetch.instance, 'GET /criteria/snapshot_check/:version', generateStatus(false)); // Snapshot outdated
+    given(mockFetch.instance, 'POST /graphql', undefined, 429);
 
     // test
     Client.buildContext(contextSettings, {
@@ -78,9 +83,9 @@ describe('E2E test - Client local - Snapshot:', function () {
     await delay(2000);
 
     // given
-    given('POST@/criteria/auth', generateAuth(token, 5));
-    given('GET@/criteria/snapshot_check/:version', generateStatus(false));
-    given('POST@/graphql', JSON.parse(dataJSON));
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth(token, 5));
+    given(mockFetch.instance, 'GET /criteria/snapshot_check/:version', generateStatus(false));
+    given(mockFetch.instance, 'POST /graphql', JSON.parse(dataJSON));
 
     // test
     Client.buildContext(contextSettings, {
@@ -99,9 +104,9 @@ describe('E2E test - Client local - Snapshot:', function () {
     await delay(2000);
 
     // given
-    given('POST@/criteria/auth', generateAuth(token, 5));
-    given('GET@/criteria/snapshot_check/:version', generateStatus(false));
-    given('POST@/graphql', JSON.parse(dataJSON));
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth(token, 5));
+    given(mockFetch.instance, 'GET /criteria/snapshot_check/:version', generateStatus(false));
+    given(mockFetch.instance, 'POST /graphql', JSON.parse(dataJSON));
 
     // test
     Client.buildContext(contextSettings, {
@@ -122,9 +127,9 @@ describe('E2E test - Client local - Snapshot:', function () {
     await delay(2000);
 
     // given
-    given('POST@/criteria/auth', generateAuth(token, 5));
-    given('GET@/criteria/snapshot_check/:version', generateStatus(false));
-    given('POST@/graphql', JSON.parse(dataJSON));
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth(token, 5));
+    given(mockFetch.instance, 'GET /criteria/snapshot_check/:version', generateStatus(false));
+    given(mockFetch.instance, 'POST /graphql', JSON.parse(dataJSON));
 
     // test
     Client.buildContext(contextSettings, {
@@ -144,9 +149,9 @@ describe('E2E test - Client local - Snapshot:', function () {
     await delay(3000);
 
     // given
-    given('POST@/criteria/auth', generateAuth(token, 5));
-    given('GET@/criteria/snapshot_check/:version', generateStatus(false));
-    given('POST@/graphql', JSON.parse(dataJSON));
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth(token, 5));
+    given(mockFetch.instance, 'GET /criteria/snapshot_check/:version', generateStatus(false));
+    given(mockFetch.instance, 'POST /graphql', JSON.parse(dataJSON));
 
     // test
     Client.buildContext(contextSettings, {
@@ -167,7 +172,7 @@ describe('E2E test - Client local - Snapshot:', function () {
     assertFalse(await switcher.isItOn('FF2FOR2030'));
     
     // given new version
-    given('POST@/graphql', JSON.parse(dataJSONV2));
+    given(mockFetch.instance, 'POST /graphql', JSON.parse(dataJSONV2));
 
     WaitSafe.limit(2000);
     await WaitSafe.wait();
@@ -182,9 +187,9 @@ describe('E2E test - Client local - Snapshot:', function () {
     await delay(3000);
 
     // given
-    given('POST@/criteria/auth', generateAuth(token, 5));
-    given('GET@/criteria/snapshot_check/:version', generateStatus(false));
-    given('POST@/graphql', JSON.parse(dataJSON));
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth(token, 5));
+    given(mockFetch.instance, 'GET /criteria/snapshot_check/:version', generateStatus(false));
+    given(mockFetch.instance, 'POST /graphql', JSON.parse(dataJSON));
 
     // test
     Client.buildContext(contextSettings, {
@@ -195,13 +200,12 @@ describe('E2E test - Client local - Snapshot:', function () {
 
     let error: Error | undefined;
     Client.scheduleSnapshotAutoUpdate(1, {
-      reject: (err: Error) => error = err
-    });
+      reject: (err: Error) => error = err });
     
     await Client.loadSnapshot({ fetchRemote: true });
-
+    
     // next call will fail
-    givenError('POST@/graphql', 'ECONNREFUSED');
+    givenError(mockFetch.instance, 'GET /criteria/snapshot_check/:version', 'ECONNREFUSED');
 
     WaitSafe.limit(2000);
     await WaitSafe.wait();
@@ -217,8 +221,8 @@ describe('E2E test - Client local - Snapshot:', function () {
     await delay(2000);
 
     // given
-    given('POST@/criteria/auth', generateAuth(token, 5));
-    given('GET@/criteria/snapshot_check/:version', generateStatus(true)); // No available update
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth(token, 5));
+    given(mockFetch.instance, 'GET /criteria/snapshot_check/:version', generateStatus(true)); // No available update
     
     // test
     await Client.loadSnapshot();
@@ -229,8 +233,8 @@ describe('E2E test - Client local - Snapshot:', function () {
     await delay(2000);
 
     // given
-    given('POST@/criteria/auth', generateAuth(token, 5));
-    givenError('GET@/criteria/snapshot_check/:version', 'ECONNREFUSED');
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth(token, 5));
+    givenError(mockFetch.instance, 'GET /criteria/snapshot_check/:version', 'ECONNREFUSED');
     
     // test
     Client.testMode();
@@ -244,9 +248,9 @@ describe('E2E test - Client local - Snapshot:', function () {
     await delay(2000);
 
     // given
-    given('POST@/criteria/auth', generateAuth(token, 5));
-    given('GET@/criteria/snapshot_check/:version', generateStatus(false));
-    givenError('POST@/graphql', 'ECONNREFUSED');
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth(token, 5));
+    given(mockFetch.instance, 'GET /criteria/snapshot_check/:version', generateStatus(false));
+    givenError(mockFetch.instance, 'POST /graphql', 'ECONNREFUSED');
     
     // test
     Client.testMode();
@@ -258,8 +262,8 @@ describe('E2E test - Client local - Snapshot:', function () {
 
   it('should NOT check snapshot with success - Snapshot not loaded', testSettings, async function () {
     // given
-    given('POST@/criteria/auth', generateAuth(token, 5));
-    given('GET@/criteria/snapshot_check/:version', generateStatus(true));
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth(token, 5));
+    given(mockFetch.instance, 'GET /criteria/snapshot_check/:version', generateStatus(true));
     
     // pre-load snapshot
     Client.testMode(false);
@@ -280,9 +284,9 @@ describe('E2E test - Client local - Snapshot:', function () {
     await delay(2000);
 
     // given
-    given('POST@/criteria/auth', generateAuth(token, 5));
-    given('GET@/criteria/snapshot_check/:version', generateStatus(false)); // Snapshot outdated
-    given('POST@/graphql', JSON.parse(dataJSON));
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth(token, 5));
+    given(mockFetch.instance, 'GET /criteria/snapshot_check/:version', generateStatus(false)); // Snapshot outdated
+    given(mockFetch.instance, 'POST /graphql', JSON.parse(dataJSON));
 
     // test
     Client.buildContext(contextSettings, {

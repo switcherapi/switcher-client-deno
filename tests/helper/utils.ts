@@ -1,22 +1,20 @@
-import { assertEquals, mf } from '../deps.ts';
+import { assertEquals, type mf } from '../deps.ts';
 
-export function given(route: string, expect: object | undefined, status = 200) {
-  mf.mock(route, (_req: Request, _match: Record<string, string>) => {
-    return new Response(JSON.stringify(expect), {
+export function given(instance: mf.FetchMock, route: mf.RouteString, expect: object | undefined, status = 200) {
+  instance.mock(route, new Response(JSON.stringify(expect), {
       status,
-    });
-  });
+    }
+  ));
 }
 
-export function givenError(route: string, expect: string) {
-  mf.mock(route, () => {
+export function givenError(instance: mf.FetchMock, route: mf.RouteString, expect: string) {
+  instance.mock(route, () => {
     throw new HttpError(expect);
   });
 }
 
-export function tearDown() {
-  mf.uninstall();
-  mf.install();
+export function tearDown(restore: () => void) {
+  restore();
 }
 
 export function assertTrue(value: object | boolean | undefined) {
@@ -58,11 +56,14 @@ export class WaitSafe {
     WaitSafe.exit = false;
 
     const timelimit = Date.now() + WaitSafe.timelimit;
-    let timer = Date.now();
-    while (!WaitSafe.exit && timer < timelimit) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      timer = Date.now();
-    }
+    await new Promise<void>((resolve) => {
+      const timer = setInterval(() => {
+        if (WaitSafe.exit || Date.now() >= timelimit) {
+          clearInterval(timer);
+          resolve();
+        }
+      }, 100);
+    });
   }
 
   static finish() {

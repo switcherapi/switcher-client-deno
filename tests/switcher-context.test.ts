@@ -1,4 +1,4 @@
-import { describe, it, beforeEach, assertRejects, assertThrows } from './deps.ts';
+import { describe, it, beforeEach, assertRejects, assertThrows, afterEach, mf } from './deps.ts';
 import { given, tearDown, generateAuth, assertTrue } from './helper/utils.ts'
 
 import { Client, type SwitcherContext } from '../mod.ts';
@@ -6,10 +6,10 @@ import { destroyHttpClient } from "../src/lib/remote.ts";
 
 describe('Switcher Context:', function () {
   let contextSettings: SwitcherContext;
+  let mockFetch: mf.MockInstallation;
 
   beforeEach(function() {
-    tearDown();
-
+    mockFetch = mf.install();
     contextSettings = { 
       url: 'http://localhost:3000',
       apiKey: '[apiKey]', 
@@ -17,6 +17,10 @@ describe('Switcher Context:', function () {
       component: '[component]', 
       environment: 'default' 
     };
+  });
+
+  afterEach(function() {
+    tearDown(mockFetch.restore);
   });
 
   it('should throw when certPath is invalid', function() {
@@ -31,7 +35,7 @@ describe('Switcher Context:', function () {
 
   it('should be invalid - Missing API url field', async function () {
     // given
-    given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
 
     // test
     Client.buildContext({ 
@@ -56,7 +60,7 @@ describe('Switcher Context:', function () {
 
   it('should be invalid - Missing API Key field', async function () {
     // given
-    given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
 
     // test
     Client.buildContext({ 
@@ -81,7 +85,7 @@ describe('Switcher Context:', function () {
 
   it('should be invalid - Missing key field', async function () {
     // given
-    given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
 
     // test
     Client.buildContext(contextSettings);
@@ -94,7 +98,7 @@ describe('Switcher Context:', function () {
 
   it('should be invalid - Missing component field', async function () {
     // given
-    given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
 
     // test
     Client.buildContext({ 
@@ -114,7 +118,7 @@ describe('Switcher Context:', function () {
 
   it('should be invalid - Missing token field', async function () {
     // given
-    given('POST@/criteria/auth', generateAuth(undefined, 5));
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth(undefined, 5));
 
     // test
     Client.buildContext(contextSettings);
