@@ -1,6 +1,6 @@
 import { describe, it, afterAll, afterEach, beforeEach, 
   assertEquals, assertRejects, assertFalse, 
-  assertSpyCalls, assertStrictEquals, assertNotStrictEquals, spy } from './deps.ts';
+  assertSpyCalls, assertStrictEquals, assertNotStrictEquals, spy, mf } from './deps.ts';
 import { given, tearDown, assertTrue, generateAuth, generateResult, generateDetailedResult, sleep } from './helper/utils.ts'
 
 import { Client, type SwitcherResult, type SwitcherContext } from '../mod.ts';
@@ -12,6 +12,7 @@ import ExecutionLogger from '../src/lib/utils/executionLogger.ts';
 describe('Switcher Remote:', function () {
 
   let contextSettings: SwitcherContext;
+  let mockFetch: mf.MockInstallation;
 
   afterAll(function() {
     Client.unloadSnapshot();
@@ -19,7 +20,6 @@ describe('Switcher Remote:', function () {
   });
 
   beforeEach(function() {
-    tearDown();
     Client.testMode();
 
     contextSettings = { 
@@ -34,14 +34,18 @@ describe('Switcher Remote:', function () {
   describe('check criteria:', function () {
     
     beforeEach(function() {
+      mockFetch = mf.install();
       ExecutionLogger.clearLogger();
-      tearDown();
+    });
+
+    afterEach(function() {
+      tearDown(mockFetch.restore);
     });
 
     it('should be valid (simple)', async function () {
       // given API responses
-      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-      given('POST@/criteria', generateResult(true));
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+      given(mockFetch.instance, 'POST /criteria', generateResult(true));
 
       // test
       Client.buildContext(contextSettings);
@@ -53,8 +57,8 @@ describe('Switcher Remote:', function () {
 
     it('should be valid - using persisted switcher key', async function () {
       // given API responses
-      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-      given('POST@/criteria', generateResult(true));
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+      given(mockFetch.instance, 'POST /criteria', generateResult(true));
 
       // test
       Client.buildContext(contextSettings);
@@ -72,8 +76,8 @@ describe('Switcher Remote:', function () {
 
     it('should NOT throw error when default result is provided using remote', async function () {
       // given API responses
-      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-      given('POST@/criteria', { message: 'ERROR' }, 404);
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+      given(mockFetch.instance, 'POST /criteria', { message: 'ERROR' }, 404);
 
       // test
       let asyncErrorMessage = null;
@@ -87,7 +91,7 @@ describe('Switcher Remote:', function () {
 
     it('should NOT be valid - API returned 429 (too many requests)', async function () {
       // given API responses
-      given('POST@/criteria/auth', undefined, 429);
+      given(mockFetch.instance, 'POST /criteria/auth', undefined, 429);
 
       // test
       Client.buildContext(contextSettings);
@@ -100,8 +104,8 @@ describe('Switcher Remote:', function () {
 
     it('should return true - including reason and metadata', async function () {
       // given API responses
-      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-      given('POST@/criteria', generateDetailedResult({
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+      given(mockFetch.instance, 'POST /criteria', generateDetailedResult({
         result: true, 
         reason: 'Success',
         metadata: { 
@@ -121,8 +125,8 @@ describe('Switcher Remote:', function () {
 
     it('should be valid (with all strategies)', async function () {
       // given API responses
-      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-      given('POST@/criteria', generateResult(true));
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+      given(mockFetch.instance, 'POST /criteria', generateResult(true));
 
       // test
       Client.buildContext(contextSettings);
@@ -153,8 +157,8 @@ describe('Switcher Remote:', function () {
 
     it('should NOT throw when switcher keys provided were configured properly', async function() {
       // given
-      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-      given('POST@/criteria/switchers_check', { not_found: [] });
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+      given(mockFetch.instance, 'POST /criteria/switchers_check', { not_found: [] });
 
       // test
       Client.buildContext(contextSettings);
@@ -166,8 +170,8 @@ describe('Switcher Remote:', function () {
 
     it('should throw when switcher keys provided were not configured properly', async function() {
       // given
-      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-      given('POST@/criteria/switchers_check', { not_found: ['FEATURE02'] });
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+      given(mockFetch.instance, 'POST /criteria/switchers_check', { not_found: ['FEATURE02'] });
 
       // test
       Client.buildContext(contextSettings);
@@ -178,8 +182,8 @@ describe('Switcher Remote:', function () {
 
     it('should throw when no switcher keys were provided', async function() {
       // given
-      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-      given('POST@/criteria/switchers_check', undefined, 422);
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+      given(mockFetch.instance, 'POST /criteria/switchers_check', undefined, 422);
 
       // test
       Client.buildContext(contextSettings);
@@ -190,14 +194,14 @@ describe('Switcher Remote:', function () {
     
     it('should renew the token after expiration', async function () {
       // given API responses
-      given('POST@/criteria/auth', generateAuth('[auth_token]', 1));
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 1));
 
       Client.buildContext(contextSettings);
       const switcher = Client.getSwitcher();
       const spyPrepare = spy(switcher, 'prepare');
 
       // Prepare the call generating the token
-      given('POST@/criteria', generateResult(true));
+      given(mockFetch.instance, 'POST /criteria', generateResult(true));
       await switcher.prepare('MY_FLAG');
       assertTrue(await switcher.isItOn());
 
@@ -205,23 +209,23 @@ describe('Switcher Remote:', function () {
       await sleep(2000);
 
       // Prepare the stub to provide the new token
-      given('POST@/criteria/auth', generateAuth('asdad12d2232d2323f', 1));
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('asdad12d2232d2323f', 1));
 
       // In this time period the expiration time has reached, it should call prepare once again to renew the token
-      given('POST@/criteria', generateResult(false));
+      given(mockFetch.instance, 'POST /criteria', generateResult(false));
       assertFalse(await switcher.isItOn());
       assertSpyCalls(spyPrepare, 2);
 
       // In the meantime another call is made by the time the token is still not expired, so there is no need to call prepare again
-      given('POST@/criteria', generateResult(false));
+      given(mockFetch.instance, 'POST /criteria', generateResult(false));
       assertFalse(await switcher.isItOn());
       assertSpyCalls(spyPrepare, 2);
     });
 
     it('should be valid - when sending key without calling prepare', async function () {
       // given API responses
-      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-      given('POST@/criteria', generateResult(true));
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+      given(mockFetch.instance, 'POST /criteria', generateResult(true));
 
       // test
       Client.buildContext(contextSettings);
@@ -234,8 +238,8 @@ describe('Switcher Remote:', function () {
 
     it('should be valid - when preparing key and sending input strategy afterwards', async function () {
       // given API responses
-      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-      given('POST@/criteria', generateResult(true));
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+      given(mockFetch.instance, 'POST /criteria', generateResult(true));
 
       // test
       Client.buildContext(contextSettings);
@@ -258,14 +262,18 @@ describe('Switcher Remote:', function () {
       regexSafe: false
     };
 
+    beforeEach(function() {
+      mockFetch = mf.install();
+    });
+
     afterEach(function() {
-      tearDown();
+      tearDown(mockFetch.restore);
     });
 
     it('should return false - same switcher return false when remote', async function () {
       // given API responses
-      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-      given('POST@/criteria', generateResult(false));
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+      given(mockFetch.instance, 'POST /criteria', generateResult(false));
 
       // test
       Client.buildContext(contextSettings, forceRemoteOptions);
@@ -300,7 +308,7 @@ describe('Switcher Remote:', function () {
     });
 
     beforeEach(function() {
-      tearDown();
+      mockFetch = mf.install();
       Client.testMode();
   
       contextSettings = { 
@@ -312,9 +320,13 @@ describe('Switcher Remote:', function () {
       };
     });
 
+    afterEach(function() {
+      tearDown(mockFetch.restore);
+    });
+
     it('should NOT be valid - API returned 429 (too many requests) at auth', async function () {
       // given API responses
-      given('POST@/criteria/auth', { error: 'Too many requests' }, 429);
+      given(mockFetch.instance, 'POST /criteria/auth', { error: 'Too many requests' }, 429);
 
       // test
       Client.buildContext(contextSettings);
@@ -327,8 +339,8 @@ describe('Switcher Remote:', function () {
 
     it('should NOT be valid - API returned 429 (too many requests) at checkCriteria', async function () {
       // given API responses
-      given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-      given('POST@/criteria', { error: 'Too many requests' }, 429);
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+      given(mockFetch.instance, 'POST /criteria', { error: 'Too many requests' }, 429);
 
       // test
       Client.buildContext(contextSettings);
@@ -343,20 +355,25 @@ describe('Switcher Remote:', function () {
 
   describe('auto refresh token:', function () {
 
+    beforeEach(function() {
+      mockFetch = mf.install();
+    });
+
     afterEach(function() {
+      tearDown(mockFetch.restore);
       Auth.terminateAutoRefresh();
     });
 
     it('should refresh the token before it expires in the background', async function () {
       // given API responses - 1st auth call
-      given('POST@/criteria/auth', generateAuth('[auth_token_1]', 5));
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token_1]', 5));
       
       // test
       Client.buildContext(contextSettings, { autoRefreshToken: true });
       await Client.getSwitcher('FLAG_1').prepare();
 
       // given API responses - 2nd auth call (after token expiration)
-      given('POST@/criteria/auth', generateAuth('[auth_token_2]', 5));
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token_2]', 5));
 
       assertEquals(GlobalAuth.token, '[auth_token_1]');
       await sleep(1000);
@@ -365,14 +382,14 @@ describe('Switcher Remote:', function () {
 
     it('should not refresh the token if autoRefreshToken is false', async function () {
       // given API responses - 1st auth call
-      given('POST@/criteria/auth', generateAuth('[auth_token_1]', 1));
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token_1]', 1));
       
       // test
       Client.buildContext(contextSettings, { autoRefreshToken: false });
       await Client.getSwitcher('FLAG_1').prepare();
 
       // given API responses - 2nd auth call (after token expiration)
-      given('POST@/criteria/auth', generateAuth('[auth_token_2]', 5));
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token_2]', 5));
 
       assertEquals(GlobalAuth.token, '[auth_token_1]');
       await sleep(1500);
@@ -383,14 +400,14 @@ describe('Switcher Remote:', function () {
       const spyTerminate = spy(Auth, 'terminateAutoRefresh');
 
       // given API responses - 1st auth call
-      given('POST@/criteria/auth', generateAuth('[auth_token_1]', 1));
+      given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token_1]', 1));
       
       // test
       Client.buildContext(contextSettings, { autoRefreshToken: true });
       await Client.getSwitcher('FLAG_1').prepare();
 
       // given API responses - 2nd auth call (after token expiration) fails
-      given('POST@/criteria/auth', undefined, 500);
+      given(mockFetch.instance, 'POST /criteria/auth', undefined, 500);
 
       assertEquals(GlobalAuth.token, '[auth_token_1]');
       await sleep(1500);

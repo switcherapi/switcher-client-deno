@@ -7,7 +7,7 @@ await load({ export: true, envPath: '.env' });
 describe('Switcher integrated test', () => {
 
     const contextSettings = {
-        url: 'https://api.switcherapi.com',
+        url: Deno.env.get('SWITCHER_URL'),
         apiKey: Deno.env.get('SWITCHER_API_KEY') ?? '',
         domain: 'Switcher API',
         component: 'switcher4deno'

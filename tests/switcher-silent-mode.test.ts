@@ -1,6 +1,7 @@
 import { describe, it, afterAll, beforeEach, 
   assertEquals, assertRejects, assertFalse, 
-  assertSpyCalls, spy } from './deps.ts';
+  assertSpyCalls, spy, mf, 
+  afterEach} from './deps.ts';
 import { given, givenError, tearDown, assertTrue, generateAuth, generateResult, sleep } from './helper/utils.ts'
 
 import { Client, type SwitcherContext } from '../mod.ts';
@@ -8,13 +9,18 @@ import ExecutionLogger from '../src/lib/utils/executionLogger.ts';
 
 describe('Switcher Silent Mode:', function () {
   let contextSettings: SwitcherContext;
+  let mockFetch: mf.MockInstallation;
 
   afterAll(function() {
     Client.unloadSnapshot();
   });
   
+  afterEach(function() {
+    tearDown(mockFetch.restore);
+  });
+  
   beforeEach(function() {
-    tearDown();
+    mockFetch = mf.install();
     ExecutionLogger.clearLogger();
     Client.testMode();
 
@@ -39,7 +45,7 @@ describe('Switcher Silent Mode:', function () {
     const spyRemote = spy(switcher, 'executeRemoteCriteria');
 
     // First attempt to reach the API - Since it's configured to use silent mode, it should return true (according to the snapshot)
-    givenError('POST@/criteria/auth', 'ECONNREFUSED');
+    givenError(mockFetch.instance, 'POST /criteria/auth', 'ECONNREFUSED');
     assertTrue(await switcher.isItOn('FF2FOR2030'));
 
     // The call below is in silent mode. It is getting the configuration from the local snapshot again
@@ -52,9 +58,9 @@ describe('Switcher Silent Mode:', function () {
     await sleep(3000);
     
     // Setup the remote mocked response and made it to return false just to make sure it's not fetching from the snapshot
-    given('GET@/check', undefined, 200);
-    given('POST@/criteria/auth', generateAuth('[auth_token]', 10));
-    given('POST@/criteria', generateResult(false));
+    given(mockFetch.instance, 'GET /check', undefined, 200);
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 10));
+    given(mockFetch.instance, 'POST /criteria', generateResult(false));
 
     // Auth is async when silent mode is enabled to prevent blocking the execution while the API is not available
     assertTrue(await switcher.isItOn());
@@ -66,7 +72,7 @@ describe('Switcher Silent Mode:', function () {
   });
 
   it('should throw error if not in silent mode', async function () {
-    givenError('POST@/criteria/auth', 'ECONNREFUSED');
+    givenError(mockFetch.instance, 'POST /criteria/auth', 'ECONNREFUSED');
 
     // test
     Client.buildContext(contextSettings);
@@ -99,9 +105,9 @@ describe('Switcher Silent Mode:', function () {
 
   it('should use silent mode when fail to check criteria', async function () {
     // given API responses
-    given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-    given('POST@/criteria', { error: 'Too many requests' }, 429);
-    givenError('GET@/check', 'ECONNREFUSED'); // used in the 2nd isItOn call
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+    given(mockFetch.instance, 'POST /criteria', { error: 'Too many requests' }, 429);
+    givenError(mockFetch.instance, 'GET /check', 'ECONNREFUSED'); // used in the 2nd isItOn call
 
     // test
     let asyncErrorMessage = null;

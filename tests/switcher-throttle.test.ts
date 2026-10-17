@@ -1,6 +1,6 @@
 import { describe, it, afterAll, afterEach, beforeEach, 
   assertEquals, assertFalse, 
-  assertSpyCalls, spy } from './deps.ts';
+  assertSpyCalls, spy, mf } from './deps.ts';
 import { given, tearDown, assertTrue, generateAuth, generateResult, sleep } from './helper/utils.ts'
 
 import { Client, type SwitcherResult, type SwitcherContext } from '../mod.ts';
@@ -8,19 +8,20 @@ import ExecutionLogger from '../src/lib/utils/executionLogger.ts';
 
 describe('Switcher Throttle:', function () {
   let contextSettings: SwitcherContext;
+  let mockFetch: mf.MockInstallation; 
   
   afterAll(function() {
     Client.unloadSnapshot();
   });
 
   afterEach(function() {
-    tearDown();
+    tearDown(mockFetch.restore);
   });
 
   beforeEach(function() {
-    tearDown();
     ExecutionLogger.clearLogger();
     Client.testMode();
+    mockFetch = mf.install();
 
     contextSettings = { 
       url: 'http://localhost:3000',
@@ -33,8 +34,8 @@ describe('Switcher Throttle:', function () {
 
   it('should be valid - throttle', async function () {
     // given API responses
-    given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-    given('POST@/criteria', generateResult(true));
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+    given(mockFetch.instance, 'POST /criteria', generateResult(true));
 
     // test
     Client.buildContext(contextSettings);
@@ -52,8 +53,8 @@ describe('Switcher Throttle:', function () {
   
   it('should be valid - throttle - with details', async function () {
     // given API responses
-    given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-    given('POST@/criteria', generateResult(true));
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+    given(mockFetch.instance, 'POST /criteria', generateResult(true));
 
     // test
     Client.buildContext(contextSettings);
@@ -71,8 +72,8 @@ describe('Switcher Throttle:', function () {
   it('should renew token when using throttle', async function () {
     // given API responses
     // first API call
-    given('POST@/criteria/auth', generateAuth('[auth_token]', 1));
-    given('POST@/criteria', generateResult(true)); // before token expires
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 1));
+    given(mockFetch.instance, 'POST /criteria', generateResult(true)); // before token expires
 
     // test
     Client.buildContext(contextSettings);
@@ -99,8 +100,8 @@ describe('Switcher Throttle:', function () {
     await sleep(2000); // wait resolve async Promise
     
     // given
-    given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-    given('POST@/criteria', generateResult(false)); // after token expires
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+    given(mockFetch.instance, 'POST /criteria', generateResult(false)); // after token expires
 
     // 3rd - use cached result, asynchronous renew token and stores new result in cache
     isItOn = await switcher.isItOn('FLAG_3') as SwitcherResult;
@@ -116,8 +117,8 @@ describe('Switcher Throttle:', function () {
 
   it('should flush executions from a specific switcher key', async function () {
     // given API responses
-    given('POST@/criteria/auth', generateAuth('[auth_token]', 5));
-    given('POST@/criteria', generateResult(true));
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+    given(mockFetch.instance, 'POST /criteria', generateResult(true));
 
     Client.buildContext(contextSettings);
     const switcher = Client.getSwitcher('FLAG_1').throttle(1000);
@@ -136,8 +137,8 @@ describe('Switcher Throttle:', function () {
   it('should not crash when async checkCriteria fails', async function () {
     // given API responses
     // first API call
-    given('POST@/criteria/auth', generateAuth('[auth_token]', 1));
-    given('POST@/criteria', generateResult(true)); // before token expires
+    given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
+    given(mockFetch.instance, 'POST /criteria', generateResult(true)); // before token expires
 
     // test
     let asyncErrorMessage = null;
@@ -155,7 +156,7 @@ describe('Switcher Throttle:', function () {
     assertEquals(asyncErrorMessage, null);
 
     // given
-    given('POST@/criteria', { message: 'error' }, 500);
+    given(mockFetch.instance, 'POST /criteria', { message: 'error' }, 500);
     assertTrue(await switcher.isItOn('FLAG_1')); // async
 
     await sleep(1000);
