@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        deno-version: [v1.46.3, v2.9.7]
+        deno-version: [v2.9.7]
         os: [ ubuntu-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
 
@@ -57,10 +57,6 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ matrix.deno-version }}
-
-      - name: Run tests (Deno v1)
-        if: "contains(matrix.deno-version, 'v1')"
-        run: deno task test-v1
 
       - name: Run tests (Deno v2)
         if: "contains(matrix.deno-version, 'v2')"
