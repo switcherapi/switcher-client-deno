@@ -1,61 +1,55 @@
-import { describe, it, assertExists, assertGreater, load } from './deps.ts';
+import { assertExists, assertGreater } from './deps.ts';
 
 import { Client } from '../mod.ts';
 
-await load({ export: true, envPath: '.env' });
+const contextSettings = {
+    url: Deno.env.get('SWITCHER_URL'),
+    apiKey: Deno.env.get('SWITCHER_API_KEY') ?? '',
+    domain: 'Switcher API',
+    component: 'switcher4deno'
+};
 
-describe('Switcher integrated test', () => {
+Deno.test('should hit remote API and return Switcher response', async function () {
+    if (!Deno.env.get('SWITCHER_API_KEY')) {
+        return;
+    }
+    
+    // given context build
+    Client.buildContext(contextSettings);
 
-    const contextSettings = {
-        url: Deno.env.get('SWITCHER_URL'),
-        apiKey: Deno.env.get('SWITCHER_API_KEY') ?? '',
-        domain: 'Switcher API',
-        component: 'switcher4deno'
-    };
+    // test
+    const switcher = Client.getSwitcher().detail();
+    const result = await switcher.isItOn('CLIENT_DENO_FEATURE');
 
-    it('should hit remote API and return Switcher response', async function () {
-        if (!Deno.env.get('SWITCHER_API_KEY')) {
-            return;
-        }
-        
-        // given context build
-        Client.buildContext(contextSettings);
+    assertExists(result);
+});
 
-        // test
-        const switcher = Client.getSwitcher().detail();
-        const result = await switcher.isItOn('CLIENT_DENO_FEATURE');
+Deno.test('should load snapshot from remote API', async function () {
+    if (!Deno.env.get('SWITCHER_API_KEY')) {
+        return;
+    }
 
-        assertExists(result);
-    });
+    // given context build
+    Client.buildContext(contextSettings, { local: true });
 
-    it('should load snapshot from remote API', async function () {
-        if (!Deno.env.get('SWITCHER_API_KEY')) {
-            return;
-        }
+    // test
+    await Client.loadSnapshot({ fetchRemote: true });
 
-        // given context build
-        Client.buildContext(contextSettings, { local: true });
+    const switcher = Client.getSwitcher().detail();
+    const result = await switcher.isItOn('CLIENT_DENO_FEATURE');
 
-        // test
-        await Client.loadSnapshot({ fetchRemote: true });
+    assertExists(result);
+    assertGreater(Client.snapshotVersion, 0);
+});
 
-        const switcher = Client.getSwitcher().detail();
-        const result = await switcher.isItOn('CLIENT_DENO_FEATURE');
+Deno.test('should check Switcher availability', function () {
+    if (!Deno.env.get('SWITCHER_API_KEY')) {
+        return;
+    }
 
-        assertExists(result);
-        assertGreater(Client.snapshotVersion, 0);
-    });
+    // given context build
+    Client.buildContext(contextSettings);
 
-    it('should check Switcher availability', function () {
-        if (!Deno.env.get('SWITCHER_API_KEY')) {
-            return;
-        }
-
-        // given context build
-        Client.buildContext(contextSettings);
-
-        // test
-        return Client.checkSwitchers(['CLIENT_DENO_FEATURE']);
-    });
-
+    // test
+    return Client.checkSwitchers(['CLIENT_DENO_FEATURE']);
 });

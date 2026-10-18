@@ -1,8 +1,5 @@
-import { load } from '../deps.ts';
 import { type Switcher, Client } from '../../mod.ts'
 import { sleep } from "../helper/utils.ts";
-
-await load({ export: true, envPath: '.env' });
 
 const SWITCHER_KEY = 'CLIENT_DENO_FEATURE';
 const apiKey = Deno.env.get('SWITCHER_API_KEY') ?? '';
@@ -72,7 +69,7 @@ const _testSimpleAPICall = async (local: boolean) => {
 
 // Requires remote API
 const _testThrottledAPICall = async () => {
-    setupSwitcher(false);
+    await setupSwitcher(false);
     
     await Client.checkSwitchers([SWITCHER_KEY]);
     Client.subscribeNotifyError((error) => console.log(error));
@@ -94,7 +91,7 @@ const _testThrottledAPICall = async () => {
 
 // Requires remote API
 const _testSnapshotUpdate = async () => {
-    setupSwitcher(false);
+    await setupSwitcher(false);
     await sleep(2000);
     
     console.log('checkSnapshot:', await Client.checkSnapshot());
@@ -102,7 +99,7 @@ const _testSnapshotUpdate = async () => {
 
 // Does not require remote API
 const _testAsyncCall = async () => {
-    setupSwitcher(true);
+    void setupSwitcher(true);
     switcher = Client.getSwitcher(SWITCHER_KEY);
 
     console.log("Sync:", await switcher.isItOnBool(true));
@@ -114,7 +111,7 @@ const _testAsyncCall = async () => {
 
 // Does not require remote API
 const _testBypasser = async () => {
-    setupSwitcher(true);
+    void setupSwitcher(true);
     switcher = Client.getSwitcher(SWITCHER_KEY);
 
     let result = await switcher.isItOn();
@@ -138,7 +135,7 @@ const _testWatchSnapshot = async () => {
         .then(() => console.log('Snapshot loaded'))
         .catch(() => console.log('Failed to load Snapshot'));
 
-    Client.watchSnapshot({
+    void Client.watchSnapshot({
         success: () => console.log('In-memory snapshot updated'),
         reject: (err: Error) => console.log(err)
     });
@@ -199,4 +196,4 @@ const _testSnapshotAutoUpdate = async () => {
     }, 2000);
 };
 
-_testLocal();
+await _testLocal();

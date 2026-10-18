@@ -65,7 +65,7 @@ A Deno SDK for Switcher API
 
 ### Prerequisites
 
-- **Deno**: Version 1.4x, 2.x or later
+- **Deno**: 2.x or later, 1.4x (not verified since v2.5.0)
 - **Permissions**:
 
 | Permission | Required For |
