@@ -4,10 +4,13 @@ import { given, tearDown, generateAuth } from './helper/utils.ts'
 import { Client, type SwitcherContext } from '../mod.ts';
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 
+const { test } = Deno;
+const { beforeEach, afterEach, afterAll } = test;
+
 let contextSettings: SwitcherContext;
 let mockFetch: mf.MockInstallation;
 
-Deno.test.beforeEach(function() {
+beforeEach(function() {
   mockFetch = mf.install();
   Client.testMode();
 
@@ -20,16 +23,16 @@ Deno.test.beforeEach(function() {
   };
 });
 
-Deno.test.afterEach(function() {
+afterEach(function() {
   tearDown(mockFetch.restore);
 });
 
-Deno.test.afterAll(function() {
+afterAll(function() {
   Client.unloadSnapshot();
   TimedMatch.terminateWorker();
 });
 
-Deno.test('should NOT be valid - API returned 429 (too many requests) at auth', async function () {
+test('should NOT be valid - API returned 429 (too many requests) at auth', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', { error: 'Too many requests' }, 429);
 
@@ -42,7 +45,7 @@ Deno.test('should NOT be valid - API returned 429 (too many requests) at auth', 
     Error, 'Something went wrong: [auth] failed with status 429');
 });
 
-Deno.test('should NOT be valid - API returned 429 (too many requests) at checkCriteria', async function () {
+test('should NOT be valid - API returned 429 (too many requests) at checkCriteria', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria', { error: 'Too many requests' }, 429);

@@ -4,10 +4,13 @@ import { given, tearDown, generateAuth, assertTrue } from './helper/utils.ts'
 import { Client, type SwitcherContext } from '../mod.ts';
 import { destroyHttpClient } from "../src/lib/remote.ts";
 
+const { test } = Deno;
+const { beforeEach, afterEach } = test;
+
 let contextSettings: SwitcherContext;
 let mockFetch: mf.MockInstallation;
 
-Deno.test.beforeEach(function() {
+beforeEach(function() {
   mockFetch = mf.install();
   contextSettings = { 
     url: 'http://localhost:3000',
@@ -18,21 +21,21 @@ Deno.test.beforeEach(function() {
   };
 });
 
-Deno.test.afterEach(function() {
+afterEach(function() {
   tearDown(mockFetch.restore);
 });
 
-Deno.test('should throw when certPath is invalid', function() {
+test('should throw when certPath is invalid', function() {
   assertThrows(() => Client.buildContext(contextSettings, { certPath: 'invalid' }));
 });
 
-Deno.test('should NOT throw when certPath is valid', function() {
+test('should NOT throw when certPath is valid', function() {
   Client.buildContext(contextSettings, { certPath: './tests/helper/dummy-cert.pem' });
   destroyHttpClient();
   assertTrue(true);
 });
 
-Deno.test('should be invalid - Missing API url field', async function () {
+test('should be invalid - Missing API url field', async function () {
   // given
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
 
@@ -52,12 +55,12 @@ Deno.test('should be invalid - Missing API url field', async function () {
     Error, 'Something went wrong: URL is required');
 });
 
-Deno.test('should NOT throw when remoteTimeout is set', function() {
+test('should NOT throw when remoteTimeout is set', function() {
   Client.buildContext(contextSettings, { remoteTimeout: 5000 });
   assertTrue(true);
 });
 
-Deno.test('should be invalid - Missing API Key field', async function () {
+test('should be invalid - Missing API Key field', async function () {
   // given
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
 
@@ -82,7 +85,7 @@ Deno.test('should be invalid - Missing API Key field', async function () {
     Error, 'Something went wrong: API Key is required');
 });
 
-Deno.test('should be invalid - Missing key field', async function () {
+test('should be invalid - Missing key field', async function () {
   // given
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
 
@@ -95,7 +98,7 @@ Deno.test('should be invalid - Missing key field', async function () {
     Error, 'Something went wrong: Missing key field');
 });
 
-Deno.test('should be invalid - Missing component field', async function () {
+test('should be invalid - Missing component field', async function () {
   // given
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
 
@@ -115,7 +118,7 @@ Deno.test('should be invalid - Missing component field', async function () {
     Error, 'Something went wrong: Component is required');
 });
 
-Deno.test('should be invalid - Missing token field', async function () {
+test('should be invalid - Missing token field', async function () {
   // given
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth(undefined, 5));
 

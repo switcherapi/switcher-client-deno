@@ -98,7 +98,7 @@ export class Client {
       },
       [SWITCHER_OPTIONS.SNAPSHOT_WATCHER]: () => {
         GlobalOptions.updateOptions({ snapshotWatcher: options.snapshotWatcher });
-        this.watchSnapshot();
+        void this.watchSnapshot();
       },
       [SWITCHER_OPTIONS.AUTO_REFRESH_TOKEN]: () => {
         GlobalOptions.updateOptions({ autoRefreshToken: options.autoRefreshToken });
@@ -118,7 +118,7 @@ export class Client {
     Auth.setRetryOptions(silentMode);
 
     GlobalOptions.updateOptions({ silentMode });
-    this.loadSnapshot();
+    void this.loadSnapshot();
   }
 
   private static _initTimedMatch(options: SwitcherOptions) {
@@ -214,7 +214,7 @@ export class Client {
     }
 
     if (watchSnapshot) {
-      Client.watchSnapshot();
+      void Client.watchSnapshot();
     }
 
     return Client.snapshotVersion;

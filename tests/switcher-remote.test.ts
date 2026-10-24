@@ -7,10 +7,13 @@ import { Client, type SwitcherResult, type SwitcherContext } from '../mod.ts';
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 import ExecutionLogger from '../src/lib/utils/executionLogger.ts';
 
+const { test } = Deno;
+const { beforeEach, afterEach, afterAll } = test;
+
 let contextSettings: SwitcherContext;
 let mockFetch: mf.MockInstallation;
 
-Deno.test.beforeEach(function() {
+beforeEach(function() {
   Client.testMode();
 
   contextSettings = { 
@@ -25,16 +28,16 @@ Deno.test.beforeEach(function() {
   ExecutionLogger.clearLogger();
 });
 
-Deno.test.afterEach(function() {
+afterEach(function() {
   tearDown(mockFetch.restore);
 });
 
-Deno.test.afterAll(function() {
+afterAll(function() {
   Client.unloadSnapshot();
   TimedMatch.terminateWorker();
 });
 
-Deno.test('should be valid (simple)', async function () {
+test('should be valid (simple)', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria', generateResult(true));
@@ -47,7 +50,7 @@ Deno.test('should be valid (simple)', async function () {
   assertTrue(await switcher.isItOn());
 });
 
-Deno.test('should be valid - using persisted switcher key', async function () {
+test('should be valid - using persisted switcher key', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria', generateResult(true));
@@ -66,7 +69,7 @@ Deno.test('should be valid - using persisted switcher key', async function () {
   assertTrue(await switcher1.isItOn());
 });
 
-Deno.test('should NOT throw error when default result is provided using remote', async function () {
+test('should NOT throw error when default result is provided using remote', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria', { message: 'ERROR' }, 404);
@@ -81,7 +84,7 @@ Deno.test('should NOT throw error when default result is provided using remote',
   assertEquals(asyncErrorMessage, 'Something went wrong: [checkCriteria] failed with status 404');
 });
 
-Deno.test('should NOT be valid - API returned 429 (too many requests)', async function () {
+test('should NOT be valid - API returned 429 (too many requests)', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', undefined, 429);
 
@@ -94,7 +97,7 @@ Deno.test('should NOT be valid - API returned 429 (too many requests)', async fu
     Error, 'Something went wrong: [auth] failed with status 429');
 });
 
-Deno.test('should return true - including reason and metadata', async function () {
+test('should return true - including reason and metadata', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria', generateDetailedResult({
@@ -115,7 +118,7 @@ Deno.test('should return true - including reason and metadata', async function (
   assertEquals(detailedResult.metadata, { user: 'user1' });
 });
 
-Deno.test('should be valid (with all strategies)', async function () {
+test('should be valid (with all strategies)', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria', generateResult(true));
@@ -147,7 +150,7 @@ Deno.test('should be valid (with all strategies)', async function () {
   assertTrue(await switcher.isItOn());
 });
 
-Deno.test('should NOT throw when switcher keys provided were configured properly were configured properly', async function() {
+test('should NOT throw when switcher keys provided were configured properly were configured properly', async function() {
   // given
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria/switchers_check', { not_found: [] });
@@ -160,7 +163,7 @@ Deno.test('should NOT throw when switcher keys provided were configured properly
   assertEquals(error, undefined);
 });
 
-Deno.test('should throw when switcher keys provided were not configured properly', async function() {
+test('should throw when switcher keys provided were not configured properly', async function() {
   // given
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria/switchers_check', { not_found: ['FEATURE02'] });
@@ -172,7 +175,7 @@ Deno.test('should throw when switcher keys provided were not configured properly
     Error, 'Something went wrong: [FEATURE02] not found');
 });
 
-Deno.test('should throw when no switcher keys were provided', async function() {
+test('should throw when no switcher keys were provided', async function() {
   // given
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria/switchers_check', undefined, 422);
@@ -184,7 +187,7 @@ Deno.test('should throw when no switcher keys were provided', async function() {
     Error, 'Something went wrong: [checkSwitchers] failed with status 422');
 });
 
-Deno.test('should renew the token after expiration', async function () {
+test('should renew the token after expiration', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 1));
 
@@ -214,7 +217,7 @@ Deno.test('should renew the token after expiration', async function () {
   assertSpyCalls(spyPrepare, 2);
 });
 
-Deno.test('should be valid - when sending key without calling prepare', async function () {
+test('should be valid - when sending key without calling prepare', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria', generateResult(true));
@@ -228,7 +231,7 @@ Deno.test('should be valid - when sending key without calling prepare', async fu
     .isItOn('MY_FLAG'));
 });
 
-Deno.test('should be valid - when preparing key and sending input strategy afterwards', async function () {
+test('should be valid - when preparing key and sending input strategy afterwards', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria', generateResult(true));

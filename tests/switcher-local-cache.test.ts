@@ -4,6 +4,8 @@ import { assertTrue } from './helper/utils.ts'
 import { Client, type Switcher, type SwitcherResult } from '../mod.ts';
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 
+const { test } = Deno;
+const { beforeEach, beforeAll, afterAll } = test;
 const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExit: false };
 
 let switcher: Switcher;
@@ -14,7 +16,7 @@ const environment = 'default';
 const url = 'http://localhost:3000';
 const snapshotLocation = './tests/snapshot/';
 
-Deno.test.beforeAll(async function() {
+beforeAll(async function() {
   Client.buildContext({ url, apiKey, domain, component, environment }, {
     snapshotLocation, local: true, regexMaxBlackList: 1, regexMaxTimeLimit: 500
   });
@@ -23,17 +25,17 @@ Deno.test.beforeAll(async function() {
   switcher = Client.getSwitcher();
 });
 
-Deno.test.afterAll(function() {
+afterAll(function() {
   Client.unloadSnapshot();
   TimedMatch.terminateWorker();
 });
 
-Deno.test.beforeEach(function() {
+beforeEach(function() {
   Client.clearLogger();
   switcher = Client.getSwitcher();
 });
 
-Deno.test('should get response from cache', testSettings, async function () {
+test('should get response from cache', testSettings, async function () {
   // 1st call - should not get from cache
   let result = await switcher
     .throttle(1000)
@@ -57,7 +59,7 @@ Deno.test('should get response from cache', testSettings, async function () {
   assertEquals((result as SwitcherResult).metadata || {}, { cached: true });
 });
 
-Deno.test('should NOT get response from cache - different strategy input', testSettings, async function () {
+test('should NOT get response from cache - different strategy input', testSettings, async function () {
   // 1st call - should not get from cache
   let result = await switcher
     .throttle(1000)
@@ -81,7 +83,7 @@ Deno.test('should NOT get response from cache - different strategy input', testS
   assertEquals((result as SwitcherResult).metadata || {}, {});
 });
 
-Deno.test('should NOT get response from cache - different key', testSettings, async function () {
+test('should NOT get response from cache - different key', testSettings, async function () {
   // 1st call - should not get from cache
   let result = await switcher
     .throttle(1000)
@@ -101,7 +103,7 @@ Deno.test('should NOT get response from cache - different key', testSettings, as
   assertEquals((result as SwitcherResult).metadata || {}, {});
 });
 
-Deno.test('should get response from cache when freeze mode is enabled', testSettings, async function () {
+test('should get response from cache when freeze mode is enabled', testSettings, async function () {
   // given
   Client.buildContext({ url, apiKey, domain, component, environment }, {
     snapshotLocation, local: true, freeze: true

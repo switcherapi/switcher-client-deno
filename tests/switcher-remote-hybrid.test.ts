@@ -6,6 +6,9 @@ import { given, tearDown, assertTrue, generateAuth, generateResult } from './hel
 import { Client, type SwitcherContext } from '../mod.ts';
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 
+const { test } = Deno;
+const { beforeEach, afterEach, afterAll } = test;
+
 let contextSettings: SwitcherContext;
 let mockFetch: mf.MockInstallation;
 
@@ -15,7 +18,7 @@ const forceRemoteOptions = {
   regexSafe: false
 };
 
-Deno.test.beforeEach(function() {
+beforeEach(function() {
   Client.testMode();
 
   contextSettings = { 
@@ -29,16 +32,16 @@ Deno.test.beforeEach(function() {
   mockFetch = mf.install();
 });
 
-Deno.test.afterEach(function() {
+afterEach(function() {
   tearDown(mockFetch.restore);
 });
 
-Deno.test.afterAll(function() {
+afterAll(function() {
   Client.unloadSnapshot();
   TimedMatch.terminateWorker();
 });
 
-Deno.test('should return false - same switcher return false when remote', async function () {
+test('should return false - same switcher return false when remote', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria', generateResult(false));
@@ -55,7 +58,7 @@ Deno.test('should return false - same switcher return false when remote', async 
   assertSpyCalls(executeRemoteCriteria, 1);
 });
 
-Deno.test('should return error when local is not enabled', async function () {
+test('should return error when local is not enabled', async function () {
   Client.buildContext(contextSettings, { regexSafe: false, local: false });
 
   const switcher = Client.getSwitcher();

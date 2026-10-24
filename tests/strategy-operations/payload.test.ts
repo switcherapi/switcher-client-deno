@@ -7,6 +7,8 @@ import {
 } from '../../src/lib/snapshot.ts';
 import { payloadReader } from '../../src/lib/utils/payloadReader.ts';
 
+const { test } = Deno;
+
 const fixture_1 = JSON.stringify({
     id: '1',
     login: 'petruki'
@@ -51,7 +53,7 @@ const givenStrategyConfig = (operation: string, values: string[]) => ({
   activated: true,
 });
 
-Deno.test('should read keys from payload #1', function () {
+test('should read keys from payload #1', function () {
   const keys = payloadReader(JSON.parse(fixture_values2));
   assertArrayIncludes(keys, [                
       'product',
@@ -66,7 +68,7 @@ Deno.test('should read keys from payload #1', function () {
   ]);
 });
 
-Deno.test('should read keys from payload #2', function () {
+test('should read keys from payload #2', function () {
   const keys = payloadReader(JSON.parse(fixture_values3));
   assertArrayIncludes(keys, [                
       'description',
@@ -77,7 +79,7 @@ Deno.test('should read keys from payload #2', function () {
   ]);
 });
 
-Deno.test('should read keys from payload with array values', function () {
+test('should read keys from payload with array values', function () {
   const keys = payloadReader({
     order: {
         items: ['item_1', 'item_2']
@@ -89,17 +91,17 @@ Deno.test('should read keys from payload with array values', function () {
   ]);
 });
 
-Deno.test('should return TRUE when payload has field', function () {
+test('should return TRUE when payload has field', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.HAS_ONE, ['login']);
   assertTrue(processOperation(strategyConfig, fixture_1));
 });
 
-Deno.test('should return FALSE when payload does not have field', function () {
+test('should return FALSE when payload does not have field', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.HAS_ONE, ['user']);
   assertFalse(processOperation(strategyConfig, fixture_1));
 });
 
-Deno.test('should return TRUE when payload has nested field', function () {
+test('should return TRUE when payload has nested field', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.HAS_ONE, [
       'order.qty', 'order.total'
   ]);
@@ -107,7 +109,7 @@ Deno.test('should return TRUE when payload has nested field', function () {
   assertTrue(processOperation(strategyConfig, fixture_values2));
 });
 
-Deno.test('should return TRUE when payload has nested field with arrays', function () {
+test('should return TRUE when payload has nested field with arrays', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.HAS_ONE, [
       'order.deliver.tracking.status'
   ]);
@@ -115,7 +117,7 @@ Deno.test('should return TRUE when payload has nested field with arrays', functi
   assertTrue(processOperation(strategyConfig, fixture_values2));
 });
 
-Deno.test('should return TRUE when payload has all', function () {
+test('should return TRUE when payload has all', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.HAS_ALL, [
       'product',
       'order',
@@ -130,7 +132,7 @@ Deno.test('should return TRUE when payload has all', function () {
   assertTrue(processOperation(strategyConfig, fixture_values2));
 });
 
-Deno.test('should return FALSE when payload does not have all', function () {
+test('should return FALSE when payload does not have all', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.HAS_ALL, [
       'product',
       'order',
@@ -140,7 +142,7 @@ Deno.test('should return FALSE when payload does not have all', function () {
   assertFalse(processOperation(strategyConfig, fixture_values2));
 });
 
-Deno.test('should return FALSE when payload is not a JSON string', function () {
+test('should return FALSE when payload is not a JSON string', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.HAS_ALL, []);
   assertFalse(processOperation(strategyConfig, 'NOT_JSON'));
 });

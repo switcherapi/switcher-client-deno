@@ -2,6 +2,9 @@ import { assertFalse } from "../deps.ts";
 import { assertTrue } from '../helper/utils.ts';
 import TimedMatch from "../../src/lib/utils/timed-match/index.ts";
 
+const { test } = Deno;
+const { beforeAll, beforeEach, afterAll } = test;
+
 const okRE = "[a-z]";
 const okInput = "a";
 const nokRE = "^(([a-z])+.)+[A-Z]([a-z])+$";
@@ -40,32 +43,32 @@ const warmUpWorker = () => {
 
 const getTimer = (timer: number) => (timer - Date.now()) * -1;
 
-Deno.test.beforeAll(() => {
+beforeAll(() => {
     TimedMatch.initializeWorker();
 });
 
-Deno.test.beforeEach(() => {
+beforeEach(() => {
     TimedMatch.clearBlackList();
     TimedMatch.setMaxBlackListed(50);
     setMaxTimeLimit(1000);
     warmUpWorker();
 });
 
-Deno.test.afterAll(() => {
+afterAll(() => {
     TimedMatch.terminateWorker();
 });
 
-Deno.test("should return true", function () {
+test("should return true", function () {
     const result = TimedMatch.tryMatch([okRE], okInput);
     assertTrue(result);
 });
 
-Deno.test('should return false and abort processing', function () {
+test('should return false and abort processing', function () {
     const result = TimedMatch.tryMatch([nokRE], nokInput);
     assertFalse(result);
 });
 
-Deno.test('runs stress tests', function () {
+test('runs stress tests', function () {
     let timer;
 
     timer = Date.now();
@@ -88,7 +91,7 @@ Deno.test('runs stress tests', function () {
     }
 });
 
-Deno.test('should rotate blacklist', function () {
+test('should rotate blacklist', function () {
     let timer;
 
     TimedMatch.setMaxBlackListed(1);
@@ -112,7 +115,7 @@ Deno.test('should rotate blacklist', function () {
     assertTrue(getTimer(timer) < WARM_TIME);
 });
 
-Deno.test('should capture blacklisted item from multiple regex options', function () {
+test('should capture blacklisted item from multiple regex options', function () {
     let timer;
 
     TimedMatch.setMaxBlackListed(1);
@@ -127,7 +130,7 @@ Deno.test('should capture blacklisted item from multiple regex options', functio
     assertTrue(getTimer(timer) < WARM_TIME);
 });
 
-Deno.test('should capture blacklisted item from similar inputs', function () {
+test('should capture blacklisted item from similar inputs', function () {
     let timer;
 
     TimedMatch.setMaxBlackListed(1);
@@ -152,7 +155,7 @@ Deno.test('should capture blacklisted item from similar inputs', function () {
     assertTrue(getTimer(timer) < WARM_TIME);
 });
 
-Deno.test('should reduce worker timer', function () {
+test('should reduce worker timer', function () {
     TimedMatch.setMaxTimeLimit(500);
 
     let timer = Date.now();

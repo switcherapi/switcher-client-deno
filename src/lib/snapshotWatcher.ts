@@ -58,7 +58,7 @@ export class SnapshotWatcher {
           util.get(environment, DEFAULT_ENVIRONMENT),
         ));
 
-        success();
+        void success();
       }
     } catch (err) {
       error(err as Error);

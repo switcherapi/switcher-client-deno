@@ -4,6 +4,8 @@ import { given, givenError, tearDown, generateAuth, generateStatus, assertTrue, 
 import { Client, type SwitcherContext } from '../mod.ts';
 import { GlobalSnapshot } from "../src/lib/globals/globalSnapshot.ts";
 
+const { test } = Deno;
+const { beforeEach, afterEach, afterAll } = test;
 const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExit: false };
 
 const token = '[token]';
@@ -16,7 +18,7 @@ const dataJSON = `{ "data": ${dataBuffer.toString()} }`;
 const dataBufferV2 = Deno.readTextFileSync('./tests/snapshot/dev_v2.json');
 const dataJSONV2 = `{ "data": ${dataBufferV2.toString()} }`;
 
-Deno.test.beforeEach(function() {
+beforeEach(function() {
   Client.unloadSnapshot();
   
   contextSettings = { 
@@ -37,18 +39,18 @@ Deno.test.beforeEach(function() {
   mockFetch = mf.install();
 });
 
-Deno.test.afterEach(function() {
+afterEach(function() {
   tearDown(mockFetch.restore);
 });
 
-Deno.test.afterAll(function() {
+afterAll(function() {
   Client.unloadSnapshot();
   if (existsSync('generated-snapshots/')) {
     Deno.removeSync('generated-snapshots/', { recursive: true });
   }
 });
 
-Deno.test('should NOT update snapshot - Too many requests at checkSnapshotVersion', testSettings, async function () {
+test('should NOT update snapshot - Too many requests at checkSnapshotVersion', testSettings, async function () {
   // given
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth(token, 5));
   given(mockFetch.instance, 'GET /criteria/snapshot_check/:version', undefined, 429);
@@ -61,7 +63,7 @@ Deno.test('should NOT update snapshot - Too many requests at checkSnapshotVersio
       Error, 'Something went wrong: [checkSnapshotVersion] failed with status 429');
 });
 
-Deno.test('should NOT update snapshot - Too many requests at resolveSnapshot', testSettings, async function () {
+test('should NOT update snapshot - Too many requests at resolveSnapshot', testSettings, async function () {
   // given
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth(token, 5));
   given(mockFetch.instance, 'GET /criteria/snapshot_check/:version', generateStatus(false)); // Snapshot outdated
@@ -78,7 +80,7 @@ Deno.test('should NOT update snapshot - Too many requests at resolveSnapshot', t
     Error, 'Something went wrong: [resolveSnapshot] failed with status 429');
 });
 
-Deno.test('should update snapshot when loading from remote', testSettings, async function () {
+test('should update snapshot when loading from remote', testSettings, async function () {
   await delay(2000);
 
   // given
@@ -99,7 +101,7 @@ Deno.test('should update snapshot when loading from remote', testSettings, async
   assertEquals(snapshotVersion, Client.snapshotVersion);
 });
 
-Deno.test('should update snapshot - store file', testSettings, async function () {
+test('should update snapshot - store file', testSettings, async function () {
   await delay(2000);
 
   // given
@@ -122,7 +124,7 @@ Deno.test('should update snapshot - store file', testSettings, async function ()
   Client.unloadSnapshot();
 });
 
-Deno.test('should update snapshot during load - store file', testSettings, async function () {
+test('should update snapshot during load - store file', testSettings, async function () {
   await delay(2000);
 
   // given
@@ -144,7 +146,7 @@ Deno.test('should update snapshot during load - store file', testSettings, async
   Client.unloadSnapshot();
 });
 
-Deno.test('should auto update snapshot every second', testSettings, async function () {
+test('should auto update snapshot every second', testSettings, async function () {
   await delay(3000);
 
   // given
@@ -182,7 +184,7 @@ Deno.test('should auto update snapshot every second', testSettings, async functi
   Client.terminateSnapshotAutoUpdate();
 });
 
-Deno.test('should NOT auto update snapshot ', testSettings, async function () {
+test('should NOT auto update snapshot ', testSettings, async function () {
   await delay(3000);
 
   // given
@@ -216,7 +218,7 @@ Deno.test('should NOT auto update snapshot ', testSettings, async function () {
   Client.terminateSnapshotAutoUpdate();
 });
 
-Deno.test('should NOT update snapshot', testSettings, async function () {
+test('should NOT update snapshot', testSettings, async function () {
   await delay(2000);
 
   // given
@@ -228,7 +230,7 @@ Deno.test('should NOT update snapshot', testSettings, async function () {
   assertFalse(await Client.checkSnapshot());
 });
 
-Deno.test('should NOT update snapshot - check Snapshot Error', testSettings, async function () {
+test('should NOT update snapshot - check Snapshot Error', testSettings, async function () {
   await delay(2000);
 
   // given
@@ -243,7 +245,7 @@ Deno.test('should NOT update snapshot - check Snapshot Error', testSettings, asy
     Error, 'Something went wrong: Connection has been refused - ECONNREFUSED');
 });
 
-Deno.test('should NOT update snapshot - resolve Snapshot Error', testSettings, async function () {
+test('should NOT update snapshot - resolve Snapshot Error', testSettings, async function () {
   await delay(2000);
 
   // given
@@ -259,7 +261,7 @@ Deno.test('should NOT update snapshot - resolve Snapshot Error', testSettings, a
     Error, 'Something went wrong: Connection has been refused - ECONNREFUSED');
 });
 
-Deno.test('should NOT check snapshot with success - Snapshot not loaded', testSettings, async function () {
+test('should NOT check snapshot with success - Snapshot not loaded', testSettings, async function () {
   // given
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth(token, 5));
   given(mockFetch.instance, 'GET /criteria/snapshot_check/:version', generateStatus(true));
@@ -279,7 +281,7 @@ Deno.test('should NOT check snapshot with success - Snapshot not loaded', testSe
   assertEquals(error.message, 'Something went wrong: Snapshot is not loaded. Use Client.loadSnapshot()');
 });
 
-Deno.test('should update snapshot', testSettings, async function () {
+test('should update snapshot', testSettings, async function () {
   await delay(2000);
 
   // given
@@ -297,7 +299,7 @@ Deno.test('should update snapshot', testSettings, async function () {
   assertExists(GlobalSnapshot.snapshot);
 });
 
-Deno.test('should NOT throw when switcher keys provided were configured properly', testSettings, async function () {
+test('should NOT throw when switcher keys provided were configured properly', testSettings, async function () {
   await delay(2000);
   
   await Client.loadSnapshot();
@@ -307,7 +309,7 @@ Deno.test('should NOT throw when switcher keys provided were configured properly
   assertEquals(error, undefined);
 });
 
-Deno.test('should throw when switcher keys provided were not configured properly', testSettings, async function () {
+test('should throw when switcher keys provided were not configured properly', testSettings, async function () {
   await delay(2000);
   
   await Client.loadSnapshot();
@@ -316,7 +318,7 @@ Deno.test('should throw when switcher keys provided were not configured properly
     Error, 'Something went wrong: [FEATURE02] not found');
 });
 
-Deno.test('should be invalid - Load snapshot was not called', testSettings, async function () {
+test('should be invalid - Load snapshot was not called', testSettings, async function () {
   Client.buildContext(contextSettings, {
     local: true, logger: true, regexSafe: false
   });
