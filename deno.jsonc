@@ -9,7 +9,7 @@
     "test": "deno test --allow-read --allow-net --allow-write --allow-env --allow-import --coverage=coverage",
     "clean": "rm -rf ./npm ./coverage ./generated-snapshots",
     "lcov": "deno coverage coverage --lcov --output=coverage/report.lcov",
-    "cover": "deno task clean && deno task test && deno task lcov && genhtml -o coverage/html coverage/report.lcov",
+    "cover": "deno task clean && deno task test && deno task lcov && genhtml -o coverage/html coverage/report.lcov --ignore-errors corrupt",
     "cover:html": "deno task cover && deno coverage --html",
     "play": "deno run --env-file -A tests/playground/index.ts"
   },
