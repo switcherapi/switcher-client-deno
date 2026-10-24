@@ -4,18 +4,21 @@ import { given, tearDown, assertTrue, generateAuth, generateResult, sleep } from
 import { Client, type SwitcherResult, type SwitcherContext } from '../mod.ts';
 import ExecutionLogger from '../src/lib/utils/executionLogger.ts';
 
+const { test } = Deno;
+const { beforeEach, afterEach, afterAll } = test;
+
 let contextSettings: SwitcherContext;
 let mockFetch: mf.MockInstallation; 
 
-Deno.test.afterAll(function() {
+afterAll(function() {
   Client.unloadSnapshot();
 });
 
-Deno.test.afterEach(function() {
+afterEach(function() {
   tearDown(mockFetch.restore);
 });
 
-Deno.test.beforeEach(function() {
+beforeEach(function() {
   ExecutionLogger.clearLogger();
   Client.testMode();
   mockFetch = mf.install();
@@ -29,7 +32,7 @@ Deno.test.beforeEach(function() {
   };
 });
 
-Deno.test('should be valid - throttle', async function () {
+test('should be valid - throttle', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria', generateResult(true));
@@ -48,7 +51,7 @@ Deno.test('should be valid - throttle', async function () {
   assertSpyCalls(spyExecutionLogger, 1);
 });
 
-Deno.test('should be valid - throttle - with details', async function () {
+test('should be valid - throttle - with details', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria', generateResult(true));
@@ -66,7 +69,7 @@ Deno.test('should be valid - throttle - with details', async function () {
   assertTrue(response.result);
 });
 
-Deno.test('should renew token when using throttle', async function () {
+test('should renew token when using throttle', async function () {
   // given API responses
   // first API call
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 1));
@@ -112,7 +115,7 @@ Deno.test('should renew token when using throttle', async function () {
   assertSpyCalls(spyPrepare, 2);
 });
 
-Deno.test('should flush executions from a specific switcher key', async function () {
+test('should flush executions from a specific switcher key', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria', generateResult(true));
@@ -131,7 +134,7 @@ Deno.test('should flush executions from a specific switcher key', async function
   assertEquals(switcherExecutions.length, 0);
 });
 
-Deno.test('should not crash when async checkCriteria fails', async function () {
+test('should not crash when async checkCriteria fails', async function () {
   // given API responses
   // first API call
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));

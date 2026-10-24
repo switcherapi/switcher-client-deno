@@ -4,6 +4,8 @@ import { assertTrue } from './helper/utils.ts'
 import { Client, type Switcher } from '../mod.ts';
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 
+const { test } = Deno;
+const { beforeEach, beforeAll, afterAll } = test;
 const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExit: false };
 
 let switcher: Switcher;
@@ -14,7 +16,7 @@ const environment = 'default';
 const url = 'http://localhost:3000';
 const snapshotLocation = './tests/snapshot/';
 
-Deno.test.beforeAll(async function() {
+beforeAll(async function() {
   Client.buildContext({ url, apiKey, domain, component, environment }, {
     snapshotLocation, local: true, logger: true, regexMaxBlackList: 1, regexMaxTimeLimit: 500
   });
@@ -22,16 +24,16 @@ Deno.test.beforeAll(async function() {
   await Client.loadSnapshot();
 });
 
-Deno.test.afterAll(function() {
+afterAll(function() {
   Client.unloadSnapshot();
   TimedMatch.terminateWorker();
 });
 
-Deno.test.beforeEach(function() {
+beforeEach(function() {
   Client.clearLogger();
 });
 
-Deno.test('should return false when Relay is enabled (restrict default: true)', testSettings, async function () {
+test('should return false when Relay is enabled (restrict default: true)', testSettings, async function () {
   Client.buildContext({ domain, component, environment }, {
     snapshotLocation, local: true, logger: true
   });
@@ -42,7 +44,7 @@ Deno.test('should return false when Relay is enabled (restrict default: true)', 
   assertFalse(await switcher.isItOn('USECASE103'));
 });
 
-Deno.test('should return true when Relay is enabled (restrict: false)', testSettings, async function () {
+test('should return true when Relay is enabled (restrict: false)', testSettings, async function () {
   Client.buildContext({ domain, component, environment }, {
     snapshotLocation, local: true, logger: true, restrictRelay: false
   });
@@ -53,7 +55,7 @@ Deno.test('should return true when Relay is enabled (restrict: false)', testSett
   assertTrue(await switcher.isItOn('USECASE103'));
 });
 
-Deno.test('should return true when Relay is disabled (restrict: true)', testSettings, async function () {
+test('should return true when Relay is disabled (restrict: true)', testSettings, async function () {
   Client.buildContext({ domain, component, environment }, {
     snapshotLocation, local: true, logger: true, restrictRelay: true
   });

@@ -6,10 +6,13 @@ import { Auth } from "../src/lib/remoteAuth.ts";
 import { GlobalAuth } from "../src/lib/globals/globalAuth.ts";
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 
+const { test } = Deno;
+const { beforeEach, afterEach, afterAll } = test;
+
 let contextSettings: SwitcherContext;
 let mockFetch: mf.MockInstallation;
 
-Deno.test.beforeEach(function() {
+beforeEach(function() {
   Client.testMode();
   
   contextSettings = { 
@@ -23,17 +26,17 @@ Deno.test.beforeEach(function() {
   mockFetch = mf.install();
 });
 
-Deno.test.afterEach(function() {
+afterEach(function() {
   tearDown(mockFetch.restore);
   Auth.terminateAutoRefresh();
 });
 
-Deno.test.afterAll(function() {
+afterAll(function() {
   Client.unloadSnapshot();
   TimedMatch.terminateWorker();
 });
 
-Deno.test('should refresh the token before it expires in the background', async function () {
+test('should refresh the token before it expires in the background', async function () {
   // given API responses - 1st auth call
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token_1]', 5));
   
@@ -49,7 +52,7 @@ Deno.test('should refresh the token before it expires in the background', async 
   assertEquals(GlobalAuth.token, '[auth_token_2]');
 });
 
-Deno.test('should not refresh the token if autoRefreshToken is false', async function () {
+test('should not refresh the token if autoRefreshToken is false', async function () {
   // given API responses - 1st auth call
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token_1]', 1));
   
@@ -65,7 +68,7 @@ Deno.test('should not refresh the token if autoRefreshToken is false', async fun
   assertEquals(GlobalAuth.token, '[auth_token_1]', 'Token should not have been refreshed');
 });
 
-Deno.test('should handle token refresh failure gracefully', async function () {
+test('should handle token refresh failure gracefully', async function () {
   const spyTerminate = spy(Auth, 'terminateAutoRefresh');
 
   // given API responses - 1st auth call

@@ -6,6 +6,8 @@ import {
   StrategiesType,
 } from '../../src/lib/snapshot.ts';
 
+const { test } = Deno;
+
 const mock_values1 = [
   '1',
 ];
@@ -26,43 +28,43 @@ const givenStrategyConfig = (operation: string, values: string[]) => ({
   activated: true,
 });
 
-Deno.test('should agree when input EXIST in values - String type', function () {
+test('should agree when input EXIST in values - String type', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values2);
   const result = processOperation(strategyConfig, '3');
   assertTrue(result);
 });
 
-Deno.test('should NOT agree when input exist but test as DOES NOT EXIST ', function () {
+test('should NOT agree when input exist but test as DOES NOT EXIST ', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.NOT_EXIST, mock_values2);
   const result = processOperation(strategyConfig, '1');
   assertFalse(result);
 });
 
-Deno.test('should agree when input DOES NOT EXIST in values', function () {
+test('should agree when input DOES NOT EXIST in values', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.NOT_EXIST, mock_values2);
   const result = processOperation(strategyConfig, '2');
   assertTrue(result);
 });
 
-Deno.test('should agree when input is EQUAL to value', function () {
+test('should agree when input is EQUAL to value', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.EQUAL, mock_values1);
   const result = processOperation(strategyConfig, '1');
   assertTrue(result);
 });
 
-Deno.test('should NOT agree when input is not equal but test as EQUAL', function () {
+test('should NOT agree when input is not equal but test as EQUAL', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.EQUAL, mock_values1);
   const result = processOperation(strategyConfig, '2');
   assertFalse(result);
 });
 
-Deno.test('should agree when input is NOT EQUAL to value', function () {
+test('should agree when input is NOT EQUAL to value', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.NOT_EQUAL, mock_values1);
   const result = processOperation(strategyConfig, '2');
   assertTrue(result);
 });
 
-Deno.test('should agree when input is GREATER than value', function () {
+test('should agree when input is GREATER than value', function () {
   let strategyConfig = givenStrategyConfig(OperationsType.GREATER, mock_values1);
   let result = processOperation(strategyConfig, '2');
   assertTrue(result);
@@ -76,7 +78,7 @@ Deno.test('should agree when input is GREATER than value', function () {
   assertTrue(result);
 });
 
-Deno.test('should NOT agree when input is lower but tested as GREATER than value', function () {
+test('should NOT agree when input is lower but tested as GREATER than value', function () {
   let strategyConfig = givenStrategyConfig(OperationsType.GREATER, mock_values1);
   let result = processOperation(strategyConfig, '0');
   assertFalse(result);
@@ -90,7 +92,7 @@ Deno.test('should NOT agree when input is lower but tested as GREATER than value
   assertFalse(result);
 });
 
-Deno.test('should agree when input is LOWER than value', function () {
+test('should agree when input is LOWER than value', function () {
   let strategyConfig = givenStrategyConfig(OperationsType.LOWER, mock_values1);
   let result = processOperation(strategyConfig, '0');
   assertTrue(result);
@@ -104,7 +106,7 @@ Deno.test('should agree when input is LOWER than value', function () {
   assertTrue(result);
 });
 
-Deno.test('should agree when input is BETWEEN values', function () {
+test('should agree when input is BETWEEN values', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.BETWEEN, mock_values2);
   let result = processOperation(strategyConfig, '1');
   assertTrue(result);

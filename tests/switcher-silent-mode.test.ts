@@ -6,18 +6,21 @@ import { given, givenError, tearDown, assertTrue, generateAuth, generateResult, 
 import { Client, type SwitcherContext } from '../mod.ts';
 import ExecutionLogger from '../src/lib/utils/executionLogger.ts';
 
+const { test } = Deno;
+const { beforeEach, afterEach, afterAll } = test;
+
 let contextSettings: SwitcherContext;
 let mockFetch: mf.MockInstallation;
 
-Deno.test.afterAll(function() {
+afterAll(function() {
   Client.unloadSnapshot();
 });
 
-Deno.test.afterEach(function() {
+afterEach(function() {
   tearDown(mockFetch.restore);
 });
 
-Deno.test.beforeEach(function() {
+beforeEach(function() {
   mockFetch = mf.install();
   ExecutionLogger.clearLogger();
   Client.testMode();
@@ -31,7 +34,7 @@ Deno.test.beforeEach(function() {
   };
 });
 
-Deno.test('should run in silent mode', async function () {
+test('should run in silent mode', async function () {
   // setup context to read the snapshot in case the API does not respond
   Client.buildContext(contextSettings, {
     snapshotLocation: './tests/snapshot/',
@@ -69,7 +72,7 @@ Deno.test('should run in silent mode', async function () {
   assertSpyCalls(spyRemote, 1);
 });
 
-Deno.test('should throw error if not in silent mode', async function () {
+test('should throw error if not in silent mode', async function () {
   givenError(mockFetch.instance, 'POST /criteria/auth', 'ECONNREFUSED');
 
   // test
@@ -81,7 +84,7 @@ Deno.test('should throw error if not in silent mode', async function () {
     Error, 'Something went wrong: Connection has been refused - ECONNREFUSED');
 });
 
-Deno.test('should run in silent mode when API is unavailable', async function () {
+test('should run in silent mode when API is unavailable', async function () {
   Client.buildContext(contextSettings, {
     snapshotLocation: './tests/snapshot/',
     regexSafe: false,
@@ -92,7 +95,7 @@ Deno.test('should run in silent mode when API is unavailable', async function ()
   assertTrue(await switcher.isItOn('FF2FOR2030'));
 });
 
-Deno.test('should use silent mode when fail to check switchers', async function() {
+test('should use silent mode when fail to check switchers', async function() {
   Client.buildContext(contextSettings, { silentMode: '5m', regexSafe: false, snapshotLocation: './tests/snapshot/' });
   await assertRejects(async () =>
     await Client.checkSwitchers(['FEATURE01', 'FEATURE02']),
@@ -101,7 +104,7 @@ Deno.test('should use silent mode when fail to check switchers', async function(
   await Client.checkSwitchers(['FF2FOR2021', 'FF2FOR2021']);
 });
 
-Deno.test('should use silent mode when fail to check criteria', async function () {
+test('should use silent mode when fail to check criteria', async function () {
   // given API responses
   given(mockFetch.instance, 'POST /criteria/auth', generateAuth('[auth_token]', 5));
   given(mockFetch.instance, 'POST /criteria', { error: 'Too many requests' }, 429);

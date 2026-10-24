@@ -5,6 +5,8 @@ import { Client, type Switcher, type SwitcherResult } from '../mod.ts';
 import TimedMatch from '../src/lib/utils/timed-match/index.ts';
 import { StrategiesType } from '../src/lib/snapshot.ts';
 
+const { test } = Deno;
+const { beforeEach, beforeAll, afterAll } = test;
 const testSettings = { sanitizeOps: false, sanitizeResources: false, sanitizeExit: false };
 
 let switcher: Switcher;
@@ -15,7 +17,7 @@ const environment = 'default';
 const url = 'http://localhost:3000';
 const snapshotLocation = './tests/snapshot/';
 
-Deno.test.beforeAll(async function() {
+beforeAll(async function() {
   Client.buildContext({ url, apiKey, domain, component, environment }, {
     snapshotLocation, local: true, logger: true, regexMaxBlackList: 1, regexMaxTimeLimit: 500
   });
@@ -24,18 +26,18 @@ Deno.test.beforeAll(async function() {
   switcher = Client.getSwitcher();
 });
 
-Deno.test.afterAll(function() {
+afterAll(function() {
   Client.unloadSnapshot();
   TimedMatch.terminateWorker();
 });
 
-Deno.test.beforeEach(function() {
+beforeEach(function() {
   Client.clearLogger();
   Client.forget('FF2FOR2020');
   switcher = Client.getSwitcher();
 });
 
-Deno.test('should replace the result of isItOn with Client.assume', testSettings, async function () {
+test('should replace the result of isItOn with Client.assume', testSettings, async function () {
   await switcher.prepare('DUMMY');
 
   Client.assume('DUMMY').true();
@@ -45,7 +47,7 @@ Deno.test('should replace the result of isItOn with Client.assume', testSettings
   assertFalse(await switcher.isItOn());
 });
 
-Deno.test('should be valid assuming key to be false and then forgetting it', testSettings, async function () {
+test('should be valid assuming key to be false and then forgetting it', testSettings, async function () {
   await switcher
     .checkValue('Japan')
     .checkNetwork('10.0.0.3')
@@ -59,7 +61,7 @@ Deno.test('should be valid assuming key to be false and then forgetting it', tes
   assertTrue(await switcher.isItOn());
 });
 
-Deno.test('should be valid assuming key to be false - with details', async function () {
+test('should be valid assuming key to be false - with details', async function () {
   Client.assume('FF2FOR2020').false();
   const { result, reason } = await switcher.detail().isItOn('FF2FOR2020') as SwitcherResult;
 
@@ -67,7 +69,7 @@ Deno.test('should be valid assuming key to be false - with details', async funct
   assertEquals(reason, 'Forced to false');
 });
 
-Deno.test('should be valid assuming key to be false - with metadata', async function () {
+test('should be valid assuming key to be false - with metadata', async function () {
   Client.assume('FF2FOR2020').false().withMetadata({ value: 'something' });
   const { result, reason, metadata } = await switcher.detail(true).isItOn('FF2FOR2020') as SwitcherResult;
 
@@ -76,7 +78,7 @@ Deno.test('should be valid assuming key to be false - with metadata', async func
   assertEquals(metadata, { value: 'something' });
 });
 
-Deno.test('should be valid assuming unknown key to be true and throw error when forgetting', testSettings, async function () {
+test('should be valid assuming unknown key to be true and throw error when forgetting', testSettings, async function () {
   await switcher
     .checkValue('Japan')
     .checkNetwork('10.0.0.3')  
@@ -91,7 +93,7 @@ Deno.test('should be valid assuming unknown key to be true and throw error when 
     Error, 'Something went wrong: {"error":"Unable to load a key UNKNOWN"}');
 });
 
-Deno.test('should return true using Client.assume only when Strategy input values match', testSettings, async function () {
+test('should return true using Client.assume only when Strategy input values match', testSettings, async function () {
   await switcher
     .checkValue('Canada') // result to be false
     .checkNetwork('10.0.0.3')
@@ -105,7 +107,7 @@ Deno.test('should return true using Client.assume only when Strategy input value
   assertTrue(await switcher.isItOn());
 });
 
-Deno.test('should NOT return true using Client.assume when Strategy input values does not match', testSettings, async function () {
+test('should NOT return true using Client.assume when Strategy input values does not match', testSettings, async function () {
   await switcher
     .checkValue('Japan')
     .checkNetwork('10.0.0.3')

@@ -6,6 +6,8 @@ import {
   StrategiesType,
 } from '../../src/lib/snapshot.ts';
 
+const { test } = Deno;
+
 const mock_values1 = [
   '10.0.0.0/30',
 ];
@@ -28,55 +30,55 @@ const givenStrategyConfig = (operation: string, values: string[]) => ({
   activated: true,
 });
 
-Deno.test('should agree when input range EXIST', function () {
+test('should agree when input range EXIST', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values1);
   const result = processOperation(strategyConfig, '10.0.0.3');
   assertTrue(result);
 });
 
-Deno.test('should agree when input range EXIST - Irregular CIDR', function () {
+test('should agree when input range EXIST - Irregular CIDR', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.EXIST,  ['10.0.0.3/24']);
   const result = processOperation(strategyConfig, '10.0.0.3');
   assertTrue(result);
 });
 
-Deno.test('should NOT agree when input range DOES NOT EXIST', function () {
+test('should NOT agree when input range DOES NOT EXIST', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values1);
   const result = processOperation(strategyConfig, '10.0.0.4');
   assertFalse(result);
 });
 
-Deno.test('should agree when input DOES NOT EXIST', function () {
+test('should agree when input DOES NOT EXIST', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.NOT_EXIST, mock_values1);
   const result = processOperation(strategyConfig, '10.0.0.4');
   assertTrue(result);
 });
 
-Deno.test('should NOT agree when input EXIST but assumed that it DOES NOT EXIST', function () {
+test('should NOT agree when input EXIST but assumed that it DOES NOT EXIST', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.NOT_EXIST, mock_values1);
   const result = processOperation(strategyConfig, '10.0.0.3');
   assertFalse(result);
 });
 
-Deno.test('should agree when input IP EXIST', function () {
+test('should agree when input IP EXIST', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values3);
   const result = processOperation(strategyConfig, '192.168.56.58');
   assertTrue(result);
 });
 
-Deno.test('should agree when input IP DOES NOT EXIST', function () {
+test('should agree when input IP DOES NOT EXIST', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.NOT_EXIST, mock_values3);
   const result = processOperation(strategyConfig, '192.168.56.50');
   assertTrue(result);
 });
 
-Deno.test('should agree when input range EXIST for multiple ranges', function () {
+test('should agree when input range EXIST for multiple ranges', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.EXIST, mock_values2);
   const result = processOperation(strategyConfig, '192.168.0.3');
   assertTrue(result);
 });
 
-Deno.test('should NOT agree when input range DOES NOT EXIST for multiple ranges', function () {
+test('should NOT agree when input range DOES NOT EXIST for multiple ranges', function () {
   const strategyConfig = givenStrategyConfig(OperationsType.NOT_EXIST, mock_values2);
   const result = processOperation(strategyConfig, '127.0.0.0');
   assertTrue(result);

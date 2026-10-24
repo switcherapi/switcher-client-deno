@@ -2,6 +2,8 @@ import { assertExists, assertGreater } from './deps.ts';
 
 import { Client } from '../mod.ts';
 
+const { test } = Deno;
+
 const contextSettings = {
     url: Deno.env.get('SWITCHER_URL'),
     apiKey: Deno.env.get('SWITCHER_API_KEY') ?? '',
@@ -9,7 +11,7 @@ const contextSettings = {
     component: 'switcher4deno'
 };
 
-Deno.test('should hit remote API and return Switcher response', async function () {
+test('should hit remote API and return Switcher response', async function () {
     if (!Deno.env.get('SWITCHER_API_KEY')) {
         return;
     }
@@ -24,7 +26,7 @@ Deno.test('should hit remote API and return Switcher response', async function (
     assertExists(result);
 });
 
-Deno.test('should load snapshot from remote API', async function () {
+test('should load snapshot from remote API', async function () {
     if (!Deno.env.get('SWITCHER_API_KEY')) {
         return;
     }
@@ -42,7 +44,7 @@ Deno.test('should load snapshot from remote API', async function () {
     assertGreater(Client.snapshotVersion, 0);
 });
 
-Deno.test('should check Switcher availability', function () {
+test('should check Switcher availability', function () {
     if (!Deno.env.get('SWITCHER_API_KEY')) {
         return;
     }

@@ -3,6 +3,9 @@ import { assertTrue } from './helper/utils.ts';
 
 import { Client } from '../mod.ts';
 
+const { test } = Deno;
+const { beforeEach, afterAll } = test;
+
 const domain = 'Business';
 const component = 'business-service';
 const environment = 'watch';
@@ -17,7 +20,7 @@ const updateSwitcher = (status: boolean) => {
   Deno.writeTextFileSync('generated-snapshots/watch.json', JSON.stringify(dataJSON, null, 4));
 };
 
-Deno.test.beforeEach(async function() {
+beforeEach(async function() {
   updateSwitcher(true);
   Client.buildContext({ domain, component, environment }, {
     snapshotLocation: 'generated-snapshots/',
@@ -29,13 +32,13 @@ Deno.test.beforeEach(async function() {
   await Client.loadSnapshot();
 });
 
-Deno.test.afterAll(function() {
+afterAll(function() {
   Client.unloadSnapshot();
   if (existsSync('generated-snapshots/'))
     Deno.removeSync('generated-snapshots/', { recursive: true });
 });
 
-Deno.test('should read from updated snapshot', async function () {
+test('should read from updated snapshot', async function () {
   const switcher = Client.getSwitcher();
   assertTrue(switcher.isItOn('FF2FOR2030'));
   updateSwitcher(false);

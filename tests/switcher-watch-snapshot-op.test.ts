@@ -4,6 +4,9 @@ import { assertTrue, WaitSafe } from './helper/utils.ts';
 
 import { Client } from '../mod.ts';
 
+const { test } = Deno;
+const { beforeEach, afterEach } = test;
+
 const domain = 'Business';
 const component = 'business-service';
 const environment = 'watch';
@@ -23,7 +26,7 @@ const invalidateJSON = () => {
   Deno.writeTextFileSync('generated-snapshots/watch.json', '[INVALID]');
 };
 
-Deno.test.beforeEach(async function() {
+beforeEach(async function() {
   updateSwitcher(true);
   Client.buildContext({ domain, component, environment }, {
     snapshotLocation: 'generated-snapshots/',
@@ -34,13 +37,13 @@ Deno.test.beforeEach(async function() {
   await Client.loadSnapshot();
 });
 
-Deno.test.afterAll(function() {
+afterEach(function() {
   Client.unloadSnapshot();
   if (existsSync('generated-snapshots/'))
     Deno.removeSync('generated-snapshots/', { recursive: true });
 });
 
-Deno.test('should read from snapshot - without watching', async function () {
+test('should read from snapshot - without watching', async function () {
   const switcher = Client.getSwitcher();
 
   let result = await switcher.isItOn('FF2FOR2030');
@@ -51,7 +54,7 @@ Deno.test('should read from snapshot - without watching', async function () {
   assertTrue(result);
 });
 
-Deno.test('should read from updated snapshot', async function () {
+test('should read from updated snapshot', async function () {
   const switcher = Client.getSwitcher();
   Client.watchSnapshot({
     success: async () => {
@@ -68,7 +71,7 @@ Deno.test('should read from updated snapshot', async function () {
   Client.unloadSnapshot();
 });
 
-Deno.test('should NOT read from updated snapshot - invalid JSON', async function () {
+test('should NOT read from updated snapshot - invalid JSON', async function () {
   const switcher = Client.getSwitcher();
   Client.watchSnapshot({
     reject: (err: any) => {
@@ -85,7 +88,7 @@ Deno.test('should NOT read from updated snapshot - invalid JSON', async function
   Client.unloadSnapshot();
 });
 
-Deno.test('should NOT allow to watch snapshot - Client test is enabled', async function () {
+test('should NOT allow to watch snapshot - Client test is enabled', async function () {
   Client.testMode();
   Client.watchSnapshot({
     reject: (err: any) => {
