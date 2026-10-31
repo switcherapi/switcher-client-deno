@@ -120,3 +120,15 @@ test('should NOT return true using Client.assume when Strategy input values does
     
   assertFalse(await switcher.isItOn());
 });
+
+test('should stack keys when assuming multiple keys', testSettings, async function () {
+  const switcher1 = Client.getSwitcher('SWITCHER_1');
+  const switcher2 = Client.getSwitcher('SWITCHER_2');
+
+  Client.assume('SWITCHER_1').true();
+  Client.assume('SWITCHER_2').true();
+  Client.assume('SWITCHER_1').false(); // override previous assumption
+
+  assertFalse(await switcher1.isItOn());
+  assertTrue(await switcher2.isItOn());
+});
